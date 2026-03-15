@@ -49,24 +49,19 @@ Make sure `~/.local/bin` is on your `$PATH`.
 
 ```
 hdi                    Interactive picker (default)
-hdi install            Just install/setup commands
-hdi run                Just run/start commands
-hdi all                All sections (install + run + config + deploy + test)
+hdi install            Just install/setup commands (aliases: setup, i)
+hdi run                Just run/start commands (aliases: start, r)
+hdi all                All sections (aliases: a)
 hdi /path/to/project   Scan a different directory
-```
-
-Help:
-
-```
-hdi --help
 ```
 
 ### Flags
 
 ```
---full       Show surrounding prose, not just commands
---raw        Plain markdown output (for piping)
---ni         Non-interactive (just print, no picker)
+-h, --help               Show help
+-f, --full               Show surrounding prose, not just commands
+    --raw                Plain markdown output (no colour, for piping)
+    --ni, --no-interactive   Non-interactive (just print, no picker)
 ```
 
 ### Interactive controls
