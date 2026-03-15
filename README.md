@@ -1,4 +1,6 @@
-# hdi — "How Do I..."
+# hdi ("How Do I...")
+
+...run this thing.
 
 Scan a project's README and extract the commands you (probably) need to get it running. No more opening up the whole project in your editor and scrolling through docs to find the `install` and `run` steps.
 
