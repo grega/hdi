@@ -64,6 +64,8 @@ hdi /path/to/project   Scan a different directory
     --ni, --no-interactive   Non-interactive (just print, no picker)
 ```
 
+Example: `hdi --raw | pbcopy` to copy commands to clipboard.
+
 ### Interactive controls
 
 | Key | Action |
@@ -76,6 +78,8 @@ hdi /path/to/project   Scan a different directory
 ## How it works
 
 `hdi` parses a given README's Markdown headings looking for keywords like *install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections (skipping JSON/YAML response examples) and presents them as an interactive, executable list.
+
+Also looks for `README.rst` / `readme.rst`, though Markdown READMEs work best.
 
 No dependencies, just Bash. Should work on macOS and Linux.
 
