@@ -1,0 +1,573 @@
+#!/usr/bin/env bash
+# hdi - "How Do I..." — Extract setup/run commands from a README.
+#
+# Usage:
+#   hdi                   Interactive command picker (default in a terminal)
+#   hdi install           Just install/setup commands
+#   hdi run               Just run/start commands
+#   hdi all               Show all matched sections
+#   hdi [mode] --no-interactive   Print commands without the picker
+#   hdi [mode] --full     Include prose around commands
+#   hdi [mode] --raw      Plain markdown output (no colour, good for piping)
+#   hdi [mode] /path      Scan a specific directory
+#
+# Interactive controls:
+#   ↑/↓  k/j    Navigate commands
+#   Enter        Execute the highlighted command
+#   a            Execute all commands sequentially
+#   q / Esc      Quit
+#
+# Aliases: "install" = "setup" = "i", "run" = "start" = "r"
+
+set -euo pipefail
+
+# ── Defaults ─────────────────────────────────────────────────────────────────
+MODE="default"
+FULL=false
+RAW=false
+INTERACTIVE="auto"   # auto | yes | no
+DIR="."
+
+# ── Keyword groups ───────────────────────────────────────────────────────────
+KW_INSTALL="prerequisite|require|depend|install|setup|set.up|set-up|getting.started|quick.start|quickstart"
+KW_RUN="usage|running|run|start|develop|dev.server|launch"
+KW_EXTRA="build|configuration|config|environment|deploy|test"
+
+# ── Parse arguments ──────────────────────────────────────────────────────────
+for arg in "$@"; do
+  case "$arg" in
+    install|setup|i)        MODE="install" ;;
+    run|start|r)            MODE="run" ;;
+    all|a)                  MODE="all" ;;
+    --full|-f)              FULL=true ;;
+    --raw)                  RAW=true; INTERACTIVE="no" ;;
+    --no-interactive|--ni)  INTERACTIVE="no" ;;
+    --help|-h)
+      sed -n '2,/^$/{ s/^# \{0,1\}//; p; }' "$0"
+      exit 0
+      ;;
+    *)
+      if [[ -d "$arg" ]]; then
+        DIR="$arg"
+      else
+        echo "Unknown argument: $arg" >&2; exit 1
+      fi
+      ;;
+  esac
+done
+
+# Resolve interactive mode
+if [[ "$INTERACTIVE" == "auto" ]]; then
+  if [[ -t 0 ]] && [[ -t 1 ]] && ! $FULL; then
+    INTERACTIVE="yes"
+  else
+    INTERACTIVE="no"
+  fi
+fi
+
+# Build the keyword pattern for the chosen mode
+case "$MODE" in
+  install)  PATTERN="($KW_INSTALL)" ;;
+  run)      PATTERN="($KW_RUN)" ;;
+  all)      PATTERN="($KW_INSTALL|$KW_RUN|$KW_EXTRA)" ;;
+  default)  PATTERN="($KW_INSTALL|$KW_RUN)" ;;
+esac
+
+# ── Colours ──────────────────────────────────────────────────────────────────
+if [[ -t 1 ]] && ! $RAW; then
+  BOLD=$'\033[1m'  DIM=$'\033[2m'  UNDERLINE=$'\033[4m'
+  CYAN=$'\033[36m' GREEN=$'\033[32m' YELLOW=$'\033[33m' MAGENTA=$'\033[35m'
+  WHITE=$'\033[97m' BG_SELECT=$'\033[48;5;236m'
+  RESET=$'\033[0m' CODE_BG=$'\033[48;5;236m'
+  HIDE_CURSOR=$'\033[?25l' SHOW_CURSOR=$'\033[?25h'
+else
+  BOLD="" DIM="" UNDERLINE="" CYAN="" GREEN="" YELLOW="" MAGENTA="" WHITE=""
+  BG_SELECT="" RESET="" CODE_BG="" HIDE_CURSOR="" SHOW_CURSOR=""
+fi
+
+# ── Locate the README ───────────────────────────────────────────────────────
+README=""
+for candidate in "$DIR/README.md" "$DIR/readme.md" "$DIR/Readme.md" \
+                 "$DIR/README.MD" "$DIR/README.rst" "$DIR/readme.rst"; do
+  [[ -f "$candidate" ]] && README="$candidate" && break
+done
+
+if [[ -z "$README" ]]; then
+  echo "${YELLOW}No README found in ${DIR}${RESET}" >&2
+  exit 1
+fi
+
+# ── Extract matching sections ────────────────────────────────────────────────
+declare -a SECTION_TITLES=()
+declare -a SECTION_BODIES=()
+
+parse_sections() {
+  local in_section=false
+  local section_level=0
+  local heading_text=""
+  local body=""
+
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^(#{1,6})[[:space:]]+(.*) ]]; then
+      local hashes="${BASH_REMATCH[1]}"
+      local level=${#hashes}
+      local text="${BASH_REMATCH[2]}"
+
+      if $in_section && (( level <= section_level )); then
+        SECTION_TITLES+=("$heading_text")
+        SECTION_BODIES+=("$body")
+        in_section=false
+        body=""
+      fi
+
+      if echo "$text" | grep -qiE "$PATTERN"; then
+        in_section=true
+        section_level=$level
+        heading_text="$text"
+        body=""
+      fi
+    elif $in_section; then
+      body+="$line"$'\n'
+    fi
+  done
+
+  if $in_section; then
+    SECTION_TITLES+=("$heading_text")
+    SECTION_BODIES+=("$body")
+  fi
+}
+
+# ── Extract fenced code blocks, skipping non-command languages ───────────────
+SKIP_LANGS="json|yaml|yml|toml|xml|csv|sql|html|css|text|plaintext|txt|output|log|env"
+
+extract_commands() {
+  local content="$1"
+  local commands=""
+  local in_code=false
+  local skip_block=false
+
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^[[:space:]]*\`\`\` ]]; then
+      if $in_code; then
+        in_code=false
+        if ! $skip_block && [[ -n "$commands" ]]; then
+          commands+=$'\n'
+        fi
+        skip_block=false
+      else
+        in_code=true
+        local lang=""
+        if [[ "$line" =~ \`\`\`([a-zA-Z0-9_-]*) ]]; then
+          lang="${BASH_REMATCH[1]}"
+        fi
+        if [[ -n "$lang" ]] && echo "$lang" | grep -qiE "^($SKIP_LANGS)$"; then
+          skip_block=true
+        fi
+      fi
+      continue
+    fi
+    if $in_code && ! $skip_block; then
+      local stripped="${line#"${line%%[![:space:]]*}"}"
+      commands+="$stripped"$'\n'
+    fi
+  done <<< "$content"
+
+  printf '%s' "$commands"
+}
+
+# ── Build a flat list: section headers + commands ────────────────────────────
+# Each entry is either a "header" or a "command". We store parallel arrays
+# for the display lines, their types, and (for commands) the actual command.
+
+declare -a DISPLAY_LINES=()   # what to print
+declare -a LINE_TYPES=()      # "header" | "command" | "empty"
+declare -a LINE_CMDS=()       # the raw command (only for type=command)
+declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
+
+build_display_list() {
+  for i in "${!SECTION_TITLES[@]}"; do
+    local title="${SECTION_TITLES[$i]}"
+    local body="${SECTION_BODIES[$i]}"
+    local cmds
+    cmds=$(extract_commands "$body")
+
+    # Section header
+    DISPLAY_LINES+=("$title")
+    LINE_TYPES+=("header")
+    LINE_CMDS+=("")
+
+    if [[ -n "$cmds" ]]; then
+      while IFS= read -r cmd; do
+        [[ -z "$cmd" ]] && continue
+        CMD_INDICES+=("${#DISPLAY_LINES[@]}")
+        DISPLAY_LINES+=("$cmd")
+        LINE_TYPES+=("command")
+        LINE_CMDS+=("$cmd")
+      done <<< "$cmds"
+    else
+      DISPLAY_LINES+=("(no commands — use --full to see prose)")
+      LINE_TYPES+=("empty")
+      LINE_CMDS+=("")
+    fi
+
+    # Blank separator
+    DISPLAY_LINES+=("")
+    LINE_TYPES+=("empty")
+    LINE_CMDS+=("")
+  done
+}
+
+# ── Non-interactive render (same as before) ──────────────────────────────────
+render_static() {
+  for idx in "${!DISPLAY_LINES[@]}"; do
+    local line="${DISPLAY_LINES[$idx]}"
+    local type="${LINE_TYPES[$idx]}"
+
+    case "$type" in
+      header)
+        if $RAW; then
+          printf "\n## %s\n" "$line"
+        else
+          printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$line" "$RESET"
+        fi
+        ;;
+      command)
+        if $RAW; then
+          printf "%s\n" "$line"
+        else
+          printf "  %s%s%s\n" "$GREEN" "$line" "$RESET"
+        fi
+        ;;
+      empty)
+        if $RAW; then
+          [[ -n "$line" ]] && printf "  %s\n" "$line"
+        else
+          [[ -n "$line" ]] && printf "  %s%s%s\n" "$DIM" "$line" "$RESET"
+        fi
+        ;;
+    esac
+  done
+}
+
+# ── Full-prose render ────────────────────────────────────────────────────────
+render_full() {
+  for i in "${!SECTION_TITLES[@]}"; do
+    local title="${SECTION_TITLES[$i]}"
+    local content="${SECTION_BODIES[$i]}"
+
+    # Strip trailing blank lines
+    while [[ "$content" == *$'\n' ]] && [[ "$(printf '%s' "$content" | tail -1)" =~ ^[[:space:]]*$ ]]; do
+      content="${content%$'\n'}"
+    done
+    [[ -z "$content" ]] && continue
+
+    if $RAW; then
+      printf "\n## %s\n\n%s\n" "$title" "$content"
+      continue
+    fi
+
+    printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$title" "$RESET"
+
+    local in_code=false
+    local code_buf=""
+    while IFS= read -r line; do
+      if [[ "$line" =~ ^\`\`\` ]]; then
+        if $in_code; then
+          printf "%s%s%s\n" "$CODE_BG$GREEN" "$code_buf" "$RESET"
+          code_buf=""; in_code=false
+        else
+          in_code=true
+        fi
+        continue
+      fi
+      if $in_code; then
+        code_buf+="  $line"$'\n'
+        continue
+      fi
+      [[ -z "${line// /}" ]] && echo "" && continue
+      if [[ "$line" =~ ^#{2,}[[:space:]]+(.*) ]]; then
+        printf "  %s%s%s\n" "$MAGENTA$BOLD" "${BASH_REMATCH[1]}" "$RESET"
+        continue
+      fi
+      local formatted
+      formatted=$(echo "$line" | sed -E "s/\`([^\`]+)\`/${GREEN}\1${RESET}/g")
+      printf "  %s\n" "$formatted"
+    done <<< "$content"
+  done
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ── Interactive picker (inline mode) ─────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Draws inline below the cursor (like fzf --height). On each redraw, moves up
+# by the exact number of lines previously drawn, then clears downward. On quit,
+# clears the picker area entirely so the terminal is left clean.
+
+PICKER_LINES=0  # tracks how many lines the last draw_picker call printed
+
+draw_picker() {
+  local selected="$1"
+
+  # If we've drawn before, erase the previous output
+  if (( PICKER_LINES > 0 )); then
+    # Move up PICKER_LINES, then clear from cursor to end of screen
+    printf '\033[%dA\033[J' "$PICKER_LINES"
+  fi
+
+  local count=0
+
+  # Header
+  printf "%s%s[hdi] %s%s" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET"
+  case "$MODE" in
+    install) printf "  %s[install]%s" "$DIM" "$RESET" ;;
+    run)     printf "  %s[run]%s" "$DIM" "$RESET" ;;
+    all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
+  esac
+  printf "\n"
+  (( count++ ))
+
+  for idx in "${!DISPLAY_LINES[@]}"; do
+    local line="${DISPLAY_LINES[$idx]}"
+    local type="${LINE_TYPES[$idx]}"
+
+    case "$type" in
+      header)
+        printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$line" "$RESET"
+        (( count += 2 ))
+        ;;
+      command)
+        if (( idx == selected )); then
+          printf "  %s%s▶ %s %s\n" "$BG_SELECT" "$WHITE$BOLD" "$line" "$RESET"
+        else
+          printf "  %s  %s%s\n" "$GREEN" "$line" "$RESET"
+        fi
+        (( count++ ))
+        ;;
+      empty)
+        if [[ -n "$line" ]]; then
+          printf "  %s  %s%s\n" "$DIM" "$line" "$RESET"
+        else
+          printf "\n"
+        fi
+        (( count++ ))
+        ;;
+    esac
+  done
+
+  # Footer
+  printf "\n%s  ↑↓ navigate  ⏎ execute  a run all  q quit%s\n" "$DIM" "$RESET"
+  (( count += 2 ))  # blank line + footer line
+
+  PICKER_LINES=$count
+}
+
+# Erase the picker from the terminal
+clear_picker() {
+  if (( PICKER_LINES > 0 )); then
+    printf '\033[%dA\033[J' "$PICKER_LINES"
+    PICKER_LINES=0
+  fi
+}
+
+run_interactive() {
+  local num_cmds=${#CMD_INDICES[@]}
+
+  if (( num_cmds == 0 )); then
+    echo "${YELLOW}No commands to pick from.${RESET}" >&2
+    echo "${DIM}Try: hdi all --full${RESET}" >&2
+    exit 1
+  fi
+
+  local cursor=0
+  local selected="${CMD_INDICES[$cursor]}"
+
+  # Save terminal state (global so cleanup trap can access after function returns)
+  SAVED_TTY=$(stty -g)
+
+  cleanup() {
+    stty "$SAVED_TTY" 2>/dev/null
+    printf '%s' "$SHOW_CURSOR"
+    # Clear any remaining picker output
+    if (( PICKER_LINES > 0 )); then
+      printf '\033[%dA\033[J' "$PICKER_LINES"
+    fi
+  }
+  trap cleanup EXIT INT TERM
+
+  printf '%s' "$HIDE_CURSOR"
+  draw_picker "$selected"
+
+  # ── Read a single raw byte from the terminal ──────────────────────────────
+  read_byte() {
+    dd bs=1 count=1 2>/dev/null < /dev/tty
+  }
+
+  # ── Read a single keypress, resolving escape sequences ────────────────────
+  KEY=""
+  read_key() {
+    stty raw -echo < /dev/tty
+
+    local byte
+    byte=$(read_byte)
+
+    if [[ "$byte" == $'\x1b' ]]; then
+      local byte2
+      stty raw -echo min 0 time 3 < /dev/tty
+      byte2=$(read_byte)
+
+      if [[ "$byte2" == "[" ]]; then
+        stty raw -echo min 1 time 0 < /dev/tty
+        local byte3
+        byte3=$(read_byte)
+        case "$byte3" in
+          A) KEY="up" ;;
+          B) KEY="down" ;;
+          *) KEY="" ;;
+        esac
+      elif [[ -z "$byte2" ]]; then
+        KEY="esc"
+      else
+        KEY=""
+      fi
+    elif [[ "$byte" == "" ]] || [[ "$byte" == $'\n' ]] || [[ "$byte" == $'\r' ]]; then
+      KEY="enter"
+    else
+      KEY="$byte"
+    fi
+
+    stty "$SAVED_TTY" 2>/dev/null
+  }
+
+  while true; do
+    read_key
+
+    case "$KEY" in
+      up|k)
+        if (( cursor > 0 )); then
+          (( cursor-- ))
+          selected="${CMD_INDICES[$cursor]}"
+        fi
+        ;;
+
+      down|j)
+        if (( cursor < num_cmds - 1 )); then
+          (( cursor++ ))
+          selected="${CMD_INDICES[$cursor]}"
+        fi
+        ;;
+
+      enter)
+        local cmd="${LINE_CMDS[$selected]}"
+
+        # Clear picker, show cursor, restore tty
+        clear_picker
+        printf '%s' "$SHOW_CURSOR"
+        stty "$SAVED_TTY" 2>/dev/null
+
+        printf "%s%s❯ %s%s\n\n" "$BOLD" "$GREEN" "$cmd" "$RESET"
+
+        eval "$cmd"
+        local rc=$?
+
+        echo ""
+        if (( rc == 0 )); then
+          printf "%s%s✓ Done (exit %d)%s\n" "$DIM" "$GREEN" "$rc" "$RESET"
+        else
+          printf "%s%s✗ Exited with code %d%s\n" "$BOLD" "$YELLOW" "$rc" "$RESET"
+        fi
+        printf "%s  Press any key to return to picker, q to quit%s\n" "$DIM" "$RESET"
+
+        stty raw -echo < /dev/tty
+        local resume
+        resume=$(read_byte)
+        stty "$SAVED_TTY" 2>/dev/null
+
+        if [[ "$resume" == "q" ]]; then
+          echo ""
+          # Disable cleanup's clear since we're already clean
+          PICKER_LINES=0
+          return 0
+        fi
+
+        printf '%s' "$HIDE_CURSOR"
+        # Draw fresh (PICKER_LINES is 0 so it won't try to erase)
+        ;;
+
+      a)
+        clear_picker
+        printf '%s' "$SHOW_CURSOR"
+        stty "$SAVED_TTY" 2>/dev/null
+
+        printf "%s%s[hdi] %s — running all commands%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET"
+
+        local any_failed=false
+        for ci in "${CMD_INDICES[@]}"; do
+          local cmd="${LINE_CMDS[$ci]}"
+          printf "%s%s❯ %s%s\n" "$BOLD" "$GREEN" "$cmd" "$RESET"
+          eval "$cmd"
+          local rc=$?
+          if (( rc != 0 )); then
+            printf "%s%s✗ Failed (exit %d) — stopping%s\n\n" "$BOLD" "$YELLOW" "$rc" "$RESET"
+            any_failed=true
+            break
+          fi
+          echo ""
+        done
+
+        if ! $any_failed; then
+          printf "%s%s✓ All commands completed%s\n" "$DIM" "$GREEN" "$RESET"
+        fi
+        PICKER_LINES=0
+        return
+        ;;
+
+      esc|q)
+        clear_picker
+        PICKER_LINES=0
+        return
+        ;;
+    esac
+
+    draw_picker "$selected"
+  done
+}
+
+# ── Main ─────────────────────────────────────────────────────────────────────
+parse_sections < "$README"
+
+if (( ${#SECTION_TITLES[@]} == 0 )); then
+  echo "${YELLOW}No matching sections found in ${README}${RESET}" >&2
+  echo "${DIM}Try: hdi all --full${RESET}" >&2
+  exit 1
+fi
+
+PROJECT_NAME=$(basename "$(cd "$DIR" && pwd)")
+build_display_list
+
+if [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
+  run_interactive
+else
+  if ! $RAW; then
+    printf "%s%s[hdi] %s%s" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET"
+    case "$MODE" in
+      install) printf "  %s[install]%s" "$DIM" "$RESET" ;;
+      run)     printf "  %s[run]%s" "$DIM" "$RESET" ;;
+      all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
+    esac
+    printf "\n"
+  fi
+
+  if $FULL; then
+    render_full
+  else
+    render_static
+  fi
+
+  if ! $RAW; then
+    echo ""
+    if ! $FULL; then
+      printf "%s  ─ add --full for prose, or: install | run | all%s\n\n" "$DIM" "$RESET"
+    fi
+  fi
+fi
