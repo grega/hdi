@@ -26,13 +26,13 @@ Arrow keys to navigate, Enter to execute, `q` to quit.
 ### Homebrew (macOS/Linux)
 
 ```bash
-brew install gregannandale/tap/hdi
+brew install grega/tap/hdi
 ```
 
 ### Manual
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gregannandale/hdi/main/hdi -o ~/.local/bin/hdi
+curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi
 chmod +x ~/.local/bin/hdi
 ```
 
@@ -83,10 +83,10 @@ git push origin v0.x.0
 2. Get the sha256 of the release tarball:
 
 ```bash
-curl -sL https://github.com/gregannandale/hdi/archive/refs/tags/v0.x.0.tar.gz | shasum -a 256
+curl -sL https://github.com/grega/hdi/archive/refs/tags/v0.x.0.tar.gz | shasum -a 256
 ```
 
-3. Update the formula in the [homebrew-tap](https://github.com/gregannandale/homebrew-tap) repo (`Formula/hdi.rb`):
+3. Update the formula in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`):
    - Set `url` to the new tag's tarball URL
    - Set `sha256` to the value from step 2
 

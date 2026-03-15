@@ -3,7 +3,7 @@
 set -euo pipefail
 
 INSTALL_DIR="${HDI_INSTALL_DIR:-$HOME/.local/bin}"
-REPO="gregannandale/hdi"
+REPO="grega/hdi"
 BRANCH="main"
 URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/hdi"
 
