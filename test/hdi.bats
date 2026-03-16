@@ -633,9 +633,12 @@ setup() {
   # Keys: ↓ c q  (navigate down one, copy, quit)
   local keys=$'\x1b[Bcq'
 
-  # Run interactively in a pseudo-TTY via Python pty module
-  # (script(1) does not reliably forward stdin to the PTY on Linux)
-  printf '%s' "$keys" | python3 -c "
+  # Run interactively in a pseudo-TTY via Python pty module.
+  # (script(1) does not reliably forward stdin to the PTY on Linux.)
+  # The sleep ensures hdi has time to draw the picker and set raw mode
+  # before keystrokes arrive — otherwise Linux buffers them in canonical
+  # mode and they never reach the application.
+  { sleep 0.5; printf '%s' "$keys"; } | python3 -c "
 import pty, os, sys
 os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
 pty.spawn(sys.argv[2:])" "$fake_bin" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
