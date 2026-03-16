@@ -34,7 +34,7 @@ DIR="."
 
 # ── Keyword groups ───────────────────────────────────────────────────────────
 KW_INSTALL="prerequisite|require|depend|install|setup|set.up|set-up|getting.started|quick.start|quickstart"
-KW_RUN="usage|running|run|start|develop|dev.server|launch"
+KW_RUN="usage|running|run|start|develop|dev.server|launch|command"
 KW_TEST="test|spec"
 KW_EXTRA="build|configuration|config|environment|deploy"
 

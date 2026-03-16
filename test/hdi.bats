@@ -617,6 +617,29 @@ setup() {
   [[ "$output" == *"npm install"* ]]
 }
 
+# ── Table commands ───────────────────────────────────────────────────────────
+
+@test "table: extracts backtick commands from table rows" {
+  run "$HDI" --raw "$FIXTURES/table-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm i"* ]]
+  [[ "$output" == *"npm run dev"* ]]
+  [[ "$output" == *"npm run build"* ]]
+}
+
+@test "table: 'Commands' heading matches run mode" {
+  run "$HDI" run --raw "$FIXTURES/table-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm run dev"* ]]
+}
+
+@test "table: does not extract non-command text from table cells" {
+  run "$HDI" --raw "$FIXTURES/table-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"localhost"* ]]
+  [[ "$output" != *"Installs dependencies"* ]]
+}
+
 # ── Interactive: copy to clipboard ───────────────────────────────────────────
 
 @test "interactive: 'c' copies highlighted command to clipboard" {
