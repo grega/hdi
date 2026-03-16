@@ -16,7 +16,7 @@ $ hdi
  ▸ Run
     npm run dev
 
-  ↑↓ navigate  ⏎ execute  c copy  a run all  q quit
+  ↑↓ navigate  ⏎ execute  c copy  q quit
 ```
 
 Arrow keys to navigate, Enter to execute, `q` to quit.
@@ -81,7 +81,6 @@ Example: `hdi --raw | pbcopy` to copy commands to clipboard.
 | `↑` `↓` / `k` `j` | Navigate commands |
 | `Enter` | Execute highlighted command |
 | `c` | Copy highlighted command to clipboard |
-| `a` | Run all commands sequentially |
 | `q` / `Esc` | Quit |
 
 ## How it works

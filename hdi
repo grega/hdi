@@ -16,7 +16,6 @@
 #   ↑/↓  k/j    Navigate commands
 #   Enter        Execute the highlighted command
 #   c            Copy highlighted command to clipboard
-#   a            Execute all commands sequentially
 #   q / Esc      Quit
 #
 # Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t"
@@ -419,7 +418,7 @@ draw_picker() {
   if [[ -n "$FLASH_MSG" ]]; then
     printf "\n%s  %s%s\n" "$DIM" "$FLASH_MSG" "$RESET"
   else
-    printf "\n%s  ↑↓ navigate  ⏎ execute  c copy  a run all  q quit%s\n" "$DIM" "$RESET"
+    printf "\n%s  ↑↓ navigate  ⏎ execute  c copy  q quit%s\n" "$DIM" "$RESET"
   fi
   (( count += 2 ))  # blank line + footer line
 
@@ -556,34 +555,6 @@ run_interactive() {
 
         printf '%s' "$HIDE_CURSOR"
         # Draw fresh (PICKER_LINES is 0 so it won't try to erase)
-        ;;
-
-      a)
-        clear_picker
-        printf '%s' "$SHOW_CURSOR"
-        stty "$SAVED_TTY" 2>/dev/null
-
-        printf "%s%s[hdi] %s — running all commands%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET"
-
-        local any_failed=false
-        for ci in "${CMD_INDICES[@]}"; do
-          local cmd="${LINE_CMDS[$ci]}"
-          printf "%s%s❯ %s%s\n" "$BOLD" "$GREEN" "$cmd" "$RESET"
-          eval "$cmd"
-          local rc=$?
-          if (( rc != 0 )); then
-            printf "%s%s✗ Failed (exit %d) — stopping%s\n\n" "$BOLD" "$YELLOW" "$rc" "$RESET"
-            any_failed=true
-            break
-          fi
-          echo ""
-        done
-
-        if ! $any_failed; then
-          printf "%s%s✓ All commands completed%s\n" "$DIM" "$GREEN" "$RESET"
-        fi
-        PICKER_LINES=0
-        return
         ;;
 
       c)
