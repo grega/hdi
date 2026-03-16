@@ -15,6 +15,7 @@
 # Interactive controls:
 #   ↑/↓  k/j    Navigate commands
 #   Enter        Execute the highlighted command
+#   c            Copy highlighted command to clipboard
 #   a            Execute all commands sequentially
 #   q / Esc      Quit
 #
@@ -362,6 +363,7 @@ render_full() {
 # clears the picker area entirely so the terminal is left clean.
 
 PICKER_LINES=0  # tracks how many lines the last draw_picker call printed
+FLASH_MSG=""     # one-shot message shown in footer, cleared on next draw
 
 draw_picker() {
   local selected="$1"
@@ -414,7 +416,11 @@ draw_picker() {
   done
 
   # Footer
-  printf "\n%s  ↑↓ navigate  ⏎ execute  a run all  q quit%s\n" "$DIM" "$RESET"
+  if [[ -n "$FLASH_MSG" ]]; then
+    printf "\n%s  %s%s\n" "$DIM" "$FLASH_MSG" "$RESET"
+  else
+    printf "\n%s  ↑↓ navigate  ⏎ execute  c copy  a run all  q quit%s\n" "$DIM" "$RESET"
+  fi
   (( count += 2 ))  # blank line + footer line
 
   PICKER_LINES=$count
@@ -580,6 +586,18 @@ run_interactive() {
         return
         ;;
 
+      c)
+        local cmd="${LINE_CMDS[$selected]}"
+        if command -v pbcopy >/dev/null 2>&1; then
+          printf '%s' "$cmd" | pbcopy
+        elif command -v xclip >/dev/null 2>&1; then
+          printf '%s' "$cmd" | xclip -selection clipboard
+        elif command -v xsel >/dev/null 2>&1; then
+          printf '%s' "$cmd" | xsel --clipboard
+        fi
+        FLASH_MSG="✓ Copied: $cmd"
+        ;;
+
       esc|q)
         clear_picker
         PICKER_LINES=0
@@ -588,6 +606,7 @@ run_interactive() {
     esac
 
     draw_picker "$selected"
+    FLASH_MSG=""
   done
 }
 

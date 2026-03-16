@@ -616,3 +616,31 @@ setup() {
   [[ "$output" == *"cd repo"* ]]
   [[ "$output" == *"npm install"* ]]
 }
+
+# ── Interactive: copy to clipboard ───────────────────────────────────────────
+
+@test "interactive: 'c' copies highlighted command to clipboard" {
+  local fake_bin clip_file
+  fake_bin="$(mktemp -d)"
+  clip_file="$fake_bin/clipboard.txt"
+
+  # Fake pbcopy that writes to a file instead of the system clipboard
+  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
+  chmod +x "$fake_bin/pbcopy"
+
+  # Keys: ↓ c q  (navigate down one, copy, quit)
+  local keys=$'\x1b[Bcq'
+
+  # Run interactively in a pseudo-TTY via script
+  if [[ "$(uname)" == "Darwin" ]]; then
+    printf '%s' "$keys" | script -q /dev/null env PATH="$fake_bin:$PATH" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1
+  else
+    printf '%s' "$keys" | script -qe -c "env PATH='$fake_bin:$PATH' '$HDI' '$FIXTURES/node-express'" /dev/null >/dev/null 2>&1
+  fi
+
+  # Second command in node-express default mode is "nvm use 20"
+  [ -f "$clip_file" ]
+  [[ "$(cat "$clip_file")" == "nvm use 20" ]]
+
+  rm -rf "$fake_bin"
+}
