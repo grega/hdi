@@ -137,7 +137,7 @@ The `release` workflow will automatically build and publish a new release to Git
 2. Get the sha256 of the release tarball:
 
 ```bash
-curl -sL https://github.com/grega/hdi/archive/refs/tags/v0.x.0.tar.gz | shasum -a 256
+curl -sL https://github.com/grega/hdi/archive/refs/tags/v0.x.0.tar.gz | shasum -a 256 | awk '{print $1}'
 ```
 
 3. Update the formula in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`):
