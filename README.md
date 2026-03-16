@@ -1,4 +1,4 @@
-# hdi - "How Do I..."
+# hdi - "How do I..."
 
 "...run this thing".
 
