@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# release — bump version, tag, push, and print the sha256 for the Homebrew tap.
+#
+# Usage:
+#   ./release 0.6.0
+#   ./release patch     (0.5.0 → 0.5.1)
+#   ./release minor     (0.5.0 → 0.6.0)
+#   ./release major     (0.5.0 → 1.0.0)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+HDI="$SCRIPT_DIR/hdi"
+
+# ── Read current version ────────────────────────────────────────────────────
+
+current=$(grep -m1 '^VERSION=' "$HDI" | sed 's/VERSION="//;s/"//')
+
+if [[ -z "$current" ]]; then
+  echo "Error: could not read VERSION from hdi" >&2
+  exit 1
+fi
+
+# ── Resolve new version ─────────────────────────────────────────────────────
+
+if [[ -z "${1:-}" ]]; then
+  echo "Usage: ./release <version|patch|minor|major>" >&2
+  echo "Current version: $current" >&2
+  exit 1
+fi
+
+IFS='.' read -r major minor patch <<< "$current"
+
+case "$1" in
+  patch) new="$major.$minor.$((patch + 1))" ;;
+  minor) new="$major.$((minor + 1)).0" ;;
+  major) new="$((major + 1)).0.0" ;;
+  *)     new="$1" ;;
+esac
+
+tag="v$new"
+
+# ── Safety checks ───────────────────────────────────────────────────────────
+
+if [[ "$new" == "$current" ]]; then
+  echo "Error: version is already $current" >&2
+  exit 1
+fi
+
+if git tag -l "$tag" | grep -q .; then
+  echo "Error: tag $tag already exists" >&2
+  exit 1
+fi
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "Error: working tree is not clean — commit or stash first" >&2
+  exit 1
+fi
+
+# ── Bump, commit, tag, push ─────────────────────────────────────────────────
+
+echo "Releasing: $current → $new ($tag)"
+
+sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$HDI" && rm -f "$HDI.bak"
+git add hdi
+git commit -m "Bump version to $new"
+git tag "$tag"
+git push origin HEAD --tags
+
+# ── Print sha256 for Homebrew tap ───────────────────────────────────────────
+
+echo ""
+echo "Waiting for tarball to be available..."
+tarball_url="https://github.com/grega/hdi/archive/refs/tags/$tag.tar.gz"
+
+# Retry a few times — GitHub may take a moment after the push
+for i in 1 2 3 4 5; do
+  sha=$(curl -sfL "$tarball_url" | shasum -a 256 | awk '{print $1}')
+  if [[ -n "$sha" ]]; then
+    echo ""
+    echo "Update homebrew-tap Formula/hdi.rb:"
+    echo "  url  \"$tarball_url\""
+    echo "  sha256 \"$sha\""
+    exit 0
+  fi
+  sleep 2
+done
+
+echo "Warning: could not fetch tarball — check $tarball_url manually" >&2
+exit 1

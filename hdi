@@ -22,6 +22,9 @@
 
 set -euo pipefail
 
+# ── Version ─────────────────────────────────────────────────────────────────
+VERSION="0.5.0"
+
 # ── Defaults ─────────────────────────────────────────────────────────────────
 MODE="default"
 FULL=false
@@ -45,6 +48,10 @@ for arg in "$@"; do
     --full|-f)              FULL=true ;;
     --raw)                  RAW=true; INTERACTIVE="no" ;;
     --no-interactive|--ni)  INTERACTIVE="no" ;;
+    --version|-v)
+      echo "hdi $VERSION"
+      exit 0
+      ;;
     --help|-h)
       sed -n '2,/^$/{ s/^# \{0,1\}//; p; }' "$0"
       exit 0

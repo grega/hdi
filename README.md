@@ -67,6 +67,7 @@ hdi a                  All sections
 
 ```
 -h, --help               Show help
+-v, --version            Show version
 -f, --full               Show surrounding prose, not just commands
     --raw                Plain markdown output (no colour, for piping)
     --ni, --no-interactive   Non-interactive (just print, no picker)
@@ -125,26 +126,16 @@ This outputs `demo.gif` from the tape file.
 
 ## Publishing a new release
 
-1. Tag the release and push:
+The `release` script bumps the version in `hdi`, commits, tags, pushes, and prints the sha256 for the Homebrew tap:
 
 ```bash
-git tag v0.x.0
-git push origin --tags
+./release patch          # 0.1.0 → 0.1.1
+./release minor          # 0.1.0 → 0.2.0
+./release major          # 0.1.0 → 1.0.0
+./release 1.2.3          # explicit version
 ```
 
-The `release` workflow will automatically build and publish a new release to GitHub when the tag is pushed.
-
-2. Get the sha256 of the release tarball:
-
-```bash
-curl -sL https://github.com/grega/hdi/archive/refs/tags/v0.x.0.tar.gz | shasum -a 256 | awk '{print $1}'
-```
-
-3. Update the formula in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`):
-   - Set `url` to the new tag's tarball URL
-   - Set `sha256` to the value from step 2
-
-4. Push the tap repo. Users can now get the update via `brew upgrade grega/tap/hdi`.
+The `release` workflow will automatically build and publish a GitHub release when the tag is pushed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`hdi.rb`).
 
 ## License
 
