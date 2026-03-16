@@ -384,7 +384,7 @@ draw_picker() {
     all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
   esac
   printf "\n"
-  (( count++ ))
+  (( count += 1 ))
 
   for idx in "${!DISPLAY_LINES[@]}"; do
     local line="${DISPLAY_LINES[$idx]}"
@@ -403,7 +403,7 @@ draw_picker() {
         else
           printf "  %s  %s%s\n" "$GREEN" "$line" "$RESET"
         fi
-        (( count++ ))
+        (( count += 1 ))
         ;;
       empty)
         if [[ -n "$line" ]]; then
@@ -411,7 +411,7 @@ draw_picker() {
         else
           printf "\n"
         fi
-        (( count++ ))
+        (( count += 1 ))
         ;;
     esac
   done
@@ -510,14 +510,14 @@ run_interactive() {
     case "$KEY" in
       up|k)
         if (( cursor > 0 )); then
-          (( cursor-- ))
+          (( cursor -= 1 ))
           selected="${CMD_INDICES[$cursor]}"
         fi
         ;;
 
       down|j)
         if (( cursor < num_cmds - 1 )); then
-          (( cursor++ ))
+          (( cursor += 1 ))
           selected="${CMD_INDICES[$cursor]}"
         fi
         ;;

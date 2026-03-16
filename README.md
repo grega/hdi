@@ -101,6 +101,17 @@ shellcheck hdi
 bats test/hdi.bats
 ```
 
+### Running Linux tests locally with Act
+
+This assumes that the host system is macOS.
+
+CI runs tests on both macOS and Ubuntu. To run the Ubuntu job locally using [Act](https://github.com/nektos/act) (requires Docker / Docker Desktop):
+
+```bash
+brew install act
+act -j test --matrix os:ubuntu-latest --container-architecture linux/amd64
+```
+
 ## Demo
 
 The demo GIF is generated with [VHS](https://github.com/charmbracelet/vhs). To regenerate it:

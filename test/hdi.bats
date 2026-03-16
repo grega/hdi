@@ -633,15 +633,33 @@ setup() {
   # Keys: ↓ c q  (navigate down one, copy, quit)
   local keys=$'\x1b[Bcq'
 
-  # Run interactively in a pseudo-TTY via Python pty module.
-  # (script(1) does not reliably forward stdin to the PTY on Linux.)
-  # The sleep ensures hdi has time to draw the picker and set raw mode
-  # before keystrokes arrive — otherwise Linux buffers them in canonical
-  # mode and they never reach the application.
-  { sleep 0.5; printf '%s' "$keys"; } | python3 -c "
-import pty, os, sys
+  # Run interactively in a pseudo-TTY.
+  # We use pty.fork() rather than pty.spawn() because spawn's _copy loop
+  # crashes on Linux (EIO when slave closes) in older Python versions.
+  python3 -c "
+import pty, os, sys, time, select, errno
+
 os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
-pty.spawn(sys.argv[2:])" "$fake_bin" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+keys = sys.argv[2].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[3], sys.argv[3:])
+else:
+    # Wait for hdi to draw picker and enter raw mode
+    time.sleep(0.5)
+    os.write(fd, keys)
+    # Wait for hdi to process keystrokes and exit
+    time.sleep(0.5)
+    # Drain any remaining output
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    os.waitpid(pid, 0)
+" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
 
   # Second command in node-express default mode is "nvm use 20"
   [ -f "$clip_file" ]

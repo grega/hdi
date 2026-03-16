@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Install shellcheck
+        run: command -v shellcheck || sudo apt-get update -qq && sudo apt-get install -qq -y shellcheck
       - name: Run shellcheck
         run: shellcheck hdi
 
