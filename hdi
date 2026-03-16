@@ -144,6 +144,34 @@ parse_sections() {
 # ── Extract fenced code blocks, skipping non-command languages ───────────────
 SKIP_LANGS="json|yaml|yml|toml|xml|csv|sql|html|css|text|plaintext|txt|output|log|env"
 
+# Known CLI prefixes for recognising commands in inline backticks (`yarn test`)
+# and for validating shell prompt stripping ($ command → command)
+CMD_PREFIXES="yarn|npm|npx|pnpm|node|bun|deno|python3?|pip3?|pipenv|poetry|uv|ruby|gem|bundle|rake|rails|cargo|rustup|go|java|javac|mvn|gradle|dotnet|docker|docker-compose|podman|make|cmake|bash|sh|zsh|curl|wget|git|sudo|apt|apt-get|brew|yum|dnf|kubectl|terraform|ansible|helm"
+
+# Return backtick-wrapped commands from a line of text.
+# Usage: find_backtick_commands "text" [require_args]
+#   require_args=true  (default) — prefix must be followed by a space (prose)
+#   require_args=false            — bare prefix allowed (headings like `make`)
+find_backtick_commands() {
+  local text="$1"
+  local require_args="${2:-true}"
+  local suffix=" "
+  $require_args || suffix="( |$)"
+  echo "$text" | grep -oE '`[^`]+`' | sed 's/^`//;s/`$//' \
+    | grep -iE "^($CMD_PREFIXES)${suffix}" || true
+}
+
+# Strip shell prompt prefixes ($ or %) from fenced code block lines.
+# The regex requires whitespace after $ so "$HOME/bin" is never mangled.
+strip_prompt() {
+  local line="$1"
+  if [[ "$line" =~ ^[[:space:]]*[\$%][[:space:]]+(.*) ]]; then
+    echo "${BASH_REMATCH[1]}"
+  else
+    echo "$line"
+  fi
+}
+
 extract_commands() {
   local content="$1"
   local commands=""
@@ -172,7 +200,16 @@ extract_commands() {
     fi
     if $in_code && ! $skip_block; then
       local stripped="${line#"${line%%[![:space:]]*}"}"
+      stripped=$(strip_prompt "$stripped")
       commands+="$stripped"$'\n'
+    elif ! $in_code; then
+      local inline_cmds
+      inline_cmds=$(find_backtick_commands "$line")
+      if [[ -n "$inline_cmds" ]]; then
+        while IFS= read -r inline_cmd; do
+          commands+="$inline_cmd"$'\n'
+        done <<< "$inline_cmds"
+      fi
     fi
   done <<< "$content"
 
@@ -194,6 +231,21 @@ build_display_list() {
     local body="${SECTION_BODIES[$i]}"
     local cmds
     cmds=$(extract_commands "$body")
+
+    # Extract commands from backtick-wrapped text in the heading itself
+    # (eg. ### `yarn start` — the command is the heading)
+    local title_cmds
+    title_cmds=$(find_backtick_commands "$title" false)
+    if [[ -n "$title_cmds" ]]; then
+      while IFS= read -r tcmd; do
+        cmds="$tcmd"$'\n'"$cmds"
+      done <<< "$title_cmds"
+    fi
+
+    # Deduplicate commands
+    if [[ -n "$cmds" ]]; then
+      cmds=$(printf '%s' "$cmds" | awk 'NF && !seen[$0]++')
+    fi
 
     # Section header
     DISPLAY_LINES+=("$title")

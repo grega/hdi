@@ -501,3 +501,118 @@ setup() {
   [[ "$output" == *"npm install"* ]]
   [[ "$output" == *"cp .env.example .env"* ]]
 }
+
+# ── Inline backtick commands ─────────────────────────────────────────────
+
+@test "inline: extracts command from heading backticks" {
+  # ### `yarn start` → heading IS the command
+  run "$HDI" run --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"yarn start"* ]]
+}
+
+@test "inline: extracts multiple heading-backtick commands" {
+  run "$HDI" all --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"yarn start"* ]]
+  [[ "$output" == *"yarn test"* ]]
+  [[ "$output" == *"yarn build"* ]]
+}
+
+@test "inline: extracts commands from prose backticks" {
+  # The Testing section mentions `yarn exec cypress run` inline
+  run "$HDI" test --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"yarn exec cypress run"* ]]
+  [[ "$output" == *"yarn exec cypress open"* ]]
+}
+
+@test "inline: does not extract non-command backtick text" {
+  # `Jest`, `jest-axe`, `cypress`, `python`, `HTML` are NOT commands
+  run "$HDI" all --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"Jest"* ]]
+  [[ "$output" != *"jest-axe"* ]]
+  [[ "$output" != *"haveNoViolations"* ]]
+}
+
+@test "inline: single-word tool names in prose are not extracted" {
+  # `cypress`, `python`, `HTML` alone should not appear as commands
+  run "$HDI" test --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  local lines
+  lines=$(echo "$output" | grep -v '^##' | grep -v '^$')
+  [[ "$lines" != *"cypress"* || "$lines" == *"cypress run"* || "$lines" == *"cypress open"* ]]
+}
+
+@test "inline: deduplicates heading and prose commands" {
+  # `yarn test` appears in both the heading and the Testing prose
+  run "$HDI" test --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  local count
+  count=$(echo "$output" | grep -c '^yarn test$')
+  [ "$count" -le 2 ]  # once per matching section, not repeated within a section
+}
+
+@test "inline: prose commands coexist with fenced code blocks" {
+  # Development section has a fenced `npm run dev` AND inline `npm run dev -- --port 3000`
+  run "$HDI" run --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm run dev"* ]]
+  [[ "$output" == *"npm run dev -- --port 3000"* ]]
+}
+
+@test "inline: install section extracts prose commands" {
+  # Installation section has `npm install` and `npm run setup` inline
+  run "$HDI" install --raw "$FIXTURES/inline-commands"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm install"* ]]
+  [[ "$output" == *"npm run setup"* ]]
+}
+
+# ── Shell prompt stripping ───────────────────────────────────────────────
+
+@test "prompt: strips '$ ' prefix from fenced code blocks" {
+  run "$HDI" install --raw "$FIXTURES/prompt-prefixes"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm install"* ]]
+  [[ "$output" == *"npm run build"* ]]
+  [[ "$output" != *'$ npm'* ]]
+}
+
+@test "prompt: strips '% ' prefix from fenced code blocks" {
+  run "$HDI" run --raw "$FIXTURES/prompt-prefixes"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"yarn start"* ]]
+  [[ "$output" != *'% yarn'* ]]
+}
+
+@test "prompt: preserves lines without prompt prefix" {
+  run "$HDI" run --raw "$FIXTURES/prompt-prefixes"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"cd repo"* ]]
+}
+
+@test "prompt: does not mangle dollar-variable lines" {
+  run "$HDI" all --raw "$FIXTURES/prompt-prefixes"
+  [ "$status" -eq 0 ]
+  # $HOME/bin/setup should be left intact (no space after $)
+  [[ "$output" == *'$HOME/bin/setup'* ]]
+}
+
+@test "prompt: strips prompt from shell builtins" {
+  run "$HDI" all --raw "$FIXTURES/prompt-prefixes"
+  [ "$status" -eq 0 ]
+  # "$ export NODE_ENV=production" should become "export NODE_ENV=production"
+  [[ "$output" == *"export NODE_ENV=production"* ]]
+  [[ "$output" != *'$ export'* ]]
+}
+
+@test "prompt: mixed prompted and unprompted lines coexist" {
+  run "$HDI" run --raw "$FIXTURES/prompt-prefixes"
+  [ "$status" -eq 0 ]
+  # Block has: $ git clone ..., cd repo, $ npm install
+  [[ "$output" == *"git clone"* ]]
+  [[ "$output" == *"cd repo"* ]]
+  [[ "$output" == *"npm install"* ]]
+}
