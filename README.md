@@ -117,7 +117,7 @@ This outputs `demo.gif` from the tape file.
 
 ```bash
 git tag v0.x.0
-git push origin v0.x.0
+git push origin --tags
 ```
 
 The `release` workflow will automatically build and publish a new release to GitHub when the tag is pushed.
