@@ -41,7 +41,7 @@ Sleep 500ms
 Up
 Sleep 500ms
 Up
-Sleep 1.5s
+Sleep 2.5s
 
 # Cursor is now on "bundle install" — execute it
 Enter
