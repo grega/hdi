@@ -135,7 +135,7 @@ The `release` script bumps the version in `hdi`, commits, tags, pushes, and prin
 ./release 1.2.3          # explicit version
 ```
 
-The `release` workflow will automatically build and publish a GitHub release when the tag is pushed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`hdi.rb`).
+The `release` workflow will automatically build and publish a GitHub release when the tag is pushed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`).
 
 ## License
 
