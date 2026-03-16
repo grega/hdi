@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Stub for demo recording — mimics `bundle install` output
+echo "Fetching gem metadata from https://rubygems.org/..."
+echo "Resolving dependencies..."
+echo "Using rack 3.2.5"
+echo "Using sinatra 4.2.1"
+echo "Using puma 7.2.0"
+echo "Bundle complete! 3 Gemfile dependencies, 3 gems now installed."

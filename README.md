@@ -23,10 +23,7 @@ Arrow keys to navigate, Enter to execute, `q` to quit.
 
 ## Example
 
-For the README in the repository [gregannandale.com](https://github.com/grega/gregannandale.com):
-
-![Screenshot showing the tool in action](https://github.com/user-attachments/assets/437aaf52-4bb4-4689-b781-21c25b1b74e6)
-
+![Animated demo showing the tool in action](./demo/demo.gif)
 
 ## Install
 
@@ -93,6 +90,17 @@ Tests use [bats-core](https://github.com/bats-core/bats-core).
 brew install bats-core  # or: apt-get install bats
 bats test/hdi.bats
 ```
+
+## Demo
+
+The demo GIF is generated with [VHS](https://github.com/charmbracelet/vhs). To regenerate it:
+
+```bash
+brew install vhs
+vhs ./demo/demo.tape
+```
+
+This outputs `demo.gif` from the tape file.
 
 ## Publishing a new release
 
