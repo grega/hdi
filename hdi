@@ -11,6 +11,7 @@
 #   hdi [mode] --full     Include prose around commands
 #   hdi [mode] --raw      Plain markdown output (no colour, good for piping)
 #   hdi [mode] /path      Scan a specific directory
+#   hdi [mode] /path/to/file.md   Parse a specific markdown file
 #
 # Interactive controls:
 #   ↑/↓  k/j    Navigate commands
@@ -31,6 +32,7 @@ FULL=false
 RAW=false
 INTERACTIVE="auto"   # auto | yes | no
 DIR="."
+FILE=""
 
 # ── Keyword groups ───────────────────────────────────────────────────────────
 KW_INSTALL="prerequisite(s)?|require(ments)?|depend(encies)?|install(ing|ation)?|setup|set[. _-]up|getting[. _-]started|quick[. _-]start|quickstart|how[. _-]to|docker|migration|database[. _-]setup"
@@ -59,6 +61,8 @@ for arg in "$@"; do
     *)
       if [[ -d "$arg" ]]; then
         DIR="$arg"
+      elif [[ -f "$arg" && ( "$arg" == *.md || "$arg" == *.rst ) ]]; then
+        FILE="$arg"
       else
         echo "Unknown argument: $arg" >&2; exit 1
       fi
@@ -98,10 +102,14 @@ fi
 
 # ── Locate the README ───────────────────────────────────────────────────────
 README=""
-for candidate in "$DIR/README.md" "$DIR/readme.md" "$DIR/Readme.md" \
-                 "$DIR/README.MD" "$DIR/README.rst" "$DIR/readme.rst"; do
-  [[ -f "$candidate" ]] && README="$candidate" && break
-done
+if [[ -n "$FILE" ]]; then
+  README="$FILE"
+else
+  for candidate in "$DIR/README.md" "$DIR/readme.md" "$DIR/Readme.md" \
+                   "$DIR/README.MD" "$DIR/README.rst" "$DIR/readme.rst"; do
+    [[ -f "$candidate" ]] && README="$candidate" && break
+  done
+fi
 
 if [[ -z "$README" ]]; then
   echo "${YELLOW}No README found in ${DIR}${RESET}" >&2
