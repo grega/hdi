@@ -424,9 +424,18 @@ build_display_list() {
       done <<< "$title_cmds"
     fi
 
-    # Deduplicate commands
+    # Deduplicate commands (pure bash, no awk subprocess)
     if [[ -n "$cmds" ]]; then
-      cmds=$(printf '%s' "$cmds" | awk 'NF && !seen[$0]++')
+      local _deduped="" _dup
+      while IFS= read -r _cmd; do
+        [[ -z "$_cmd" ]] && continue
+        _dup=false
+        while IFS= read -r _existing; do
+          [[ "$_existing" == "$_cmd" ]] && _dup=true && break
+        done <<< "$_deduped"
+        $_dup || _deduped+="$_cmd"$'\n'
+      done <<< "$cmds"
+      cmds="$_deduped"
     fi
 
     # Section header
@@ -493,9 +502,15 @@ render_full() {
     local title="${SECTION_TITLES[$i]}"
     local content="${SECTION_BODIES[$i]}"
 
-    # Strip trailing blank lines
-    while [[ "$content" == *$'\n' ]] && [[ "$(printf '%s' "$content" | tail -1)" =~ ^[[:space:]]*$ ]]; do
-      content="${content%$'\n'}"
+    # Strip trailing blank lines (pure bash, no tail subprocess)
+    while [[ "$content" == *$'\n' ]]; do
+      local _stripped="${content%$'\n'}"
+      local _last_line="${_stripped##*$'\n'}"
+      if [[ "$_last_line" =~ ^[[:space:]]*$ ]]; then
+        content="$_stripped"
+      else
+        break
+      fi
     done
     [[ -z "$content" ]] && continue
 
@@ -520,12 +535,22 @@ render_full() {
         if [[ "$sub_heading" =~ ^(.*[^#[:space:]])[[:space:]]*#+ ]]; then
           sub_heading="${BASH_REMATCH[1]}"
         fi
-        sub_heading=$(echo "$sub_heading" | sed -E 's/\*{1,2}([^*]+)\*{1,2}/\1/g; s/_{1,2}([^_]+)_{1,2}/\1/g')
+        # Strip bold/italic (pure bash, no sed)
+        while [[ "$sub_heading" =~ ^(.*)\*\*([^*]+)\*\*(.*) ]]; do sub_heading="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
+        while [[ "$sub_heading" =~ ^(.*)\*([^*]+)\*(.*) ]]; do sub_heading="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
+        while [[ "$sub_heading" =~ ^(.*)__([^_]+)__(.*) ]]; do sub_heading="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
+        while [[ "$sub_heading" =~ ^(.*)_([^_]+)_(.*) ]]; do sub_heading="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
         printf "  %s%s%s\n" "$MAGENTA$BOLD" "$sub_heading" "$RESET"
         return
       fi
-      local formatted
-      formatted=$(echo "$l" | sed -E "s/\`([^\`]+)\`/${GREEN}\1${RESET}/g")
+      # Highlight backtick content (pure bash, no sed)
+      local formatted=""
+      local _rem="$l"
+      while [[ "$_rem" =~ ^([^\`]*)\`([^\`]+)\`(.*) ]]; do
+        formatted+="${BASH_REMATCH[1]}${GREEN}${BASH_REMATCH[2]}${RESET}"
+        _rem="${BASH_REMATCH[3]}"
+      done
+      formatted+="$_rem"
       printf "  %s\n" "$formatted"
     }
 
@@ -557,7 +582,10 @@ render_full() {
       # Setext heading detection: prev_line followed by ===+ or ---+
       if $rf_have_prev && [[ "$line" =~ ^[[:space:]]*(={3,}|-{3,})[[:space:]]*$ ]]; then
         local sh_text="$rf_prev"
-        sh_text=$(echo "$sh_text" | sed -E 's/\*{1,2}([^*]+)\*{1,2}/\1/g; s/_{1,2}([^_]+)_{1,2}/\1/g')
+        while [[ "$sh_text" =~ ^(.*)\*\*([^*]+)\*\*(.*) ]]; do sh_text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
+        while [[ "$sh_text" =~ ^(.*)\*([^*]+)\*(.*) ]]; do sh_text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
+        while [[ "$sh_text" =~ ^(.*)__([^_]+)__(.*) ]]; do sh_text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
+        while [[ "$sh_text" =~ ^(.*)_([^_]+)_(.*) ]]; do sh_text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
         printf "  %s%s%s\n" "$MAGENTA$BOLD" "$sh_text" "$RESET"
         rf_have_prev=false; rf_prev=""
         continue
