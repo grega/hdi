@@ -85,7 +85,7 @@ printf "\n"
 printf "  hdi %s on %s\n" "$version" "$machine"
 printf "  %s — %d runs per fixture\n\n" "$timestamp" "$RUNS"
 printf "  %-12s %6s %8s\n" "Fixture" "Lines" "Median"
-printf "  %-12s %6s %8s\n" "───────" "─────" "──────"
+printf "  %-12s %6s %8s\n" "─────────────────────────────"
 for i in "${!names[@]}"; do
   printf "  %-12s %6s %7sms\n" "${names[$i]}" "${lines[$i]}" "${medians[$i]}"
 done

@@ -131,7 +131,7 @@ Static benchmark READMEs in `bench/` (small, medium, large, stress) exercise eve
 
 ```bash
 ./bench/run              # run benchmarks, print results
-./bench/run --log        # also save to bench/results.csv (should only be used by release script / run when creating a new release)
+./bench/run --log        # also save to bench/results.csv (should only be used by release script / only run when creating a new release)
 ```
 
 Benchmarks run automatically during `./release` and are recorded in `bench/results.csv`.
