@@ -28,13 +28,3 @@ jobs:
         with:
           files: hdi
           generate_release_notes: true
-          body: |
-            ## Install
-
-            ```bash
-            # Homebrew
-            brew install grega/tap/hdi
-            
-            # or:
-            brew upgrade grega/tap/hdi
-            ```
