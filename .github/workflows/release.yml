@@ -33,9 +33,8 @@ jobs:
 
             ```bash
             # Homebrew
-            brew install gregannandale/tap/hdi
-
-            # Manual
-            curl -fsSL https://raw.githubusercontent.com/gregannandale/hdi/${{ steps.version.outputs.version }}/hdi -o ~/.local/bin/hdi
-            chmod +x ~/.local/bin/hdi
+            brew install grega/tap/hdi
+            
+            # or:
+            brew upgrade grega/tap/hdi
             ```

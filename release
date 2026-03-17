@@ -2,10 +2,10 @@
 # release — bump version, tag, push, and print the sha256 for the Homebrew tap.
 #
 # Usage:
-#   ./release 0.6.0
-#   ./release patch     (0.5.0 → 0.5.1)
-#   ./release minor     (0.5.0 → 0.6.0)
-#   ./release major     (0.5.0 → 1.0.0)
+#   ./release 0.1.0
+#   ./release patch     (0.1.0 → 0.1.1)
+#   ./release minor     (0.1.0 → 0.2.0)
+#   ./release major     (0.1.0 → 1.0.0)
 
 set -euo pipefail
 
