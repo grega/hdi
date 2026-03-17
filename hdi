@@ -225,28 +225,41 @@ CMD_PREFIXES+="|kubectl|terraform|ansible|helm"
 CMD_PREFIXES+="|nix|mise|asdf|rtx|fnm|nvm|volta"
 CMD_PREFIXES+="|ng|vue|vite|turbo|nx"
 
-# Return backtick-wrapped commands from a line of text.
+# Pre-compiled regex patterns for command matching (avoids rebuilding in loops)
+_RE_CMD_SPACE="^($CMD_PREFIXES) "
+_RE_CMD_END="^($CMD_PREFIXES)( |$)"
+
+# Extract backtick-wrapped commands from a line of text.
+# Sets _FBC_RESULT (newline-separated) instead of printing to stdout.
 # Usage: find_backtick_commands "text" [require_args]
 #   require_args=true  (default) — prefix must be followed by a space (prose)
 #   require_args=false            — bare prefix allowed (headings like `make`)
 find_backtick_commands() {
   local text="$1"
   local require_args="${2:-true}"
-  local suffix=" "
-  $require_args || suffix="( |$)"
-  # shellcheck disable=SC2016
-  echo "$text" | grep -oE '`[^`]+`' | sed 's/^`//;s/`$//' \
-    | grep -iE "^($CMD_PREFIXES)${suffix}" || true
+  local pat="$_RE_CMD_SPACE"
+  $require_args || pat="$_RE_CMD_END"
+  _FBC_RESULT=""
+  local remaining="$text"
+  while [[ "$remaining" =~ \`([^\`]+)\` ]]; do
+    local match="${BASH_REMATCH[1]}"
+    remaining="${remaining#*"${BASH_REMATCH[0]}"}"
+    shopt -s nocasematch
+    if [[ "$match" =~ $pat ]]; then
+      _FBC_RESULT+="$match"$'\n'
+    fi
+    shopt -u nocasematch
+  done
 }
 
 # Strip shell prompt prefixes ($ or %) from fenced code block lines.
 # The regex requires whitespace after $ so "$HOME/bin" is never mangled.
+# Sets _SP_RESULT instead of printing to stdout (avoids subshell per call).
 strip_prompt() {
-  local line="$1"
-  if [[ "$line" =~ ^[[:space:]]*[\$%][[:space:]]+(.*) ]]; then
-    echo "${BASH_REMATCH[1]}"
+  if [[ "$1" =~ ^[[:space:]]*[\$%][[:space:]]+(.*) ]]; then
+    _SP_RESULT="${BASH_REMATCH[1]}"
   else
-    echo "$line"
+    _SP_RESULT="$1"
   fi
 }
 
@@ -300,12 +313,12 @@ extract_commands() {
       # In console mode, only extract lines with $ or % prompts (skip output)
       if $console_mode; then
         if [[ "$stripped" =~ ^[\$%][[:space:]]+ ]]; then
-          stripped=$(strip_prompt "$stripped")
+          strip_prompt "$stripped"; stripped="$_SP_RESULT"
         else
           continue
         fi
       else
-        stripped=$(strip_prompt "$stripped")
+        strip_prompt "$stripped"; stripped="$_SP_RESULT"
       fi
       # Handle backslash line continuations
       if [[ "$stripped" =~ \\[[:space:]]*$ ]]; then
@@ -329,15 +342,15 @@ extract_commands() {
         if echo "$indented_buf" | grep -qiE "^[[:space:]]*(\\\$[[:space:]]+)?($CMD_PREFIXES)( |$)"; then
           while IFS= read -r iline; do
             [[ -z "$iline" ]] && continue
-            iline=$(strip_prompt "$iline")
+            strip_prompt "$iline"; iline="$_SP_RESULT"
             commands+="$iline"$'\n'
           done <<< "$indented_buf"
         fi
         indented_buf=""
       fi
 
-      local inline_cmds
-      inline_cmds=$(find_backtick_commands "$line")
+      find_backtick_commands "$line"
+      local inline_cmds="$_FBC_RESULT"
       if [[ -n "$inline_cmds" ]]; then
         while IFS= read -r inline_cmd; do
           commands+="$inline_cmd"$'\n'
@@ -351,7 +364,7 @@ extract_commands() {
     if echo "$indented_buf" | grep -qiE "^[[:space:]]*(\\\$[[:space:]]+)?($CMD_PREFIXES)( |$)"; then
       while IFS= read -r iline; do
         [[ -z "$iline" ]] && continue
-        iline=$(strip_prompt "$iline")
+        strip_prompt "$iline"; iline="$_SP_RESULT"
         commands+="$iline"$'\n'
       done <<< "$indented_buf"
     fi
@@ -379,8 +392,8 @@ build_display_list() {
 
     # Extract commands from backtick-wrapped text in the heading itself
     # (eg. ### `yarn start` — the command is the heading)
-    local title_cmds
-    title_cmds=$(find_backtick_commands "$title" false)
+    find_backtick_commands "$title" false
+    local title_cmds="$_FBC_RESULT"
     if [[ -n "$title_cmds" ]]; then
       while IFS= read -r tcmd; do
         cmds="$tcmd"$'\n'"$cmds"
