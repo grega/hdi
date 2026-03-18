@@ -49,11 +49,7 @@ NR == 1 { next }   # skip header
 END {
   # Linear scale: pick a clean step so we get ~8-12 grid lines
   ceil = max_ms * 1.1
-  if      (ceil <= 200)  step = 20
-  else if (ceil <= 500)  step = 50
-  else if (ceil <= 1200) step = 100
-  else if (ceil <= 2500) step = 200
-  else                   step = 500
+  step = 50
   ceil = int((ceil + step - 1) / step) * step
   nsteps = int(ceil / step)
 
