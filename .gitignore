@@ -1,4 +1,12 @@
-.DS_Store
+# temporary editor files
 *.swp
 *.swo
 *~
+*.bak
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
