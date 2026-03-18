@@ -19,8 +19,6 @@ $ hdi
   ↑↓ navigate  ⏎ execute  c copy  q quit
 ```
 
-Arrow keys to navigate, Enter to execute, `q` to quit.
-
 ## Example
 
 ![Animated demo showing the tool in action](./demo/demo.gif)
