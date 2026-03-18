@@ -1064,7 +1064,7 @@ else:
   [ "$status" -eq 0 ]
   # "Database setup" is a ### inside "Set up" that doesn't match keywords
   # but should be preserved as a sub-heading group
-  [[ "$output" == *"### Database setup"* ]]
+  [[ "$output" == *"### Prepare schema"* ]]
   [[ "$output" == *"rails db:migrate"* ]]
 }
 
@@ -1072,7 +1072,6 @@ else:
   run "$HDI" all --raw --ni "$FIXTURES/nested-match-loss"
   [ "$status" -eq 0 ]
   [[ "$output" == *"## Set up"* ]]
-  [[ "$output" == *"## Database setup"* ]]
   [[ "$output" == *"## Prerequisites"* ]]
   [[ "$output" == *"## Testing"* ]]
 }

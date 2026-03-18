@@ -10,7 +10,7 @@ docker compose build
 docker compose up -d
 ```
 
-### Database setup
+### Prepare schema
 
 ```bash
 rails db:migrate
