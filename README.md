@@ -132,7 +132,7 @@ Static benchmark READMEs in `bench/` (small, medium, large, stress) exercise eve
 ./bench/run --log        # also save to bench/results.csv (should only be used by release script / only run when creating a new release)
 ```
 
-Benchmarks run automatically during `./release` and are recorded in `bench/results.csv`. A chart (`bench/results.svg`) is also generated to visualize performance across releases (via `bench/chart`).
+Benchmarks run automatically during `./release` and are recorded in `bench/results.csv`. A chart (`bench/results.svg`) is also generated to visualise performance across releases (via `bench/chart`).
 
 ## Publishing a new release
 
