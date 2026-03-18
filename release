@@ -67,9 +67,10 @@ sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$HDI" && rm -f "$HDI.bak
 if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   echo ""
   "$SCRIPT_DIR/bench/run" --log
+  "$SCRIPT_DIR/bench/chart"
 fi
 
-git add hdi bench/results.csv
+git add hdi bench/results.csv bench/results.svg
 git commit -m "Bump version to $new"
 git tag "$tag"
 git push origin HEAD --tags

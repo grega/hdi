@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="840" viewBox="0 0 1080 840" font-family="system-ui,sans-serif">
+<rect width="1080" height="840" fill="#fff" rx="6"/>
+<text x="72" y="24" font-size="15" font-weight="600" fill="#1e293b">hdi benchmark - median parse time</text>
+<line x1="72" y1="790.0" x2="970" y2="790.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="794.0" text-anchor="end" font-size="11" fill="#64748b">0</text>
+<line x1="72" y1="683.4" x2="970" y2="683.4" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="687.4" text-anchor="end" font-size="11" fill="#64748b">200</text>
+<line x1="72" y1="576.9" x2="970" y2="576.9" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="580.9" text-anchor="end" font-size="11" fill="#64748b">400</text>
+<line x1="72" y1="470.3" x2="970" y2="470.3" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="474.3" text-anchor="end" font-size="11" fill="#64748b">600</text>
+<line x1="72" y1="363.7" x2="970" y2="363.7" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="367.7" text-anchor="end" font-size="11" fill="#64748b">800</text>
+<line x1="72" y1="257.1" x2="970" y2="257.1" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="261.1" text-anchor="end" font-size="11" fill="#64748b">1000</text>
+<line x1="72" y1="150.6" x2="970" y2="150.6" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="154.6" text-anchor="end" font-size="11" fill="#64748b">1200</text>
+<line x1="72" y1="44.0" x2="970" y2="44.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="64" y="48.0" text-anchor="end" font-size="11" fill="#64748b">1400</text>
+<text x="14" y="417" font-size="11" fill="#64748b" transform="rotate(-90,14,417)">ms</text>
+<text x="72.0" y="810" text-anchor="middle" font-size="11" fill="#64748b">0.7.0</text>
+<text x="296.5" y="810" text-anchor="middle" font-size="11" fill="#64748b">0.8.0</text>
+<text x="521.0" y="810" text-anchor="middle" font-size="11" fill="#64748b">0.9.0</text>
+<text x="745.5" y="810" text-anchor="middle" font-size="11" fill="#64748b">0.10.0</text>
+<text x="970.0" y="810" text-anchor="middle" font-size="11" fill="#64748b">0.11.0</text>
+<text x="521" y="830" text-anchor="middle" font-size="11" fill="#64748b">release</text>
+<polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round" points="72.0,737.4 296.5,736.6 521.0,735.2 745.5,778.1 970.0,778.7"/>
+<circle cx="72.0" cy="737.4" r="3.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+<circle cx="296.5" cy="736.6" r="3.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+<circle cx="521.0" cy="735.2" r="3.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+<circle cx="745.5" cy="778.1" r="3.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+<circle cx="970.0" cy="778.7" r="3.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+<polyline fill="none" stroke="#16a34a" stroke-width="2" stroke-linejoin="round" points="72.0,541.3 296.5,537.0 521.0,522.3 745.5,762.3 970.0,765.2"/>
+<circle cx="72.0" cy="541.3" r="3.5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+<circle cx="296.5" cy="537.0" r="3.5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+<circle cx="521.0" cy="522.3" r="3.5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+<circle cx="745.5" cy="762.3" r="3.5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+<circle cx="970.0" cy="765.2" r="3.5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+<polyline fill="none" stroke="#ea580c" stroke-width="2" stroke-linejoin="round" points="72.0,302.3 296.5,262.6 521.0,271.1 745.5,739.3 970.0,737.6"/>
+<circle cx="72.0" cy="302.3" r="3.5" fill="#ea580c" stroke="#fff" stroke-width="1.5"/>
+<circle cx="296.5" cy="262.6" r="3.5" fill="#ea580c" stroke="#fff" stroke-width="1.5"/>
+<circle cx="521.0" cy="271.1" r="3.5" fill="#ea580c" stroke="#fff" stroke-width="1.5"/>
+<circle cx="745.5" cy="739.3" r="3.5" fill="#ea580c" stroke="#fff" stroke-width="1.5"/>
+<circle cx="970.0" cy="737.6" r="3.5" fill="#ea580c" stroke="#fff" stroke-width="1.5"/>
+<polyline fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round" points="72.0,212.3 296.5,223.0 521.0,203.6 745.5,725.2 970.0,730.4"/>
+<circle cx="72.0" cy="212.3" r="3.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+<circle cx="296.5" cy="223.0" r="3.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+<circle cx="521.0" cy="203.6" r="3.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+<circle cx="745.5" cy="725.2" r="3.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+<circle cx="970.0" cy="730.4" r="3.5" fill="#dc2626" stroke="#fff" stroke-width="1.5"/>
+<circle cx="986" cy="48" r="5" fill="#2563eb"/>
+<text x="998" y="52" font-size="12" fill="#334155">small</text>
+<circle cx="986" cy="70" r="5" fill="#16a34a"/>
+<text x="998" y="74" font-size="12" fill="#334155">medium</text>
+<circle cx="986" cy="92" r="5" fill="#ea580c"/>
+<text x="998" y="96" font-size="12" fill="#334155">large</text>
+<circle cx="986" cy="114" r="5" fill="#dc2626"/>
+<text x="998" y="118" font-size="12" fill="#334155">stress</text>
+</svg>

@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# bench/chart — render bench/results.csv as an SVG line chart.
+#
+# Usage:
+#   ./bench/chart              # writes bench/results.svg
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CSV="$SCRIPT_DIR/results.csv"
+OUT="$SCRIPT_DIR/results.svg"
+
+if [[ ! -f "$CSV" ]]; then
+  echo "No results.csv found — run bench/run --log first" >&2
+  exit 1
+fi
+
+# ── Generate SVG via awk ─────────────────────────────────────────────────────
+
+awk -F, '
+BEGIN {
+  # Layout
+  W = 1080; H = 840
+  ML = 72; MR = 110; MT = 44; MB = 50   # margins
+  PW = W - ML - MR; PH = H - MT - MB    # plot area
+
+  # Fixture draw order and colours
+  split("small,medium,large,stress", fix_order, ",")
+  color["small"]  = "#2563eb"
+  color["medium"] = "#16a34a"
+  color["large"]  = "#ea580c"
+  color["stress"] = "#dc2626"
+
+  nv = 0; max_ms = 0
+}
+
+NR == 1 { next }   # skip header
+
+{
+  v  = $2; fixture = $4; ms = $6 + 0
+
+  # Track unique versions in order
+  if (!(v in v_seen)) { v_seen[v] = 1; versions[nv++] = v }
+
+  data[fixture, v] = ms
+  if (ms > max_ms) max_ms = ms
+}
+
+END {
+  # Linear scale: pick a clean step so we get ~8-12 grid lines
+  ceil = max_ms * 1.1
+  if      (ceil <= 200)  step = 20
+  else if (ceil <= 500)  step = 50
+  else if (ceil <= 1200) step = 100
+  else if (ceil <= 2500) step = 200
+  else                   step = 500
+  ceil = int((ceil + step - 1) / step) * step
+  nsteps = int(ceil / step)
+
+  # ── SVG header ──────────────────────────────────────────────────────────
+  print "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+  printf "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" ", W, H
+  printf "viewBox=\"0 0 %d %d\" font-family=\"system-ui,sans-serif\">\n", W, H
+
+  # Background
+  printf "<rect width=\"%d\" height=\"%d\" fill=\"#fff\" rx=\"6\"/>\n", W, H
+
+  # Title
+  printf "<text x=\"%d\" y=\"24\" font-size=\"15\" font-weight=\"600\" ", ML
+  printf "fill=\"#1e293b\">hdi benchmark - median parse time</text>\n"
+
+  # ── Y axis grid + labels ────────────────────────────────────────────────
+  for (i = 0; i <= nsteps; i++) {
+    val = step * i
+    y = MT + PH - (val / ceil) * PH
+    printf "<line x1=\"%d\" y1=\"%.1f\" x2=\"%d\" y2=\"%.1f\" ", ML, y, ML + PW, y
+    printf "stroke=\"#e2e8f0\" stroke-width=\"1\"/>\n"
+    printf "<text x=\"%d\" y=\"%.1f\" text-anchor=\"end\" ", ML - 8, y + 4
+    printf "font-size=\"11\" fill=\"#64748b\">%d</text>\n", val
+  }
+
+  # Y axis title
+  printf "<text x=\"14\" y=\"%d\" font-size=\"11\" fill=\"#64748b\" ", MT + PH/2
+  printf "transform=\"rotate(-90,14,%d)\">ms</text>\n", MT + PH/2
+
+  # ── X axis labels ───────────────────────────────────────────────────────
+  for (i = 0; i < nv; i++) {
+    x = ML + (nv > 1 ? (i / (nv - 1)) * PW : PW / 2)
+    y = MT + PH + 20
+    printf "<text x=\"%.1f\" y=\"%d\" text-anchor=\"middle\" ", x, y
+    printf "font-size=\"11\" fill=\"#64748b\">%s</text>\n", versions[i]
+  }
+
+  # X axis title
+  printf "<text x=\"%d\" y=\"%d\" text-anchor=\"middle\" ", ML + PW/2, MT + PH + 40
+  printf "font-size=\"11\" fill=\"#64748b\">release</text>\n"
+
+  # ── Data lines ──────────────────────────────────────────────────────────
+  for (f = 1; f <= 4; f++) {
+    fix = fix_order[f]
+    c = color[fix]
+
+    # Polyline path
+    printf "<polyline fill=\"none\" stroke=\"%s\" stroke-width=\"2\" ", c
+    printf "stroke-linejoin=\"round\" points=\""
+    for (i = 0; i < nv; i++) {
+      ms = data[fix, versions[i]] + 0
+      x = ML + (nv > 1 ? (i / (nv - 1)) * PW : PW / 2)
+      y = MT + PH - (ms / ceil) * PH
+      if (i > 0) printf " "
+      printf "%.1f,%.1f", x, y
+    }
+    printf "\"/>\n"
+
+    # Dots
+    for (i = 0; i < nv; i++) {
+      ms = data[fix, versions[i]] + 0
+      if (ms == 0) continue
+      x = ML + (nv > 1 ? (i / (nv - 1)) * PW : PW / 2)
+      y = MT + PH - (ms / ceil) * PH
+      printf "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"3.5\" ", x, y
+      printf "fill=\"%s\" stroke=\"#fff\" stroke-width=\"1.5\"/>\n", c
+    }
+  }
+
+  # ── Legend ───────────────────────────────────────────────────────────────
+  lx = ML + PW + 16
+  for (f = 1; f <= 4; f++) {
+    fix = fix_order[f]
+    ly = MT + 4 + (f - 1) * 22
+    printf "<circle cx=\"%d\" cy=\"%d\" r=\"5\" fill=\"%s\"/>\n", lx, ly, color[fix]
+    printf "<text x=\"%d\" y=\"%d\" font-size=\"12\" fill=\"#334155\">%s</text>\n", lx + 12, ly + 4, fix
+  }
+
+  print "</svg>"
+}
+' "$CSV" > "$OUT"
+
+printf "  Chart saved to bench/results.svg\n"
