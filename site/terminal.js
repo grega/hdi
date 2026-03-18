@@ -107,6 +107,7 @@
   function parseCommand(input) {
     var parts = input.trim().split(/\s+/);
     if (parts[0] === "clear") return { clear: true };
+    if (parts[0] === "cat" && /readme\.md$/i.test(parts[1] || "")) return { cat: true };
     if (parts[0] !== "hdi") return { error: 'Command not found: ' + parts[0] + '. Try "hdi" to get started.' };
 
     var mode = "default";
@@ -153,6 +154,15 @@
 
     if (parsed.clear) {
       termEl.innerHTML = "";
+      showPrompt();
+      return;
+    }
+
+    if (parsed.cat) {
+      currentProject.readme.split("\n").forEach(function (line) {
+        appendLine("", esc(line));
+      });
+      appendLine("", "");
       showPrompt();
       return;
     }
@@ -326,7 +336,7 @@
   buildSidebar();
   appendLine("t-dim", "cd " + currentProject.name);
   appendLine("", "");
-  appendLine("t-dim", 'Type "hdi" to get started.');
+  appendLine("t-dim", 'Type "hdi" to get started, "hdi --help" for more options, or "cat README.md" to see the full project README');
   appendLine("", "");
   showPrompt();
   termEl.focus();
