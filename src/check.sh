@@ -79,10 +79,10 @@ run_check() {
       else
         printf "  %s✓%s %-14s\n" "$GREEN" "$RESET" "$tool"
       fi
-      (( found++ ))
+      found=$((found + 1))
     else
       printf "  %s✗%s %-14s %snot found%s\n" "$YELLOW" "$RESET" "$tool" "$DIM" "$RESET"
-      (( missing++ ))
+      missing=$((missing + 1))
     fi
   done
 
