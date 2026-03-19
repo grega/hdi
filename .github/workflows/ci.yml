@@ -7,8 +7,24 @@ on:
     branches: [main]
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build hdi from source
+        run: ./build
+      - name: Check hdi is up to date
+        run: |
+          if ! git diff --quiet hdi; then
+            echo "Error: hdi is out of date — run ./build and commit"
+            git diff hdi
+            exit 1
+          fi
+
   lint:
     name: Shellcheck
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

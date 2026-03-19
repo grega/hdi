@@ -93,6 +93,16 @@ Also looks for `README.rst` / `readme.rst`, though Markdown READMEs work best.
 
 No dependencies, just Bash. Should work on macOS and Linux.
 
+## Development
+
+The source is split across files in `src/` for maintainability. The distributed `hdi` script is assembled from these by the `build` script:
+
+```bash
+./build
+```
+
+After editing any file in `src/`, run `./build` to regenerate `hdi`, then commit both. CI will fail if `hdi` is out of date with `src/`.
+
 ## Testing
 
 Tests use [bats-core](https://github.com/bats-core/bats-core). Linting uses [ShellCheck](https://www.shellcheck.net/).
@@ -138,7 +148,7 @@ Benchmarks run automatically during `./release` and are recorded in `bench/resul
 
 ## Publishing a new release
 
-The `release` script bumps the version in `hdi`, commits, tags, pushes, and prints the sha256 for the Homebrew tap:
+The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, commits, tags, pushes, and prints the sha256 for the Homebrew tap:
 
 ```bash
 ./release patch          # 0.1.0 → 0.1.1

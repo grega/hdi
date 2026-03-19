@@ -26,6 +26,7 @@ set -euo pipefail
 # ── Version ─────────────────────────────────────────────────────────────────
 VERSION="0.12.0"
 
+
 # ── Defaults ─────────────────────────────────────────────────────────────────
 MODE="default"
 FULL=false
@@ -88,6 +89,7 @@ case "$MODE" in
   default)  PATTERN="($KW_INSTALL|$KW_RUN)" ;;
 esac
 
+
 # ── Colours ──────────────────────────────────────────────────────────────────
 if [[ -t 1 ]] && ! $RAW; then
   BOLD=$'\033[1m'  DIM=$'\033[2m'
@@ -99,6 +101,7 @@ else
   BOLD="" DIM="" CYAN="" GREEN="" YELLOW="" MAGENTA="" WHITE=""
   BG_SELECT="" RESET="" CODE_BG="" HIDE_CURSOR="" SHOW_CURSOR=""
 fi
+
 
 # ── Locate the README ───────────────────────────────────────────────────────
 README=""
@@ -115,6 +118,7 @@ if [[ -z "$README" ]]; then
   echo "${YELLOW}No README found in ${DIR}${RESET}" >&2
   exit 1
 fi
+
 
 # ── Extract matching sections ────────────────────────────────────────────────
 declare -a SECTION_TITLES=()
@@ -285,6 +289,7 @@ parse_sections() {
 
   shopt -u nocasematch
 }
+
 
 # ── Extract fenced code blocks, skipping non-command languages ───────────────
 SKIP_LANGS="json|yaml|yml|toml|xml|csv|sql|html|css|text|plaintext|txt|output|log|env"
@@ -504,6 +509,7 @@ extract_commands() {
   _EC_RESULT="$commands"
 }
 
+
 # ── Build a flat list: section headers + commands ────────────────────────────
 # Each entry is either a "header", "subheader", "command", or "empty".
 # We store parallel arrays for the display lines, their types, and
@@ -609,6 +615,7 @@ build_display_list() {
     LINE_CMDS+=("")
   done
 }
+
 
 # ── Non-interactive render ──────────────────────────────────
 render_static() {
@@ -758,6 +765,7 @@ render_full() {
     fi
   done
 }
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ── Interactive picker (inline mode) ─────────────────────────────────────────
@@ -995,6 +1003,7 @@ run_interactive() {
   done
 }
 
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 parse_sections < "$README"
 
@@ -1034,3 +1043,4 @@ else
     fi
   fi
 fi
+

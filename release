@@ -10,14 +10,14 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-HDI="$SCRIPT_DIR/hdi"
+SRC_HEADER="$SCRIPT_DIR/src/header.sh"
 
 # ── Read current version ────────────────────────────────────────────────────
 
-current=$(grep -m1 '^VERSION=' "$HDI" | sed 's/VERSION="//;s/"//')
+current=$(grep -m1 '^VERSION=' "$SRC_HEADER" | sed 's/VERSION="//;s/"//')
 
 if [[ -z "$current" ]]; then
-  echo "Error: could not read VERSION from hdi" >&2
+  echo "Error: could not read VERSION from src/header.sh" >&2
   exit 1
 fi
 
@@ -61,7 +61,10 @@ fi
 
 echo "Releasing: $current → $new ($tag)"
 
-sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$HDI" && rm -f "$HDI.bak"
+sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$SRC_HEADER" && rm -f "$SRC_HEADER.bak"
+
+# Rebuild hdi from source
+"$SCRIPT_DIR/build"
 
 # Run benchmarks against the new version
 if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
@@ -70,7 +73,7 @@ if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   "$SCRIPT_DIR/bench/chart"
 fi
 
-git add hdi bench/results.csv bench/results.svg
+git add src/header.sh hdi bench/results.csv bench/results.svg
 git commit -m "Bump version to $new"
 git tag "$tag"
 git push origin HEAD --tags

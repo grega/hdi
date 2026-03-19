@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# build - assemble src/*.sh into a single hdi script
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+OUT="$SCRIPT_DIR/hdi"
+
+# Concatenation order matters
+sources=(
+  src/header.sh
+  src/args.sh
+  src/colors.sh
+  src/readme.sh
+  src/parse.sh
+  src/extract.sh
+  src/display.sh
+  src/render.sh
+  src/picker.sh
+  src/main.sh
+)
+
+: > "$OUT"
+for src in "${sources[@]}"; do
+  cat "$SCRIPT_DIR/$src" >> "$OUT"
+  printf '\n' >> "$OUT"
+done
+
+chmod +x "$OUT"
+echo "Built: $OUT ($(wc -l < "$OUT" | tr -d ' ') lines)"
