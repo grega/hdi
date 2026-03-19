@@ -10,6 +10,8 @@ function Picker(items, projectName, modeLabel, terminal) {
   var cursor = 0;
   var flashMsg = "";
   var flashTimer = null;
+  var copied = false;
+  var copiedTimer = null;
   var wrap = null;
   var active = false;
 
@@ -40,7 +42,8 @@ function Picker(items, projectName, modeLabel, terminal) {
         var isSelected = (i === selectedIdx);
         if (isSelected) {
           row.classList.add("selected");
-          row.innerHTML = '  <span class="arrow">\u25b6</span> <span class="t-command">' + esc(item.text) + '</span>';
+          var icon = copied ? '\u2714' : '\u25b6';
+          row.innerHTML = '  <span class="arrow">' + icon + '</span> <span class="t-command">' + esc(item.text) + '</span>';
         } else {
           row.innerHTML = '    <span class="t-command">' + esc(item.text) + '</span>';
         }
@@ -67,6 +70,7 @@ function Picker(items, projectName, modeLabel, terminal) {
     var next = cursor + delta;
     if (next >= 0 && next < cmdIndices.length) {
       cursor = next;
+      copied = false;
       render();
     }
   }
@@ -92,7 +96,13 @@ function Picker(items, projectName, modeLabel, terminal) {
     if (cmdIndices.length === 0) return;
     var cmd = items[cmdIndices[cursor]].text;
     clipCopy(cmd).then(function () {
+      copied = true;
       flash("\u2714 Copied: " + cmd);
+      if (copiedTimer) clearTimeout(copiedTimer);
+      copiedTimer = setTimeout(function () {
+        copied = false;
+        render();
+      }, 1500);
     }, function () {
       flash("Could not copy to clipboard");
     });
@@ -101,7 +111,7 @@ function Picker(items, projectName, modeLabel, terminal) {
   function executeCmd() {
     if (cmdIndices.length === 0) return;
     var cmd = items[cmdIndices[cursor]].text;
-    flash("$ " + cmd + "  \u2014 would execute in a real terminal", 2500);
+    flash("$ " + cmd + " \u2014 would execute in a real terminal", 2500);
   }
 
   function handleKey(e) {
@@ -141,6 +151,9 @@ function Picker(items, projectName, modeLabel, terminal) {
     active = false;
     if (flashTimer) clearTimeout(flashTimer);
     document.removeEventListener("keydown", handleKey);
+    if (wrap && wrap.parentNode) {
+      wrap.parentNode.removeChild(wrap);
+    }
   }
 
   function scrollTerminal() {

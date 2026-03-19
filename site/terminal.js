@@ -292,6 +292,7 @@
 
     if (e.key === "Enter") {
       e.preventDefault();
+      e.stopPropagation();
       var cmd = inputBuffer;
       freezePrompt();
       execute(cmd);
