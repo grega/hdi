@@ -16,6 +16,7 @@ sources=(
   src/display.sh
   src/render.sh
   src/picker.sh
+  src/check.sh
   src/main.sh
 )
 

@@ -1173,3 +1173,58 @@ else:
   [[ "$output" == *"### In staging mode"* ]]
   [[ "$output" == *"npm run serve --env staging"* ]]
 }
+
+# ── Check mode ──────────────────────────────────────────────────────────────
+
+@test "check: reports installed tools" {
+  run "$HDI" check "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm"* ]]
+}
+
+@test "check: marks missing tools" {
+  run "$HDI" check "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nvm"* ]]
+  [[ "$output" == *"not found"* ]]
+}
+
+@test "check: skips shell builtins like cp" {
+  run "$HDI" check "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  # cp is in the install section but should not appear in check output
+  [[ "$output" != *" cp "* ]]
+}
+
+@test "check: deduplicates tool names" {
+  run "$HDI" check "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  # npm appears in multiple commands but should only be listed once
+  local count
+  count=$(echo "$output" | grep -c "npm" || true)
+  [ "$count" -eq 1 ]
+}
+
+@test "check: scans all sections (install + run + test)" {
+  run "$HDI" check "$FIXTURES/react-nextjs"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm"* ]]
+}
+
+@test "check: skips path-like commands" {
+  run "$HDI" check "$FIXTURES/ruby-rails"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"bin/rails"* ]]
+  [[ "$output" != *"bin/dev"* ]]
+}
+
+@test "check: skips flags in code blocks" {
+  # Flags like -h, --help, --raw should not appear as tools
+  run "$HDI" check "$BATS_TEST_DIRNAME/.."
+  [ "$status" -eq 0 ]
+  [[ "$output" != *" -h,"* ]]
+  [[ "$output" != *" -v,"* ]]
+  [[ "$output" != *" -f,"* ]]
+  [[ "$output" != *" --raw"* ]]
+  [[ "$output" != *" --ni,"* ]]
+}

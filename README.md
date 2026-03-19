@@ -51,6 +51,7 @@ hdi install            Just install/setup commands (aliases: setup, i)
 hdi run                Just run/start commands (aliases: start, r)
 hdi test               Just test commands (alias: t)
 hdi all                All sections (aliases: a)
+hdi check              Check if required tools are installed (alias: c)
 hdi /path/to/project   Scan a different directory
 hdi /path/to/file.md   Parse a specific markdown file
 ```
@@ -62,6 +63,7 @@ hdi i      Install/setup commands
 hdi r      Run/start commands
 hdi t      Test commands
 hdi a      All sections
+hdi c      Check required tools
 ```
 
 ### Flags

@@ -11,7 +11,9 @@ fi
 PROJECT_NAME=$(basename "$(cd "$DIR" && pwd)")
 build_display_list
 
-if [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
+if [[ "$MODE" == "check" ]]; then
+  run_check
+elif [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
   run_interactive
 else
   if ! $RAW; then

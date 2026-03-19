@@ -7,6 +7,7 @@
 #   hdi run                       Just run/start commands
 #   hdi test                      Just test commands
 #   hdi all                       Show all matched sections
+#   hdi check                     Check if required tools are installed
 #   hdi [mode] --no-interactive   Print commands without the picker
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
@@ -19,7 +20,8 @@
 #   c            Copy highlighted command to clipboard
 #   q / Esc      Quit
 #
-# Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t"
+# Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t",
+#          "check" = "c"
 
 set -euo pipefail
 
