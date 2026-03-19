@@ -27,3 +27,7 @@ timestamp,version,machine,fixture,lines,median_ms
 2026-03-19T23:13:36Z,0.13.0,Apple_M1_Pro_8c,medium,164,46.9
 2026-03-19T23:13:36Z,0.13.0,Apple_M1_Pro_8c,large,439,99.2
 2026-03-19T23:13:36Z,0.13.0,Apple_M1_Pro_8c,stress,561,110.2
+2026-03-19T23:19:15Z,0.14.0,Apple_M1_Pro_8c,small,21,20.3
+2026-03-19T23:19:15Z,0.14.0,Apple_M1_Pro_8c,medium,164,46.6
+2026-03-19T23:19:15Z,0.14.0,Apple_M1_Pro_8c,large,439,99.6
+2026-03-19T23:19:15Z,0.14.0,Apple_M1_Pro_8c,stress,561,110.5
