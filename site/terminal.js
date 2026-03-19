@@ -100,7 +100,7 @@
     } else {
       hintsEl.innerHTML =
         "Try: <code>hdi</code> <code>hdi install</code> <code>hdi run</code> " +
-        "<code>hdi test</code> <code>hdi all</code> <code>hdi --full</code> <code>hdi --raw</code>";
+        "<code>hdi test</code> <code>hdi all</code> <code>hdi check</code> <code>hdi --full</code> <code>hdi --raw</code>";
     }
   }
 
@@ -125,6 +125,7 @@
         case "run": case "start": case "r": mode = "run"; break;
         case "test": case "t": mode = "test"; break;
         case "all": case "a": mode = "all"; break;
+        case "check": case "c": mode = "check"; break;
         case "--full": case "-f": full = true; break;
         case "--raw": raw = true; break;
         case "--help": case "-h": help = true; break;
@@ -188,6 +189,12 @@
     if (parsed.version) {
       appendLine("", "hdi " + VERSION);
       appendLine("", "");
+      showPrompt();
+      return;
+    }
+
+    if (parsed.mode === "check") {
+      renderCheck();
       showPrompt();
       return;
     }
@@ -281,6 +288,45 @@
         appendLine("", "");
       }
     });
+    appendLine("", "");
+  }
+
+  // ── Check renderer ──────────────────────────────────────────────────────
+
+  function renderCheck() {
+    var items = currentProject.check;
+    if (!items || items.length === 0) {
+      appendLine("t-yellow", "No tool references found in commands.");
+      appendLine("", "");
+      return;
+    }
+
+    appendLine("", "");
+    appendLine("t-title-line", '[hdi] ' + esc(currentProject.name) + '<span class="t-dim">  check</span>');
+    appendLine("", "");
+
+    var found = 0;
+    var missing = 0;
+
+    items.forEach(function (item) {
+      var name = item.tool;
+      while (name.length < 14) name += " ";
+      if (item.installed) {
+        var ver = item.version ? ' <span class="t-dim">(' + esc(item.version) + ')</span>' : "";
+        appendLine("", '  <span class="t-green">\u2713</span> ' + esc(name) + ver);
+        found++;
+      } else {
+        appendLine("", '  <span class="t-yellow">\u2717</span> ' + esc(name) + ' <span class="t-dim">not found</span>');
+        missing++;
+      }
+    });
+
+    appendLine("", "");
+    if (missing === 0) {
+      appendLine("t-dim", "  \u2713 All " + found + " tools found");
+    } else {
+      appendLine("", '  <span class="t-dim">' + found + ' found, </span><span class="t-yellow">' + missing + " not found</span>");
+    }
     appendLine("", "");
   }
 

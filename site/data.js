@@ -75,6 +75,10 @@ npm start
         { type: "command", text: "npm start" },
       ],
     },
+    check: [
+      { tool: "nvm", installed: false },
+      { tool: "npm", installed: true, version: "10.2.0" },
+    ],
     fullProse: {
       default: [
         { type: "header", text: "Prerequisites" },
@@ -212,6 +216,11 @@ MIT`,
         { type: "empty", text: "(no commands \u2014 use --full to see prose)" },
       ],
     },
+    check: [
+      { tool: "python3", installed: true, version: "3.11.4" },
+      { tool: "pip", installed: true, version: "23.2.1" },
+      { tool: "flask", installed: true, version: "3.0.0" },
+    ],
     fullProse: {
       default: [
         { type: "header", text: "Set up a virtual environment" },
@@ -359,6 +368,12 @@ bundle exec rspec
         { type: "command", text: "bundle exec rspec" },
       ],
     },
+    check: [
+      { tool: "brew", installed: true, version: "4.2.0" },
+      { tool: "bundle", installed: true, version: "2.5.3" },
+      { tool: "rails", installed: true, version: "7.1.2" },
+      { tool: "rspec", installed: false },
+    ],
     fullProse: {
       default: [
         { type: "header", text: "Prerequisites" },
@@ -500,6 +515,11 @@ See the [Next.js docs](https://nextjs.org/docs).`,
         { type: "command", text: "npx vercel --prod" },
       ],
     },
+    check: [
+      { tool: "npm", installed: true, version: "10.2.0" },
+      { tool: "npx", installed: true, version: "10.2.0" },
+      { tool: "vercel", installed: false },
+    ],
     fullProse: {
       default: [
         { type: "header", text: "Getting Started" },
@@ -638,6 +658,10 @@ DB_HOST=localhost
         { type: "empty", text: "(no commands \u2014 use --full to see prose)" },
       ],
     },
+    check: [
+      { tool: "brew", installed: true, version: "4.2.0" },
+      { tool: "go", installed: true, version: "1.22.0" },
+    ],
     fullProse: {
       default: [
         { type: "header", text: "Requirements" },
@@ -704,6 +728,7 @@ Usage:
   hdi run                       Just run/start commands
   hdi test                      Just test commands
   hdi all                       Show all matched sections
+  hdi check                     Check which tools are installed
   hdi [mode] --full             Include prose around commands
   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
 
@@ -713,6 +738,6 @@ Interactive controls:
   c            Copy highlighted command to clipboard
   q / Esc      Quit
 
-Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t"`;
+Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t", "check" = "c"`;
 
 const VERSION = "0.12.0";
