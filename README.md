@@ -93,19 +93,13 @@ Example: `hdi --raw | pbcopy` to copy commands to clipboard.
 
 Also looks for `README.rst` / `readme.rst`, though Markdown READMEs work best.
 
-No dependencies, just Bash. Should work on macOS and Linux.
+No dependencies, just Bash. Works on macOS and Linux.
 
 ## Development
 
-The source is split across files in `src/` for maintainability. The distributed `hdi` script is assembled from these by the `build` script:
-
-```bash
-./build
-```
-
 After editing any file in `src/`, run `./build` to regenerate `hdi`, then commit both. CI will fail if `hdi` is out of date with `src/`.
 
-A pre-commit hook is included that automatically rebuilds `hdi` when `src/` files are staged. To enable it:
+A pre-commit hook is included that automatically rebuilds `hdi` when `src/` files are staged. To install it:
 
 ```bash
 git config core.hooksPath .githooks
@@ -145,11 +139,11 @@ This outputs `demo.gif` from the tape file.
 
 ## Benchmarking
 
-Static benchmark READMEs in `bench/` (small, medium, large, stress) exercise every parsing path at different scales. Run benchmarks with:
+Static benchmark READMEs in `bench/` (small, medium, large, stress) exercise parsing path at different scales. Run benchmarks with:
 
 ```bash
 ./bench/run              # run benchmarks, print results
-./bench/run --compare    # compare current results against last logged release
+./bench/run --compare    # compare current results against last release
 ./bench/run --log        # also save to bench/results.csv (should only be used by release script / only run when creating a new release)
 ```
 
@@ -157,7 +151,7 @@ Benchmarks run automatically during `./release` and are recorded in `bench/resul
 
 ## Publishing a new release
 
-The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, commits, tags, pushes, and prints the sha256 for the Homebrew tap:
+The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, commits, tags and pushes. The `release` Actions workflow will automatically build and publish a GitHub release when the tag is pushed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`).
 
 ```bash
 ./release patch          # 0.1.0 → 0.1.1
@@ -165,8 +159,6 @@ The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, commi
 ./release major          # 0.1.0 → 1.0.0
 ./release 1.2.3          # explicit version
 ```
-
-The `release` workflow will automatically build and publish a GitHub release when the tag is pushed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`).
 
 ## License
 
