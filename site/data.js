@@ -1437,4 +1437,4 @@ Interactive controls:
 Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t",
          "deploy" = "d", "check" = "c"`;
 
-const VERSION = "0.17.0";
+const VERSION = "0.17.1";
