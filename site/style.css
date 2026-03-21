@@ -98,12 +98,19 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 16.25rem;
+  width: 18.75rem;
   flex-shrink: 0;
   background: var(--mantle);
   border-right: 0.0625rem solid var(--surface0);
   padding: 0.75rem 0;
   overflow-y: auto;
+}
+
+.sidebar-heading {
+  padding: 0.375rem 1rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--overlay0);
 }
 
 .sidebar-item {
@@ -159,9 +166,6 @@ body {
 .sidebar-desc {
   font-size: 0.75rem;
   color: var(--overlay0);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Terminal */
@@ -336,6 +340,12 @@ body {
   .sidebar-item.active {
     border-left-color: transparent;
     border-bottom-color: var(--cyan);
+  }
+  .sidebar-heading {
+    flex-shrink: 0;
+    padding: 0.375rem 0.875rem;
+    display: flex;
+    align-items: center;
   }
   .sidebar-desc {
     display: none;

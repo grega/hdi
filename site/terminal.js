@@ -15,6 +15,10 @@
 
   function buildSidebar() {
     sidebarEl.innerHTML = "";
+    var heading = document.createElement("div");
+    heading.className = "sidebar-heading";
+    heading.textContent = "Example projects";
+    sidebarEl.appendChild(heading);
     PROJECTS.forEach(function (p) {
       var item = document.createElement("div");
       item.className = "sidebar-item" + (p === currentProject ? " active" : "");
