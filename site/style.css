@@ -57,7 +57,7 @@ body {
 
 .tagline {
   color: var(--overlay0);
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
 }
 
@@ -69,13 +69,17 @@ body {
 
 .version {
   color: var(--overlay0);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .gh-link {
   color: var(--overlay0);
   transition: color 0.15s;
   display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  text-decoration: none;
 }
 
 .gh-link:hover {
@@ -90,7 +94,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 220px;
+  width: 260px;
   flex-shrink: 0;
   background: var(--mantle);
   border-right: 1px solid var(--surface0);
@@ -142,14 +146,14 @@ body {
 
 .sidebar-name {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .sidebar-desc {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--overlay0);
   white-space: nowrap;
   overflow: hidden;
@@ -286,21 +290,22 @@ body {
 
 /* Hints bar */
 .hints {
-  padding: 8px 20px;
+  padding: 12px 20px;
   background: var(--mantle);
   border-top: 1px solid var(--surface0);
   color: var(--overlay0);
-  font-size: 12px;
+  font-size: 14px;
   flex-shrink: 0;
+  line-height: 2;
 }
 
 .hints code {
   background: var(--surface0);
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 4px 8px;
+  border-radius: 4px;
   color: var(--subtext0);
-  font-size: 12px;
-  margin: 0 2px;
+  font-size: 13px;
+  margin: 0 3px;
 }
 
 /* Responsive */

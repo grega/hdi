@@ -104,6 +104,15 @@
         "Try: <code>hdi</code> <code>hdi install</code> <code>hdi run</code> " +
         "<code>hdi test</code> <code>hdi deploy</code> <code>hdi all</code> <code>hdi check</code> <code>hdi --full</code> <code>hdi --raw</code>";
     }
+    hintsEl.querySelectorAll("code").forEach(function (el) {
+      el.style.cursor = "pointer";
+      el.addEventListener("click", function () {
+        if (!promptActive) return;
+        inputBuffer = el.textContent;
+        updatePromptDisplay();
+        termEl.focus();
+      });
+    });
   }
 
   // ── Command parsing ──────────────────────────────────────────────────────
