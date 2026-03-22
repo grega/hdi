@@ -1,4 +1,4 @@
-# my-next-app
+# next-app
 
 A Next.js application with App Router for a SaaS analytics dashboard. Uses Tailwind CSS, Drizzle ORM, and NextAuth for authentication.
 

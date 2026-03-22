@@ -12,7 +12,7 @@ projects=(
   "node-express|express-api|Invoice management REST API|JS|JavaScript"
   "python-flask|flask-app|Sensor data processing service|PY|Python"
   "ruby-rails|rails-app|Team project management app|RB|Ruby"
-  "react-nextjs|my-next-app|SaaS analytics dashboard|TS|TypeScript"
+  "react-nextjs|next-app|SaaS analytics dashboard|TS|TypeScript"
   "go-project|go-service|Event stream microservice|GO|Go"
 )
 

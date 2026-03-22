@@ -867,11 +867,11 @@ MIT`,
   },
   {
     slug: "react-nextjs",
-    name: "my-next-app",
+    name: "next-app",
     description: "SaaS analytics dashboard",
     lang: "TS",
     langFull: "TypeScript",
-    readme: `# my-next-app
+    readme: `# next-app
 
 A Next.js application with App Router for a SaaS analytics dashboard. Uses Tailwind CSS, Drizzle ORM, and NextAuth for authentication.
 
