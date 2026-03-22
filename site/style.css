@@ -96,6 +96,10 @@ body {
   font-size: 0.875rem;
 }
 
+.version:hover {
+  color: var(--text);
+}
+
 .gh-link {
   color: var(--overlay0);
   transition: color 0.15s;
