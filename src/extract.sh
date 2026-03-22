@@ -37,8 +37,8 @@ _RE_INDENTED_CMD="^[[:space:]]*(\\\$[[:space:]]+)?($CMD_PREFIXES)( |$)"
 # Extract backtick-wrapped commands from a line of text.
 # Sets _FBC_RESULT (newline-separated) instead of printing to stdout.
 # Usage: find_backtick_commands "text" [require_args]
-#   require_args=true  (default) — prefix must be followed by a space (prose)
-#   require_args=false            — bare prefix allowed (headings like `make`)
+#   require_args=true  (default) - prefix must be followed by a space (prose)
+#   require_args=false            - bare prefix allowed (headings like `make`)
 find_backtick_commands() {
   local text="$1"
   local require_args="${2:-true}"
@@ -172,7 +172,7 @@ extract_commands() {
         indented_buf+="$dedented"$'\n'
         continue
       fi
-      # Flush indented buffer — only include if it looks like commands
+      # Flush indented buffer - only include if it looks like commands
       if [[ -n "$indented_buf" ]]; then
         shopt -s nocasematch
         if [[ "$indented_buf" =~ $_RE_INDENTED_CMD ]]; then

@@ -42,7 +42,7 @@ parse_sections() {
         in_section=false
         body=""
       elif [[ "$text" =~ $PATTERN ]]; then
-        # Deeper child heading also matches — save parent body first
+        # Deeper child heading also matches - save parent body first
         SECTION_TITLES+=("$heading_text")
         SECTION_BODIES+=("$body")
         in_section=false
@@ -79,7 +79,7 @@ parse_sections() {
       continue
     fi
 
-    # Inside a code block — skip heading detection, just accumulate body
+    # Inside a code block - skip heading detection, just accumulate body
     if $ps_in_code; then
       if $have_prev; then
         if $in_section; then body+="$prev_line"$'\n'; fi

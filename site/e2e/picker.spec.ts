@@ -84,7 +84,7 @@ test.describe('Interactive picker', () => {
 
   test('cannot navigate past first command', async ({ page }) => {
     const first = await page.locator('.picker-row.selected .t-command').textContent();
-    // Press up many times — should stay on first
+    // Press up many times - should stay on first
     for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowUp');
     const still = await page.locator('.picker-row.selected .t-command').textContent();
     expect(still).toBe(first);

@@ -49,7 +49,7 @@ Sleep 2.5s
 Up
 Sleep 2.5s
 
-# Cursor is now on "bundle install" — execute it
+# Cursor is now on "bundle install" - execute it
 Enter
 Sleep 2.5s
 

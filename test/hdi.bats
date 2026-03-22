@@ -462,7 +462,7 @@ setup() {
 }
 
 @test "elixir/phoenix: elixir blocks are extracted (not skipped)" {
-  # elixir is a command language, not a data format — hdi should extract it
+  # elixir is a command language, not a data format - hdi should extract it
   run "$HDI" all --raw "$FIXTURES/elixir-phoenix"
   [ "$status" -eq 0 ]
   [[ "$output" == *"config :phoenix_app"* ]]
@@ -1088,7 +1088,7 @@ else:
   [[ "$output" == *"npm start"* ]]
 }
 
-@test "keywords: 'spec' dropped — API Specification does not match test mode" {
+@test "keywords: 'spec' dropped - API Specification does not match test mode" {
   run "$HDI" test --raw --ni "$FIXTURES/keyword-refinements"
   [ "$status" -eq 0 ]
   [[ "$output" != *"OpenAPI"* ]]

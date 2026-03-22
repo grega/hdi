@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# hdi - "How do I..." — Extracts setup/run/test commands from a README.
+# hdi - "How do I..." - Extracts setup/run/test commands from a README.
 #
 # Usage:
 #   hdi                           Interactive command picker (default in a terminal)

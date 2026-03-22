@@ -53,7 +53,7 @@ Make sure `~/.local/bin` is on your `$PATH`.
 ## Usage
 
 ```
-hdi                    Interactive picker — shows all sections (default)
+hdi                    Interactive picker - shows all sections (default)
 hdi install            Just install/setup commands (aliases: setup, i)
 hdi run                Just run/start commands (aliases: start, r)
 hdi test               Just test commands (alias: t)

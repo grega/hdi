@@ -21,7 +21,7 @@ build_display_list() {
     LINE_CMDS+=("")
 
     # Extract commands from backtick-wrapped text in the heading itself
-    # (eg. ### `yarn start` — the command is the heading)
+    # (eg. ### `yarn start` - the command is the heading)
     find_backtick_commands "$title" false
     local title_cmds="$_FBC_RESULT"
     local has_cmds=false
@@ -54,7 +54,7 @@ build_display_list() {
       local _deduped="" _dup _cur_group="" _group_seen=""
       while IFS= read -r _cmd; do
         [[ -z "$_cmd" ]] && continue
-        # Sub-header marker — reset per-group seen list
+        # Sub-header marker - reset per-group seen list
         if [[ "$_cmd" == "$_EC_SUBHDR"* ]]; then
           _deduped+="$_cmd"$'\n'
           _group_seen=""
@@ -103,7 +103,7 @@ build_display_list() {
     fi
 
     if ! $has_cmds; then
-      DISPLAY_LINES+=("(no commands — use --full to see prose)")
+      DISPLAY_LINES+=("(no commands - use --full to see prose)")
       LINE_TYPES+=("empty")
       LINE_CMDS+=("")
     fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# hdi - "How do I..." — Extracts setup/run/test commands from a README.
+# hdi - "How do I..." - Extracts setup/run/test commands from a README.
 #
 # Usage:
 #   hdi                           Interactive command picker (default in a terminal)
@@ -175,7 +175,7 @@ parse_sections() {
         in_section=false
         body=""
       elif [[ "$text" =~ $PATTERN ]]; then
-        # Deeper child heading also matches — save parent body first
+        # Deeper child heading also matches - save parent body first
         SECTION_TITLES+=("$heading_text")
         SECTION_BODIES+=("$body")
         in_section=false
@@ -212,7 +212,7 @@ parse_sections() {
       continue
     fi
 
-    # Inside a code block — skip heading detection, just accumulate body
+    # Inside a code block - skip heading detection, just accumulate body
     if $ps_in_code; then
       if $have_prev; then
         if $in_section; then body+="$prev_line"$'\n'; fi
@@ -341,8 +341,8 @@ _RE_INDENTED_CMD="^[[:space:]]*(\\\$[[:space:]]+)?($CMD_PREFIXES)( |$)"
 # Extract backtick-wrapped commands from a line of text.
 # Sets _FBC_RESULT (newline-separated) instead of printing to stdout.
 # Usage: find_backtick_commands "text" [require_args]
-#   require_args=true  (default) — prefix must be followed by a space (prose)
-#   require_args=false            — bare prefix allowed (headings like `make`)
+#   require_args=true  (default) - prefix must be followed by a space (prose)
+#   require_args=false            - bare prefix allowed (headings like `make`)
 find_backtick_commands() {
   local text="$1"
   local require_args="${2:-true}"
@@ -476,7 +476,7 @@ extract_commands() {
         indented_buf+="$dedented"$'\n'
         continue
       fi
-      # Flush indented buffer — only include if it looks like commands
+      # Flush indented buffer - only include if it looks like commands
       if [[ -n "$indented_buf" ]]; then
         shopt -s nocasematch
         if [[ "$indented_buf" =~ $_RE_INDENTED_CMD ]]; then
@@ -544,7 +544,7 @@ build_display_list() {
     LINE_CMDS+=("")
 
     # Extract commands from backtick-wrapped text in the heading itself
-    # (eg. ### `yarn start` — the command is the heading)
+    # (eg. ### `yarn start` - the command is the heading)
     find_backtick_commands "$title" false
     local title_cmds="$_FBC_RESULT"
     local has_cmds=false
@@ -577,7 +577,7 @@ build_display_list() {
       local _deduped="" _dup _cur_group="" _group_seen=""
       while IFS= read -r _cmd; do
         [[ -z "$_cmd" ]] && continue
-        # Sub-header marker — reset per-group seen list
+        # Sub-header marker - reset per-group seen list
         if [[ "$_cmd" == "$_EC_SUBHDR"* ]]; then
           _deduped+="$_cmd"$'\n'
           _group_seen=""
@@ -626,7 +626,7 @@ build_display_list() {
     fi
 
     if ! $has_cmds; then
-      DISPLAY_LINES+=("(no commands — use --full to see prose)")
+      DISPLAY_LINES+=("(no commands - use --full to see prose)")
       LINE_TYPES+=("empty")
       LINE_CMDS+=("")
     fi
@@ -1055,7 +1055,7 @@ run_interactive() {
 
 # ── Check mode: report which tools are installed ─────────────────────────────
 
-# Shell builtins and coreutils that are always available — not worth checking
+# Shell builtins and coreutils that are always available - not worth checking
 _CHECK_SKIP="^(cd|cp|mv|rm|mkdir|echo|export|source|cat|chmod|chown|ln|touch|ls|printf|trap|pwd|set|unset|eval|exec|exit|return|read|test|true|false|tee|head|tail|wc|sort|grep|xargs|find|tar|gzip|gunzip|sed|awk|tr|cut|diff|date|sleep|kill|whoami|env|which|man|less|more)$"
 
 # Extract the tool name from a command string.

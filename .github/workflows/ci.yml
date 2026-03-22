@@ -17,7 +17,7 @@ jobs:
       - name: Check hdi is up to date
         run: |
           if ! git diff --quiet hdi; then
-            echo "Error: hdi is out of date — run ./build and commit"
+            echo "Error: hdi is out of date - run ./build and commit"
             git diff hdi
             exit 1
           fi

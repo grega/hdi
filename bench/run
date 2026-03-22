@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bench/run — benchmark hdi against static READMEs and report timings.
+# bench/run - benchmark hdi against static READMEs and report timings.
 #
 # Usage:
 #   ./bench/run              # run benchmarks, print results only
@@ -95,7 +95,7 @@ done
 
 printf "\n"
 printf "  hdi %s on %s\n" "$version" "$machine"
-printf "  %s — %d runs per fixture\n\n" "$timestamp" "$RUNS"
+printf "  %s - %d runs per fixture\n\n" "$timestamp" "$RUNS"
 
 if $DO_COMPARE && [[ -f "$LOG" ]]; then
   # Find the latest logged version

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# release — bump version, tag, push, and print the sha256 for the Homebrew tap.
+# release - bump version, tag, push, and print the sha256 for the Homebrew tap.
 #
 # Usage:
 #   ./release 0.1.0
@@ -53,7 +53,7 @@ if git tag -l "$tag" | grep -q .; then
 fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "Error: working tree is not clean — commit or stash first" >&2
+  echo "Error: working tree is not clean - commit or stash first" >&2
   exit 1
 fi
 
@@ -90,7 +90,7 @@ echo ""
 echo "Waiting for tarball to be available..."
 tarball_url="https://github.com/grega/hdi/archive/refs/tags/$tag.tar.gz"
 
-# Retry a few times — GitHub may take a moment after the push
+# Retry a few times - GitHub may take a moment after the push
 for i in 1 2 3 4 5; do
   sha=$(curl -sfL "$tarball_url" | shasum -a 256 | awk '{print $1}')
   if [[ -n "$sha" ]]; then
@@ -103,5 +103,5 @@ for i in 1 2 3 4 5; do
   sleep 2
 done
 
-echo "Warning: could not fetch tarball — check $tarball_url manually" >&2
+echo "Warning: could not fetch tarball - check $tarball_url manually" >&2
 exit 1
