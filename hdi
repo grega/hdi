@@ -18,6 +18,7 @@
 #
 # Interactive controls:
 #   ↑/↓  k/j     Navigate commands
+#   Tab/S-Tab    Jump between sections
 #   Enter        Execute the highlighted command
 #   c            Copy highlighted command to clipboard
 #   q / Esc      Quit
@@ -530,6 +531,7 @@ declare -a DISPLAY_LINES=()   # what to print
 declare -a LINE_TYPES=()      # "header" | "subheader" | "command" | "empty"
 declare -a LINE_CMDS=()       # the raw command (only for type=command)
 declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
+declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
 
 build_display_list() {
   for i in "${!SECTION_TITLES[@]}"; do
@@ -546,11 +548,16 @@ build_display_list() {
     find_backtick_commands "$title" false
     local title_cmds="$_FBC_RESULT"
     local has_cmds=false
+    local _section_recorded=false
     if [[ -n "$title_cmds" ]]; then
       while IFS= read -r tcmd; do
         [[ -z "$tcmd" ]] && continue
         has_cmds=true
         CMD_INDICES+=("${#DISPLAY_LINES[@]}")
+        if ! $_section_recorded; then
+          SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _section_recorded=true
+        fi
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$tcmd")
@@ -608,6 +615,10 @@ build_display_list() {
         fi
         has_cmds=true
         CMD_INDICES+=("${#DISPLAY_LINES[@]}")
+        if ! $_section_recorded; then
+          SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _section_recorded=true
+        fi
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$_entry")
@@ -849,7 +860,7 @@ draw_picker() {
   if [[ -n "$FLASH_MSG" ]]; then
     printf "\n%s  %s%s\n" "$DIM" "$FLASH_MSG" "$RESET"
   else
-    printf "\n%s  ↑↓ navigate  ⏎ execute  c copy  q quit%s\n" "$DIM" "$RESET"
+    printf "\n%s  ↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit%s\n" "$DIM" "$RESET"
   fi
   (( count += 2 ))  # blank line + footer line
 
@@ -917,6 +928,9 @@ run_interactive() {
         case "$byte3" in
           A) KEY="up" ;;
           B) KEY="down" ;;
+          C) KEY="right" ;;
+          D) KEY="left" ;;
+          Z) KEY="shift-tab" ;;
           *) KEY="" ;;
         esac
       elif [[ -z "$byte2" ]]; then
@@ -926,6 +940,8 @@ run_interactive() {
       fi
     elif [[ "$byte" == "" ]] || [[ "$byte" == $'\n' ]] || [[ "$byte" == $'\r' ]]; then
       KEY="enter"
+    elif [[ "$byte" == $'\t' ]]; then
+      KEY="tab"
     else
       KEY="$byte"
     fi
@@ -947,6 +963,28 @@ run_interactive() {
       down|j)
         if (( cursor < num_cmds - 1 )); then
           (( cursor += 1 ))
+          selected="${CMD_INDICES[$cursor]}"
+        fi
+        ;;
+
+      tab|right)
+        for _sf in "${SECTION_FIRST_CMD[@]}"; do
+          if (( _sf > cursor )); then
+            cursor=$_sf
+            selected="${CMD_INDICES[$cursor]}"
+            break
+          fi
+        done
+        ;;
+
+      shift-tab|left)
+        local _prev=-1
+        for _sf in "${SECTION_FIRST_CMD[@]}"; do
+          (( _sf >= cursor )) && break
+          _prev=$_sf
+        done
+        if (( _prev >= 0 )); then
+          cursor=$_prev
           selected="${CMD_INDICES[$cursor]}"
         fi
         ;;

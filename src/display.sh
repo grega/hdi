@@ -8,6 +8,7 @@ declare -a DISPLAY_LINES=()   # what to print
 declare -a LINE_TYPES=()      # "header" | "subheader" | "command" | "empty"
 declare -a LINE_CMDS=()       # the raw command (only for type=command)
 declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
+declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
 
 build_display_list() {
   for i in "${!SECTION_TITLES[@]}"; do
@@ -24,11 +25,16 @@ build_display_list() {
     find_backtick_commands "$title" false
     local title_cmds="$_FBC_RESULT"
     local has_cmds=false
+    local _section_recorded=false
     if [[ -n "$title_cmds" ]]; then
       while IFS= read -r tcmd; do
         [[ -z "$tcmd" ]] && continue
         has_cmds=true
         CMD_INDICES+=("${#DISPLAY_LINES[@]}")
+        if ! $_section_recorded; then
+          SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _section_recorded=true
+        fi
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$tcmd")
@@ -86,6 +92,10 @@ build_display_list() {
         fi
         has_cmds=true
         CMD_INDICES+=("${#DISPLAY_LINES[@]}")
+        if ! $_section_recorded; then
+          SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _section_recorded=true
+        fi
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$_entry")

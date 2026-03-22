@@ -88,6 +88,7 @@ Example: `hdi --raw | pbcopy` to copy commands to clipboard.
 | Key | Action |
 |-----|--------|
 | `↑` `↓` / `k` `j` | Navigate commands |
+| `Tab` / `Shift+Tab` | Jump between sections |
 | `Enter` | Execute highlighted command |
 | `c` | Copy highlighted command to clipboard |
 | `q` / `Esc` | Quit |

@@ -70,7 +70,7 @@ draw_picker() {
   if [[ -n "$FLASH_MSG" ]]; then
     printf "\n%s  %s%s\n" "$DIM" "$FLASH_MSG" "$RESET"
   else
-    printf "\n%s  ↑↓ navigate  ⏎ execute  c copy  q quit%s\n" "$DIM" "$RESET"
+    printf "\n%s  ↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit%s\n" "$DIM" "$RESET"
   fi
   (( count += 2 ))  # blank line + footer line
 
@@ -138,6 +138,9 @@ run_interactive() {
         case "$byte3" in
           A) KEY="up" ;;
           B) KEY="down" ;;
+          C) KEY="right" ;;
+          D) KEY="left" ;;
+          Z) KEY="shift-tab" ;;
           *) KEY="" ;;
         esac
       elif [[ -z "$byte2" ]]; then
@@ -147,6 +150,8 @@ run_interactive() {
       fi
     elif [[ "$byte" == "" ]] || [[ "$byte" == $'\n' ]] || [[ "$byte" == $'\r' ]]; then
       KEY="enter"
+    elif [[ "$byte" == $'\t' ]]; then
+      KEY="tab"
     else
       KEY="$byte"
     fi
@@ -168,6 +173,28 @@ run_interactive() {
       down|j)
         if (( cursor < num_cmds - 1 )); then
           (( cursor += 1 ))
+          selected="${CMD_INDICES[$cursor]}"
+        fi
+        ;;
+
+      tab|right)
+        for _sf in "${SECTION_FIRST_CMD[@]}"; do
+          if (( _sf > cursor )); then
+            cursor=$_sf
+            selected="${CMD_INDICES[$cursor]}"
+            break
+          fi
+        done
+        ;;
+
+      shift-tab|left)
+        local _prev=-1
+        for _sf in "${SECTION_FIRST_CMD[@]}"; do
+          (( _sf >= cursor )) && break
+          _prev=$_sf
+        done
+        if (( _prev >= 0 )); then
+          cursor=$_prev
           selected="${CMD_INDICES[$cursor]}"
         fi
         ;;

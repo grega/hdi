@@ -18,6 +18,7 @@
 #
 # Interactive controls:
 #   ↑/↓  k/j     Navigate commands
+#   Tab/S-Tab    Jump between sections
 #   Enter        Execute the highlighted command
 #   c            Copy highlighted command to clipboard
 #   q / Esc      Quit

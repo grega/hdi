@@ -746,6 +746,91 @@ else:
   rm -rf "$fake_bin"
 }
 
+@test "interactive: Tab jumps to next section's first command" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
+
+  local fake_bin clip_file
+  fake_bin="$(mktemp -d)"
+  clip_file="$fake_bin/clipboard.txt"
+
+  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
+  chmod +x "$fake_bin/pbcopy"
+
+  # Keys: Tab Tab c q  (jump 2 sections forward, copy, quit)
+  # Sections: Prerequisites → Installation → Development
+  # First cmds: nvm install 20 → npm install → npm run dev
+  local keys=$'\t\tcq'
+
+  python3 -c "
+import pty, os, sys, time, select
+
+os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
+keys = sys.argv[2].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[3], sys.argv[3:])
+else:
+    time.sleep(0.5)
+    os.write(fd, keys)
+    time.sleep(0.5)
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    os.waitpid(pid, 0)
+" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+
+  [ -f "$clip_file" ]
+  [[ "$(cat "$clip_file")" == "npm run dev" ]]
+
+  rm -rf "$fake_bin"
+}
+
+@test "interactive: Shift+Tab jumps to previous section's first command" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
+
+  local fake_bin clip_file
+  fake_bin="$(mktemp -d)"
+  clip_file="$fake_bin/clipboard.txt"
+
+  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
+  chmod +x "$fake_bin/pbcopy"
+
+  # Keys: Tab Tab Tab Shift-Tab c q
+  # Jump: Prerequisites → Installation → Development → Testing → back to Development
+  local keys=$'\t\t\t\x1b[Zcq'
+
+  python3 -c "
+import pty, os, sys, time, select
+
+os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
+keys = sys.argv[2].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[3], sys.argv[3:])
+else:
+    time.sleep(0.5)
+    os.write(fd, keys)
+    time.sleep(0.5)
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    os.waitpid(pid, 0)
+" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+
+  [ -f "$clip_file" ]
+  [[ "$(cat "$clip_file")" == "npm run dev" ]]
+
+  rm -rf "$fake_bin"
+}
+
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
 @test "tilde fences: extracts commands from ~~~ blocks" {
