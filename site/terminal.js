@@ -17,7 +17,7 @@
   }
 
   function clearTerminal() {
-    clearTerminal();
+    termEl.innerHTML = "";
     termEl.appendChild(hiddenInput);
   }
 
@@ -384,7 +384,6 @@
     }
   }
 
-  termEl.addEventListener("keydown", onKeyDown);
   hiddenInput.addEventListener("keydown", onKeyDown);
 
   // Handle mobile keyboard input via the hidden input element.

@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>hdi - "How do I..." demo</title>
+  <title>hdi - Extract install/run/test commands from project READMEs</title>
+  <meta name="description" content="CLI tool that scans a project's README and extracts the commands you need to get it running. No dependencies, just Bash.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <script defer data-domain="hdi.gregdev.com" src="https://analytics.gregdev.com/js/script.file-downloads.hash.outbound-links.js"></script>
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
@@ -12,7 +14,10 @@
   <header class="header">
     <div class="header-left">
       <span class="logo">[hdi]</span>
-      <span class="tagline">"How do I..." demo site. Summarise how to install / run / test a project, from its README.</span>
+      <nav class="tabs">
+        <button class="tab active" data-tab="about">About</button>
+        <button class="tab" data-tab="demo">Interactive demo</button>
+      </nav>
     </div>
     <div class="header-right">
       <span class="version">v0.17.1</span>
@@ -20,26 +25,144 @@
         <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
         </svg>
-        View on GitHub
       </a>
     </div>
   </header>
 
-  <main class="main">
-    <aside class="sidebar" id="sidebar"></aside>
-    <section class="terminal-wrap">
-      <div class="terminal" id="terminal" tabindex="0">
-        <input id="terminal-input" class="terminal-hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <main class="about" id="about">
+    <section class="hero">
+      <h1><span class="hero-accent">"How do I...</span> run this thing?"</h1>
+      <p class="hero-sub">
+        Scan a project's README and extract the commands you need to get it running.
+        No more opening an editor and scrolling through docs to find the <code>install</code>, <code>run</code>, <code>test</code> and <code>deploy</code> steps.
+      </p>
+    </section>
+
+    <section class="demo-gif">
+      <img src="https://raw.githubusercontent.com/grega/hdi/main/demo/demo.gif" alt="Animated demo showing hdi in action" width="800" height="500" loading="lazy">
+    </section>
+
+    <section class="install-section">
+      <h2>Install</h2>
+      <div class="install-methods">
+        <div class="install-method">
+          <h3>Homebrew</h3>
+          <div class="install-code">
+            <pre><code>brew install grega/tap/hdi</code></pre>
+            <button class="copy-btn" data-copy="brew install grega/tap/hdi" title="Copy to clipboard">Copy</button>
+          </div>
+        </div>
+        <div class="install-method">
+          <h3>Manual</h3>
+          <div class="install-code">
+            <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
+  -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
+            <button class="copy-btn" data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi" title="Copy to clipboard">Copy</button>
+          </div>
+        </div>
       </div>
+      <p class="install-note">No dependencies, just Bash. Works on macOS and Linux.</p>
+    </section>
+
+    <section class="usage-section">
+      <h2>Usage</h2>
+      <pre class="usage-block"><code>$ cd some-project
+$ hdi
+<span class="u-yellow">[hdi]</span> some-project
+
+ <span class="u-yellow">▸</span> <span class="u-cyan">Installation</span>
+  <span class="u-green">▶ npm install</span>
+    <span class="u-green">cp .env.example .env</span>
+
+ <span class="u-yellow">▸</span> <span class="u-cyan">Run</span>
+    <span class="u-green">npm run dev</span>
+
+  ↑↓ navigate  ⏎ execute  c copy  q quit</code></pre>
+      <p class="usage-docs-link">
+        <a href="https://github.com/grega/hdi#usage" target="_blank" rel="noopener">Full documentation on GitHub &rarr;</a>
+      </p>
+    </section>
+
+    <section class="links-section">
+      <p class="usage-docs-link">
+        <a href="https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-extract-run-commands-from-project-readmes/" target="_blank" rel="noopener">Read the blog post &rarr;</a>
+      </p>
     </section>
   </main>
 
-  <footer class="hints" id="hints">
-    Try: <code>hdi</code> <code>hdi install</code> <code>hdi run</code> <code>hdi test</code> <code>hdi all</code> <code>hdi check</code> <code>hdi --full</code> <code>hdi --raw</code>
-  </footer>
+  <main class="demo-view hidden" id="demo-view">
+    <div class="demo-layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <section class="terminal-wrap">
+        <div class="terminal" id="terminal" tabindex="0">
+          <input id="terminal-input" title="Terminal input" class="terminal-hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+      </section>
+    </div>
+    <footer class="hints" id="hints">
+      Try: <code>hdi</code> <code>hdi install</code> <code>hdi run</code> <code>hdi test</code> <code>hdi all</code> <code>hdi check</code> <code>hdi --full</code> <code>hdi --raw</code>
+    </footer>
+  </main>
 
   <script src="data.js"></script>
   <script src="picker.js"></script>
   <script src="terminal.js"></script>
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll(".tab");
+      var aboutView = document.getElementById("about");
+      var demoView = document.getElementById("demo-view");
+
+      function switchTab(name, pushState) {
+        tabs.forEach(function (t) { t.classList.remove("active"); });
+        document.querySelector('.tab[data-tab="' + name + '"]').classList.add("active");
+
+        if (name === "about") {
+          aboutView.classList.remove("hidden");
+          demoView.classList.add("hidden");
+        } else {
+          aboutView.classList.add("hidden");
+          demoView.classList.remove("hidden");
+          document.getElementById("terminal-input").focus();
+        }
+
+        if (pushState) {
+          var hash = name === "about" ? "" : "#demo";
+          history.pushState(null, "", location.pathname + hash);
+        }
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          switchTab(tab.dataset.tab, true);
+        });
+      });
+
+      // Handle back/forward navigation
+      window.addEventListener("popstate", function () {
+        switchTab(location.hash === "#demo" ? "demo" : "about", false);
+      });
+
+      // Restore tab from URL on load
+      if (location.hash === "#demo") {
+        switchTab("demo", false);
+      }
+    })();
+
+    // Copy buttons
+    document.querySelectorAll(".copy-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        navigator.clipboard.writeText(btn.dataset.copy).then(function () {
+          var original = btn.textContent;
+          btn.textContent = "Copied!";
+          btn.classList.add("copied");
+          setTimeout(function () {
+            btn.textContent = original;
+            btn.classList.remove("copied");
+          }, 1500);
+        });
+      });
+    });
+  </script>
 </body>
 </html>
