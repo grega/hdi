@@ -10,3 +10,8 @@ Thumbs.db
 
 # logs
 *.log
+
+# Node / Playwright (site tests)
+node_modules/
+site/test-results/
+site/playwright-report/

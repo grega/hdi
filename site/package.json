@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "hdi-site-tests",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "serve": "^14.0.0"
+  }
+}
