@@ -719,7 +719,7 @@ MIT`,
       ],
     },
     check: [
-      { tool: "brew", installed: true, version: "5.1.0" },
+      { tool: "brew", installed: true, version: "5.1.1" },
       { tool: "bundle", installed: true, version: "2.5.3" },
       { tool: "rails", installed: true },
       { tool: "kamal", installed: false },
@@ -1274,7 +1274,7 @@ REDIS_URL=redis://localhost:6379
       ],
     },
     check: [
-      { tool: "brew", installed: true, version: "5.1.0" },
+      { tool: "brew", installed: true, version: "5.1.1" },
       { tool: "go", installed: false },
       { tool: "docker", installed: true, version: "29.1.3" },
     ],
@@ -1438,4 +1438,4 @@ Interactive controls:
 Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t",
          "deploy" = "d", "check" = "c"`;
 
-const VERSION = "0.19.0";
+const VERSION = "0.19.1";
