@@ -88,7 +88,7 @@ run_interactive() {
   local num_cmds=${#CMD_INDICES[@]}
 
   if (( num_cmds == 0 )); then
-    echo "${YELLOW}No commands to pick from.${RESET}" >&2
+    echo "${YELLOW}hdi: no commands to pick from${RESET}" >&2
     echo "${DIM}Try: hdi all --full${RESET}" >&2
     exit 1
   fi

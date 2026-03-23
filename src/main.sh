@@ -8,7 +8,7 @@ fi
 parse_sections < "$README"
 
 if (( ${#SECTION_TITLES[@]} == 0 )); then
-  echo "${YELLOW}No matching sections found in ${README}${RESET}" >&2
+  echo "${YELLOW}hdi: no matching sections found in ${README}${RESET}" >&2
   echo "${DIM}Try: hdi all --full${RESET}" >&2
   exit 1
 fi

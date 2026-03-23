@@ -54,7 +54,8 @@ run_check() {
   done
 
   if (( ${#tools[@]} == 0 )); then
-    echo "${YELLOW}No tool references found in commands.${RESET}" >&2
+    echo "${YELLOW}hdi: no tool references found in commands${RESET}" >&2
+    echo "${DIM}Try: hdi all --full${RESET}" >&2
     exit 1
   fi
 

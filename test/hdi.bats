@@ -24,13 +24,13 @@ setup() {
 @test "unknown argument exits with error" {
   run "$HDI" --nonsense
   [ "$status" -eq 1 ]
-  [[ "$output" == *"Unknown argument"* ]]
+  [[ "$output" == *"unknown argument"* ]]
 }
 
 @test "no README exits with error" {
   run "$HDI" --ni "$FIXTURES/no-readme"
   [ "$status" -eq 1 ]
-  [[ "$output" == *"No README found"* ]]
+  [[ "$output" == *"no README found"* ]]
 }
 
 @test "directory path argument works" {

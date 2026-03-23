@@ -41,7 +41,9 @@ for arg in "$@"; do
       elif [[ -f "$arg" && ( "$arg" == *.md || "$arg" == *.rst ) ]]; then
         FILE="$arg"
       else
-        echo "Unknown argument: $arg" >&2; exit 1
+        echo "hdi: unknown argument: $arg" >&2
+        echo "Try: hdi --help" >&2
+        exit 1
       fi
       ;;
   esac

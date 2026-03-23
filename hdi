@@ -74,7 +74,9 @@ for arg in "$@"; do
       elif [[ -f "$arg" && ( "$arg" == *.md || "$arg" == *.rst ) ]]; then
         FILE="$arg"
       else
-        echo "Unknown argument: $arg" >&2; exit 1
+        echo "hdi: unknown argument: $arg" >&2
+        echo "Try: hdi --help" >&2
+        exit 1
       fi
       ;;
   esac
@@ -124,7 +126,8 @@ else
 fi
 
 if [[ -z "$README" ]]; then
-  echo "${YELLOW}No README found in ${DIR}${RESET}" >&2
+  echo "${YELLOW}hdi: no README found in ${DIR}${RESET}" >&2
+  echo "${DIM}Looked for README.md, readme.md, Readme.md, README.rst${RESET}" >&2
   exit 1
 fi
 
@@ -871,7 +874,7 @@ run_interactive() {
   local num_cmds=${#CMD_INDICES[@]}
 
   if (( num_cmds == 0 )); then
-    echo "${YELLOW}No commands to pick from.${RESET}" >&2
+    echo "${YELLOW}hdi: no commands to pick from${RESET}" >&2
     echo "${DIM}Try: hdi all --full${RESET}" >&2
     exit 1
   fi
@@ -1100,7 +1103,8 @@ run_check() {
   done
 
   if (( ${#tools[@]} == 0 )); then
-    echo "${YELLOW}No tool references found in commands.${RESET}" >&2
+    echo "${YELLOW}hdi: no tool references found in commands${RESET}" >&2
+    echo "${DIM}Try: hdi all --full${RESET}" >&2
     exit 1
   fi
 
@@ -1392,7 +1396,7 @@ fi
 parse_sections < "$README"
 
 if (( ${#SECTION_TITLES[@]} == 0 )); then
-  echo "${YELLOW}No matching sections found in ${README}${RESET}" >&2
+  echo "${YELLOW}hdi: no matching sections found in ${README}${RESET}" >&2
   echo "${DIM}Try: hdi all --full${RESET}" >&2
   exit 1
 fi
