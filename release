@@ -79,7 +79,7 @@ if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   "$SCRIPT_DIR/bench/chart"
 fi
 
-git add src/header.sh hdi bench/results.csv bench/results.svg site/index.html site/data.js
+git add src/header.sh hdi doc/hdi.1 bench/results.csv bench/results.svg site/index.html site/data.js
 git commit -m "Bump version to $new"
 git tag "$tag"
 git push origin HEAD --tags

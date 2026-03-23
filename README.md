@@ -110,7 +110,15 @@ No dependencies, just Bash. Works on macOS and Linux.
 
 ## Development
 
+Install dependencies:
+
+```bash
+brew install scdoc # or: apt-get install scdoc
+```
+
 After editing any file in `src/`, run `./build` to regenerate `hdi`, then commit both. CI will fail if `hdi` is out of date with `src/`.
+
+The build also regenerates the man page (`doc/hdi.1`) from `doc/hdi.1.scd` using [scdoc](https://git.sr.ht/~sircmpwn/scdoc). The scdoc source is maintained by hand; when it needs updating however, a coding agent is well-placed to regenerate it from `src/header.sh` and this README.
 
 A pre-commit hook is included that automatically rebuilds `hdi` when `src/` files are staged. To install it:
 
@@ -123,7 +131,7 @@ git config core.hooksPath .githooks
 Tests use [bats-core](https://github.com/bats-core/bats-core). Linting uses [ShellCheck](https://www.shellcheck.net/).
 
 ```bash
-brew install bats-core shellcheck  # or: apt-get install bats shellcheck
+brew install bats-core shellcheck # or: apt-get install bats shellcheck
 shellcheck hdi
 bats test/hdi.bats
 ```

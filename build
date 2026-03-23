@@ -29,3 +29,7 @@ done
 
 chmod +x "$OUT"
 echo "Built: $OUT ($(wc -l < "$OUT" | tr -d ' ') lines)"
+
+# Regenerate man page
+scdoc < "$SCRIPT_DIR/doc/hdi.1.scd" > "$SCRIPT_DIR/doc/hdi.1"
+echo "Built: $SCRIPT_DIR/doc/hdi.1"
