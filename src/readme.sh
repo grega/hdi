@@ -12,5 +12,6 @@ fi
 if [[ -z "$README" ]]; then
   echo "${YELLOW}hdi: no README found in ${DIR}${RESET}" >&2
   echo "${DIM}Looked for README.md, readme.md, Readme.md, README.rst${RESET}" >&2
+  echo "${DIM}Try: hdi --help${RESET}" >&2
   exit 1
 fi
