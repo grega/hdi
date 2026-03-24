@@ -12,7 +12,7 @@
 #   hdi [mode] --no-interactive   Print commands without the picker
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
-#   hdi --json                     Structured JSON output (includes all sections)
+#   hdi --json                    Structured JSON output (includes all sections)
 #   hdi [mode] /path              Scan a specific directory
 #   hdi [mode] /path/to/file.md   Parse a specific markdown file
 #

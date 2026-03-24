@@ -144,7 +144,7 @@ MIT`,
     check: [
       { tool: "nvm", installed: false },
       { tool: "npm", installed: true, version: "11.11.0" },
-      { tool: "npx", installed: true, version: "10.9.4" },
+      { tool: "npx", installed: true, version: "11.9.0" },
       { tool: "docker", installed: true, version: "29.1.3" },
     ],
     fullProse: {
@@ -1105,7 +1105,7 @@ See the [Next.js docs](https://nextjs.org/docs).`,
     },
     check: [
       { tool: "npm", installed: true, version: "11.11.0" },
-      { tool: "npx", installed: true, version: "10.9.4" },
+      { tool: "npx", installed: true, version: "11.9.0" },
     ],
     fullProse: {
       default: [
@@ -1588,11 +1588,11 @@ Usage:
   hdi test                      Just test commands
   hdi deploy                    Just deploy/release commands
   hdi all                       Show all matched sections
-  hdi check                     Check if required tools are installed
+  hdi check                     Check if required tools are installed (experimental)
   hdi [mode] --no-interactive   Print commands without the picker
   hdi [mode] --full             Include prose around commands
   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
-  hdi --json                     Structured JSON output (includes all sections)
+  hdi --json                    Structured JSON output (includes all sections)
   hdi [mode] /path              Scan a specific directory
   hdi [mode] /path/to/file.md   Parse a specific markdown file
 
