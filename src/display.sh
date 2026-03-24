@@ -40,9 +40,9 @@ build_display_list() {
       done <<< "$title_cmds"
     fi
 
-    # Extract commands with sub-group markers (single pass over the body).
+    # Extract commands with sub-group markers (single pass over the body)
     # Sub-headings and bold pseudo-headings produce \x01-prefixed marker
-    # lines; everything else is a command or empty line.
+    # lines; everything else is a command or empty line
     _EC_GROUPED=true
     extract_commands "$body"
     _EC_GROUPED=false

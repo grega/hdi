@@ -33,10 +33,18 @@
       var item = document.createElement("div");
       item.className = "sidebar-item" + (p === currentProject ? " active" : "");
       item.innerHTML =
-        '<span class="sidebar-badge lang-' + p.lang + '">' + p.lang + "</span>" +
+        '<span class="sidebar-badge lang-' +
+        p.lang +
+        '">' +
+        p.lang +
+        "</span>" +
         '<div class="sidebar-info">' +
-        '<div class="sidebar-name">' + esc(p.name) + "</div>" +
-        '<div class="sidebar-desc">' + esc(p.description) + "</div>" +
+        '<div class="sidebar-name">' +
+        esc(p.name) +
+        "</div>" +
+        '<div class="sidebar-desc">' +
+        esc(p.description) +
+        "</div>" +
         "</div>";
       item.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -50,8 +58,14 @@
     clearTerminal();
     appendLine("t-dim", "cd " + currentProject.name);
     appendLine("", "");
-    appendLine("t-dim", 'Type "hdi" to get started, "hdi --help" for more options, or "cat README.md" to see the full project README');
-    appendLine("t-dim", 'Use "hdi" with the "i" (install), "r" (run), "t" (test), or "d" (deploy) subcommands to see specific sections');
+    appendLine(
+      "t-dim",
+      'Type "hdi" to get started, "hdi --help" for more options, or "cat README.md" to see the full project README',
+    );
+    appendLine(
+      "t-dim",
+      'Use "hdi" with the "i" (install), "r" (run), "t" (test), or "d" (deploy) subcommands to see specific sections',
+    );
     appendLine("t-dim", 'eg. "hdi r"');
     appendLine("", "");
     showPrompt();
@@ -89,7 +103,8 @@
     var line = document.createElement("div");
     line.className = "t-line t-prompt";
     line.id = "prompt-line";
-    line.innerHTML = '$ <span class="t-input" id="prompt-input"></span><span class="t-cursor"></span>';
+    line.innerHTML =
+      '$ <span class="t-input" id="prompt-input"></span><span class="t-cursor"></span>';
     termEl.appendChild(line);
     scrollToBottom();
     setHints();
@@ -106,7 +121,8 @@
     var line = document.getElementById("prompt-line");
     if (line) {
       line.removeAttribute("id");
-      line.innerHTML = "$ " + '<span class="t-input">' + esc(inputBuffer) + "</span>";
+      line.innerHTML =
+        "$ " + '<span class="t-input">' + esc(inputBuffer) + "</span>";
     }
     var input = document.getElementById("prompt-input");
     if (input) input.removeAttribute("id");
@@ -134,8 +150,12 @@
   function parseCommand(input) {
     var parts = input.trim().split(/\s+/);
     if (parts[0] === "clear") return { clear: true };
-    if (parts[0] === "cat" && /readme\.md$/i.test(parts[1] || "")) return { cat: true };
-    if (parts[0] !== "hdi") return { error: 'Command not found: ' + parts[0] + '. Try "hdi" to get started.' };
+    if (parts[0] === "cat" && /readme\.md$/i.test(parts[1] || ""))
+      return { cat: true };
+    if (parts[0] !== "hdi")
+      return {
+        error: "Command not found: " + parts[0] + '. Try "hdi" to get started.',
+      };
 
     var mode = "default";
     var full = false;
@@ -146,18 +166,52 @@
     for (var i = 1; i < parts.length; i++) {
       var arg = parts[i];
       switch (arg) {
-        case "install": case "setup": case "i": mode = "install"; break;
-        case "run": case "start": case "r": mode = "run"; break;
-        case "test": case "t": mode = "test"; break;
-        case "deploy": case "d": mode = "deploy"; break;
-        case "all": case "a": mode = "all"; break;
-        case "check": case "c": mode = "check"; break;
-        case "--full": case "-f": full = true; break;
-        case "--raw": raw = true; break;
-        case "--help": case "-h": help = true; break;
-        case "--version": case "-v": version = true; break;
-        case "--no-interactive": case "--ni": break;
-        default: return { error: "Unknown argument: " + arg };
+        case "install":
+        case "setup":
+        case "i":
+          mode = "install";
+          break;
+        case "run":
+        case "start":
+        case "r":
+          mode = "run";
+          break;
+        case "test":
+        case "t":
+          mode = "test";
+          break;
+        case "deploy":
+        case "d":
+          mode = "deploy";
+          break;
+        case "all":
+        case "a":
+          mode = "all";
+          break;
+        case "check":
+        case "c":
+          mode = "check";
+          break;
+        case "--full":
+        case "-f":
+          full = true;
+          break;
+        case "--raw":
+          raw = true;
+          break;
+        case "--help":
+        case "-h":
+          help = true;
+          break;
+        case "--version":
+        case "-v":
+          version = true;
+          break;
+        case "--no-interactive":
+        case "--ni":
+          break;
+        default:
+          return { error: "Unknown argument: " + arg };
       }
     }
 
@@ -296,7 +350,14 @@
 
     var label = modeLabel(mode);
     var labelStr = label ? "  [" + label + "]" : "";
-    appendLine("t-title-line", "[hdi] " + esc(currentProject.name) + '<span class="t-dim">' + esc(labelStr) + "</span>");
+    appendLine(
+      "t-title-line",
+      "[hdi] " +
+        esc(currentProject.name) +
+        '<span class="t-dim">' +
+        esc(labelStr) +
+        "</span>",
+    );
 
     items.forEach(function (item) {
       if (item.type === "header") {
@@ -327,7 +388,12 @@
     }
 
     appendLine("", "");
-    appendLine("t-title-line", '[hdi] ' + esc(currentProject.name) + '<span class="t-dim">  check</span>');
+    appendLine(
+      "t-title-line",
+      "[hdi] " +
+        esc(currentProject.name) +
+        '<span class="t-dim">  check</span>',
+    );
     appendLine("", "");
 
     var found = 0;
@@ -337,11 +403,21 @@
       var name = item.tool;
       while (name.length < 14) name += " ";
       if (item.installed) {
-        var ver = item.version ? ' <span class="t-dim">(' + esc(item.version) + ')</span>' : "";
-        appendLine("", '  <span class="t-green">\u2713</span> ' + esc(name) + ver);
+        var ver = item.version
+          ? ' <span class="t-dim">(' + esc(item.version) + ")</span>"
+          : "";
+        appendLine(
+          "",
+          '  <span class="t-green">\u2713</span> ' + esc(name) + ver,
+        );
         found++;
       } else {
-        appendLine("", '  <span class="t-yellow">\u2717</span> ' + esc(name) + ' <span class="t-dim">not found</span>');
+        appendLine(
+          "",
+          '  <span class="t-yellow">\u2717</span> ' +
+            esc(name) +
+            ' <span class="t-dim">not found</span>',
+        );
         missing++;
       }
     });
@@ -350,7 +426,14 @@
     if (missing === 0) {
       appendLine("t-dim", "  \u2713 All " + found + " tools found");
     } else {
-      appendLine("", '  <span class="t-dim">' + found + ' found, </span><span class="t-yellow">' + missing + " not found</span>");
+      appendLine(
+        "",
+        '  <span class="t-dim">' +
+          found +
+          ' found, </span><span class="t-yellow">' +
+          missing +
+          " not found</span>",
+      );
     }
     appendLine("", "");
   }

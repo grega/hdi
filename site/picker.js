@@ -35,9 +35,14 @@ function Picker(items, projectName, modeLabel, terminal) {
     var titleLine = document.createElement("div");
     titleLine.className = "picker-row";
     var label = modeLabel ? "  [" + modeLabel + "]" : "";
-    titleLine.innerHTML = '<span class="t-bold">[hdi]</span> ' +
-      '<span class="t-bold">' + esc(projectName) + '</span>' +
-      '<span class="t-dim">' + esc(label) + '</span>';
+    titleLine.innerHTML =
+      '<span class="t-bold">[hdi]</span> ' +
+      '<span class="t-bold">' +
+      esc(projectName) +
+      "</span>" +
+      '<span class="t-dim">' +
+      esc(label) +
+      "</span>";
     wrap.appendChild(titleLine);
 
     var selectedIdx = cmdIndices[cursor];
@@ -48,21 +53,29 @@ function Picker(items, projectName, modeLabel, terminal) {
       row.className = "picker-row";
 
       if (item.type === "header") {
-        row.innerHTML = "\n" + '<span class="t-header"> \u25b8 ' + esc(item.text) + '</span>';
+        row.innerHTML =
+          "\n" + '<span class="t-header"> \u25b8 ' + esc(item.text) + "</span>";
       } else if (item.type === "subheader") {
-        row.innerHTML = '\n  <span class="t-subheader">' + esc(item.text) + '</span>';
+        row.innerHTML =
+          '\n  <span class="t-subheader">' + esc(item.text) + "</span>";
       } else if (item.type === "command") {
-        var isSelected = (i === selectedIdx);
+        var isSelected = i === selectedIdx;
         if (isSelected) {
           row.classList.add("selected");
-          var icon = copied ? '\u2714' : '\u25b6';
-          row.innerHTML = '  <span class="arrow">' + icon + '</span> <span class="t-command">' + esc(item.text) + '</span>';
+          var icon = copied ? "\u2714" : "\u25b6";
+          row.innerHTML =
+            '  <span class="arrow">' +
+            icon +
+            '</span> <span class="t-command">' +
+            esc(item.text) +
+            "</span>";
         } else {
-          row.innerHTML = '    <span class="t-command">' + esc(item.text) + '</span>';
+          row.innerHTML =
+            '    <span class="t-command">' + esc(item.text) + "</span>";
         }
       } else if (item.type === "empty") {
         if (item.text) {
-          row.innerHTML = '  <span class="t-dim">' + esc(item.text) + '</span>';
+          row.innerHTML = '  <span class="t-dim">' + esc(item.text) + "</span>";
         }
       }
 
@@ -72,9 +85,16 @@ function Picker(items, projectName, modeLabel, terminal) {
     var footer = document.createElement("div");
     footer.className = "picker-footer";
     if (flashMsg) {
-      footer.innerHTML = "\n  " + '<span class="flash-msg' + (flashClass ? " " + flashClass : "") + '">' + esc(flashMsg) + '</span>';
+      footer.innerHTML =
+        "\n  " +
+        '<span class="flash-msg' +
+        (flashClass ? " " + flashClass : "") +
+        '">' +
+        esc(flashMsg) +
+        "</span>";
     } else {
-      footer.innerHTML = "\n  \u2191\u2193 navigate  \u21e5 sections  \u23ce execute  c copy  q quit";
+      footer.innerHTML =
+        "\n  \u2191\u2193 navigate  \u21e5 sections  \u23ce execute  c copy  q quit";
     }
     wrap.appendChild(footer);
   }
@@ -93,11 +113,21 @@ function Picker(items, projectName, modeLabel, terminal) {
     var i;
     if (delta > 0) {
       for (i = 0; i < sectionFirstCmd.length; i++) {
-        if (sectionFirstCmd[i] > cursor) { cursor = sectionFirstCmd[i]; copied = false; render(); return; }
+        if (sectionFirstCmd[i] > cursor) {
+          cursor = sectionFirstCmd[i];
+          copied = false;
+          render();
+          return;
+        }
       }
     } else {
       for (i = sectionFirstCmd.length - 1; i >= 0; i--) {
-        if (sectionFirstCmd[i] < cursor) { cursor = sectionFirstCmd[i]; copied = false; render(); return; }
+        if (sectionFirstCmd[i] < cursor) {
+          cursor = sectionFirstCmd[i];
+          copied = false;
+          render();
+          return;
+        }
       }
     }
   }
@@ -124,23 +154,30 @@ function Picker(items, projectName, modeLabel, terminal) {
   function copyCmd() {
     if (cmdIndices.length === 0) return;
     var cmd = items[cmdIndices[cursor]].text;
-    clipCopy(cmd).then(function () {
-      copied = true;
-      flash("\u2714 Copied: " + cmd);
-      if (copiedTimer) clearTimeout(copiedTimer);
-      copiedTimer = setTimeout(function () {
-        copied = false;
-        render();
-      }, 1500);
-    }, function () {
-      flash("Could not copy to clipboard");
-    });
+    clipCopy(cmd).then(
+      function () {
+        copied = true;
+        flash("\u2714 Copied: " + cmd);
+        if (copiedTimer) clearTimeout(copiedTimer);
+        copiedTimer = setTimeout(function () {
+          copied = false;
+          render();
+        }, 1500);
+      },
+      function () {
+        flash("Could not copy to clipboard");
+      },
+    );
   }
 
   function executeCmd() {
     if (cmdIndices.length === 0) return;
     var cmd = items[cmdIndices[cursor]].text;
-    flash("$ " + cmd + " \u2014 would execute in a real terminal", 2500, "flash-execute");
+    flash(
+      "$ " + cmd + " \u2014 would execute in a real terminal",
+      2500,
+      "flash-execute",
+    );
   }
 
   function handleKey(e) {
@@ -205,7 +242,9 @@ function Picker(items, projectName, modeLabel, terminal) {
   return {
     mount: mount,
     destroy: destroy,
-    isActive: function () { return active; },
+    isActive: function () {
+      return active;
+    },
   };
 }
 

@@ -33,8 +33,8 @@ _RE_CMD_SPACE="^($CMD_PREFIXES) "
 _RE_CMD_END="^($CMD_PREFIXES)( |$)"
 _RE_INDENTED_CMD="^[[:space:]]*(\\\$[[:space:]]+)?($CMD_PREFIXES)( |$)"
 
-# Extract backtick-wrapped commands from a line of text.
-# Sets _FBC_RESULT (newline-separated) instead of printing to stdout.
+# Extract backtick-wrapped commands from a line of text
+# Sets _FBC_RESULT (newline-separated) instead of printing to stdout
 # Usage: find_backtick_commands "text" [require_args]
 #   require_args=true  (default) - prefix must be followed by a space (prose)
 #   require_args=false            - bare prefix allowed (headings like `make`)
@@ -56,8 +56,8 @@ find_backtick_commands() {
   done
 }
 
-# Strip shell prompt prefixes ($ or %) from fenced code block lines.
-# The regex requires whitespace after $ so "$HOME/bin" is never mangled.
+# Strip shell prompt prefixes ($ or %) from fenced code block lines
+# The regex requires whitespace after $ so "$HOME/bin" is never mangled
 # Sets _SP_RESULT instead of printing to stdout (avoids subshell per call).
 strip_prompt() {
   if [[ "$1" =~ ^[[:space:]]*[\$%][[:space:]]+(.*) ]]; then
@@ -67,12 +67,12 @@ strip_prompt() {
   fi
 }
 
-# Extract commands from section body text.
-# Sets _EC_RESULT instead of printing to stdout (avoids subshell per call).
+# Extract commands from section body text
+# Sets _EC_RESULT instead of printing to stdout (avoids subshell per call)
 #
 # When _EC_GROUPED=true, sub-headings (##+ ) and bold pseudo-headings
 # (**text**) in the prose are emitted as marker lines prefixed with \x01
-# so the caller can create display sub-groups without a second pass.
+# so the caller can create display sub-groups without a second pass
 _EC_GROUPED=false
 _EC_SUBHDR=$'\x01'
 

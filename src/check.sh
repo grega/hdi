@@ -3,9 +3,9 @@
 # Shell builtins and coreutils that are always available - not worth checking
 _CHECK_SKIP="^(cd|cp|mv|rm|mkdir|echo|export|source|cat|chmod|chown|ln|touch|ls|printf|trap|pwd|set|unset|eval|exec|exit|return|read|test|true|false|tee|head|tail|wc|sort|grep|xargs|find|tar|gzip|gunzip|sed|awk|tr|cut|diff|date|sleep|kill|whoami|env|which|man|less|more)$"
 
-# Extract the tool name from a command string.
-# Strips leading env vars (FOO=bar) and sudo, returns the first word.
-# Sets _CT_RESULT or "" if nothing useful.
+# Extract the tool name from a command string
+# Strips leading env vars (FOO=bar) and sudo, returns the first word
+# Sets _CT_RESULT or "" if nothing useful
 _check_tool_name() {
   local cmd="$1"
 

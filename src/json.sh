@@ -1,6 +1,6 @@
 # ── JSON output ───────────────────────────────────────────────────────────────
 
-# Escape a string for safe embedding in JSON.
+# Escape a string for safe embedding in JSON
 _json_esc() {
   local s="$1"
   s="${s//\\/\\\\}"
@@ -10,7 +10,7 @@ _json_esc() {
   printf '%s' "$s"
 }
 
-# Set PATTERN for a given mode name (mirrors the case in args.sh).
+# Set PATTERN for a given mode name (mirrors the case in args.sh)
 _json_set_pattern() {
   case "$1" in
     install)  PATTERN="($KW_INSTALL)" ;;
@@ -21,8 +21,8 @@ _json_set_pattern() {
   esac
 }
 
-# Print the modes display-list array as JSON for the current DISPLAY_LINES.
-# Skips trailing blank separators (empty type + empty text).
+# Print the modes display-list array as JSON for the current DISPLAY_LINES
+# Skips trailing blank separators (empty type + empty text)
 _json_display_list() {
   local mode="$1"
   printf '    "%s": [' "$mode"
@@ -38,7 +38,7 @@ _json_display_list() {
   printf '\n    ]'
 }
 
-# Print the fullProse array as JSON for the current SECTION_TITLES/BODIES.
+# Print the fullProse array as JSON for the current SECTION_TITLES/BODIES
 _json_full_prose() {
   local mode="$1"
   printf '    "%s": [' "$mode"
@@ -50,7 +50,7 @@ _json_full_prose() {
     printf '\n      {"type": "%s", "text": "%s"}' "$1" "$(_json_esc "$2")"
   }
 
-  # Render a plain prose line (not inside a code block).
+  # Render a plain prose line (not inside a code block)
   _fp_prose_line() {
     local l="$1"
     # Empty / whitespace-only
@@ -161,7 +161,7 @@ _json_full_prose() {
   printf '\n    ]'
 }
 
-# Print the check array as JSON using the current DISPLAY_LINES.
+# Print the check array as JSON using the current DISPLAY_LINES
 _json_check() {
   local -a tools=()
   local tool
@@ -200,7 +200,7 @@ _json_check() {
   printf '\n  ]'
 }
 
-# Main JSON renderer: outputs all modes, fullProse, and check.
+# Main JSON renderer: outputs all modes, fullProse, and check
 render_json() {
   local _modes=("default" "install" "run" "test" "deploy" "all")
   local first

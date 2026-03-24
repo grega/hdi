@@ -336,8 +336,8 @@ _RE_CMD_SPACE="^($CMD_PREFIXES) "
 _RE_CMD_END="^($CMD_PREFIXES)( |$)"
 _RE_INDENTED_CMD="^[[:space:]]*(\\\$[[:space:]]+)?($CMD_PREFIXES)( |$)"
 
-# Extract backtick-wrapped commands from a line of text.
-# Sets _FBC_RESULT (newline-separated) instead of printing to stdout.
+# Extract backtick-wrapped commands from a line of text
+# Sets _FBC_RESULT (newline-separated) instead of printing to stdout
 # Usage: find_backtick_commands "text" [require_args]
 #   require_args=true  (default) - prefix must be followed by a space (prose)
 #   require_args=false            - bare prefix allowed (headings like `make`)
@@ -359,8 +359,8 @@ find_backtick_commands() {
   done
 }
 
-# Strip shell prompt prefixes ($ or %) from fenced code block lines.
-# The regex requires whitespace after $ so "$HOME/bin" is never mangled.
+# Strip shell prompt prefixes ($ or %) from fenced code block lines
+# The regex requires whitespace after $ so "$HOME/bin" is never mangled
 # Sets _SP_RESULT instead of printing to stdout (avoids subshell per call).
 strip_prompt() {
   if [[ "$1" =~ ^[[:space:]]*[\$%][[:space:]]+(.*) ]]; then
@@ -370,12 +370,12 @@ strip_prompt() {
   fi
 }
 
-# Extract commands from section body text.
-# Sets _EC_RESULT instead of printing to stdout (avoids subshell per call).
+# Extract commands from section body text
+# Sets _EC_RESULT instead of printing to stdout (avoids subshell per call)
 #
 # When _EC_GROUPED=true, sub-headings (##+ ) and bold pseudo-headings
 # (**text**) in the prose are emitted as marker lines prefixed with \x01
-# so the caller can create display sub-groups without a second pass.
+# so the caller can create display sub-groups without a second pass
 _EC_GROUPED=false
 _EC_SUBHDR=$'\x01'
 
@@ -561,9 +561,9 @@ build_display_list() {
       done <<< "$title_cmds"
     fi
 
-    # Extract commands with sub-group markers (single pass over the body).
+    # Extract commands with sub-group markers (single pass over the body)
     # Sub-headings and bold pseudo-headings produce \x01-prefixed marker
-    # lines; everything else is a command or empty line.
+    # lines; everything else is a command or empty line
     _EC_GROUPED=true
     extract_commands "$body"
     _EC_GROUPED=false
@@ -1052,9 +1052,9 @@ run_interactive() {
 # Shell builtins and coreutils that are always available - not worth checking
 _CHECK_SKIP="^(cd|cp|mv|rm|mkdir|echo|export|source|cat|chmod|chown|ln|touch|ls|printf|trap|pwd|set|unset|eval|exec|exit|return|read|test|true|false|tee|head|tail|wc|sort|grep|xargs|find|tar|gzip|gunzip|sed|awk|tr|cut|diff|date|sleep|kill|whoami|env|which|man|less|more)$"
 
-# Extract the tool name from a command string.
-# Strips leading env vars (FOO=bar) and sudo, returns the first word.
-# Sets _CT_RESULT or "" if nothing useful.
+# Extract the tool name from a command string
+# Strips leading env vars (FOO=bar) and sudo, returns the first word
+# Sets _CT_RESULT or "" if nothing useful
 _check_tool_name() {
   local cmd="$1"
 
@@ -1145,7 +1145,7 @@ run_check() {
 
 # ── JSON output ───────────────────────────────────────────────────────────────
 
-# Escape a string for safe embedding in JSON.
+# Escape a string for safe embedding in JSON
 _json_esc() {
   local s="$1"
   s="${s//\\/\\\\}"
@@ -1155,7 +1155,7 @@ _json_esc() {
   printf '%s' "$s"
 }
 
-# Set PATTERN for a given mode name (mirrors the case in args.sh).
+# Set PATTERN for a given mode name (mirrors the case in args.sh)
 _json_set_pattern() {
   case "$1" in
     install)  PATTERN="($KW_INSTALL)" ;;
@@ -1166,8 +1166,8 @@ _json_set_pattern() {
   esac
 }
 
-# Print the modes display-list array as JSON for the current DISPLAY_LINES.
-# Skips trailing blank separators (empty type + empty text).
+# Print the modes display-list array as JSON for the current DISPLAY_LINES
+# Skips trailing blank separators (empty type + empty text)
 _json_display_list() {
   local mode="$1"
   printf '    "%s": [' "$mode"
@@ -1183,7 +1183,7 @@ _json_display_list() {
   printf '\n    ]'
 }
 
-# Print the fullProse array as JSON for the current SECTION_TITLES/BODIES.
+# Print the fullProse array as JSON for the current SECTION_TITLES/BODIES
 _json_full_prose() {
   local mode="$1"
   printf '    "%s": [' "$mode"
@@ -1195,7 +1195,7 @@ _json_full_prose() {
     printf '\n      {"type": "%s", "text": "%s"}' "$1" "$(_json_esc "$2")"
   }
 
-  # Render a plain prose line (not inside a code block).
+  # Render a plain prose line (not inside a code block)
   _fp_prose_line() {
     local l="$1"
     # Empty / whitespace-only
@@ -1306,7 +1306,7 @@ _json_full_prose() {
   printf '\n    ]'
 }
 
-# Print the check array as JSON using the current DISPLAY_LINES.
+# Print the check array as JSON using the current DISPLAY_LINES
 _json_check() {
   local -a tools=()
   local tool
@@ -1345,7 +1345,7 @@ _json_check() {
   printf '\n  ]'
 }
 
-# Main JSON renderer: outputs all modes, fullProse, and check.
+# Main JSON renderer: outputs all modes, fullProse, and check
 render_json() {
   local _modes=("default" "install" "run" "test" "deploy" "all")
   local first
