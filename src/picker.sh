@@ -96,7 +96,7 @@ run_interactive() {
   local cursor=0
   local selected="${CMD_INDICES[$cursor]}"
 
-  # Save terminal state (global so cleanup trap can access after function returns)
+# Save terminal state (global so cleanup trap can access after function returns)
   SAVED_TTY=$(stty -g)
 
   cleanup() {
@@ -107,7 +107,8 @@ run_interactive() {
       printf '\033[%dA\033[J' "$PICKER_LINES"
     fi
   }
-  trap cleanup EXIT INT TERM
+  
+  trap cleanup EXIT TERM
 
   printf '%s' "$HIDE_CURSOR"
   draw_picker "$selected"
@@ -151,6 +152,8 @@ run_interactive() {
       KEY="enter"
     elif [[ "$byte" == $'\t' ]]; then
       KEY="tab"
+    elif [[ "$byte" == $'\x03' ]]; then
+      KEY="ctrl-c"
     else
       KEY="$byte"
     fi
@@ -225,10 +228,13 @@ run_interactive() {
         stty "$SAVED_TTY" 2>/dev/null
 
         if [[ "$resume" == "q" ]]; then
-          echo ""
           # Disable cleanup's clear since we're already clean
           PICKER_LINES=0
           return 0
+        elif [[ "$resume" == $'\x03' ]]; then
+          # Disable cleanup's clear since we're already clean
+          PICKER_LINES=0
+          exit 130
         fi
 
         printf '%s' "$HIDE_CURSOR"
@@ -253,6 +259,12 @@ run_interactive() {
         clear_picker
         PICKER_LINES=0
         return
+        ;;
+
+      ctrl-c)
+        clear_picker
+        PICKER_LINES=0
+        exit 130
         ;;
     esac
 

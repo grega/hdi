@@ -17,11 +17,11 @@
 #   hdi [mode] /path/to/file.md   Parse a specific markdown file
 #
 # Interactive controls:
-#   ↑/↓  k/j     Navigate commands
-#   Tab/S-Tab    Jump between sections
-#   Enter        Execute the highlighted command
-#   c            Copy highlighted command to clipboard
-#   q / Esc      Quit
+#   ↑/↓  k/j             Navigate commands
+#   Tab/S-Tab            Jump between sections
+#   Enter                Execute the highlighted command
+#   c                    Copy highlighted command to clipboard
+#   q / Esc / ctrl+c     Quit
 #
 # Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t",
 #          "deploy" = "d", "check" = "c"
