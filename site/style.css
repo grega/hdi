@@ -13,10 +13,17 @@
   --magenta: #cba6f7;
   --red: #f38ba8;
   --blue: #89b4fa;
-  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, Consolas, monospace;
+  --font-mono:
+    "JetBrains Mono", "Fira Code", "SF Mono", Menlo, Consolas, monospace;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
   font-size: 16px;
@@ -32,7 +39,9 @@ body {
   flex-direction: column;
 }
 
-.hidden { display: none !important; }
+.hidden {
+  display: none !important;
+}
 
 /* ── Header ─────────────────────────────────────────────────────────── */
 
@@ -77,7 +86,9 @@ body {
   padding: 0.375rem 0.75rem;
   border-radius: 0.25rem;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .tab:hover {
@@ -238,7 +249,9 @@ body {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .copy-btn:hover {
@@ -278,9 +291,15 @@ body {
   color: var(--text);
 }
 
-.u-yellow { color: var(--yellow); }
-.u-cyan { color: var(--cyan); }
-.u-green { color: var(--green); }
+.u-yellow {
+  color: var(--yellow);
+}
+.u-cyan {
+  color: var(--cyan);
+}
+.u-green {
+  color: var(--green);
+}
 
 .usage-docs-link a {
   color: var(--cyan);
@@ -355,11 +374,21 @@ body {
   color: var(--mantle);
 }
 
-.sidebar-badge.lang-JS { background: var(--yellow); }
-.sidebar-badge.lang-PY { background: var(--blue); }
-.sidebar-badge.lang-RB { background: var(--red); }
-.sidebar-badge.lang-TS { background: var(--cyan); }
-.sidebar-badge.lang-GO { background: var(--green); }
+.sidebar-badge.lang-JS {
+  background: var(--yellow);
+}
+.sidebar-badge.lang-PY {
+  background: var(--blue);
+}
+.sidebar-badge.lang-RB {
+  background: var(--red);
+}
+.sidebar-badge.lang-TS {
+  background: var(--cyan);
+}
+.sidebar-badge.lang-GO {
+  background: var(--green);
+}
 
 .sidebar-info {
   min-width: 0;
@@ -447,7 +476,9 @@ body {
 }
 
 @keyframes blink {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 
 .t-header {
@@ -566,7 +597,7 @@ body {
   .hero h1 {
     font-size: 1.25rem;
   }
-.links-section {
+  .links-section {
     flex-direction: column;
   }
 
