@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
-# pre-commit hook - rebuild hdi if any src/ file is staged
+# pre-commit hook
 
+# Rebuild hdi if any src/ file is staged
 if git diff --cached --name-only | grep -q '^src/'; then
   ./build
   git add hdi
+fi
+
+# Format staged site/ files with Prettier
+SITE_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep '^site/')
+if [ -n "$SITE_FILES" ]; then
+  npx --prefix site prettier --write $SITE_FILES
+  echo "$SITE_FILES" | xargs git add
 fi
