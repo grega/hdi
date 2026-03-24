@@ -1114,13 +1114,16 @@ run_check() {
   local found=0 missing=0
   for tool in "${tools[@]}"; do
     if command -v "$tool" >/dev/null 2>&1; then
-      # Try to extract a version number
-      local ver=""
-      ver=$("$tool" --version 2>&1 | head -1) || true
-      if [[ "$ver" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
+      # Try to extract a version number (some tools use -V instead of --version)
+      local ver="" raw=""
+      raw=$("$tool" --version 2>&1 | head -5) || true
+      if [[ "$raw" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
         ver="${BASH_REMATCH[0]}"
       else
-        ver=""
+        raw=$("$tool" -V 2>&1 | head -5) || true
+        if [[ "$raw" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
+          ver="${BASH_REMATCH[0]}"
+        fi
       fi
 
       if [[ -n "$ver" ]]; then
