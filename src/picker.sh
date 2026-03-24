@@ -151,6 +151,8 @@ run_interactive() {
       KEY="enter"
     elif [[ "$byte" == $'\t' ]]; then
       KEY="tab"
+    elif [[ "$byte" == $'\x03' ]]; then
+      KEY="ctrl-c"
     else
       KEY="$byte"
     fi
@@ -224,7 +226,7 @@ run_interactive() {
         resume=$(read_byte)
         stty "$SAVED_TTY" 2>/dev/null
 
-        if [[ "$resume" == "q" ]]; then
+        if [[ "$resume" == "q" || "$resume" == $'\x03' ]]; then
           echo ""
           # Disable cleanup's clear since we're already clean
           PICKER_LINES=0
@@ -249,7 +251,7 @@ run_interactive() {
         FLASH_MSG="✔ Copied: $cmd"
         ;;
 
-      esc|q)
+      esc|q|ctrl-c)
         clear_picker
         PICKER_LINES=0
         return

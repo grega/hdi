@@ -831,6 +831,35 @@ else:
   rm -rf "$fake_bin"
 }
 
+@test "interactive: Ctrl-C quits the picker cleanly" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
+
+  # Keys: Ctrl-C (\x03)
+  local keys=$'\x03'
+
+  python3 -c "
+import pty, os, sys, time, select
+
+keys = sys.argv[1].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[2], sys.argv[2:])
+else:
+    time.sleep(0.5)
+    os.write(fd, keys)
+    time.sleep(0.5)
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    _, status = os.waitpid(pid, 0)
+    sys.exit(os.waitstatus_to_exitcode(status))
+" "$keys" "$HDI" "$FIXTURES/node-express"
+}
+
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
 @test "tilde fences: extracts commands from ~~~ blocks" {
