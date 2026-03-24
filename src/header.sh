@@ -8,7 +8,7 @@
 #   hdi test                      Just test commands
 #   hdi deploy                    Just deploy/release commands
 #   hdi all                       Show all matched sections
-#   hdi check                     Check if required tools are installed
+#   hdi check                     Check if required tools are installed (experimental)
 #   hdi [mode] --no-interactive   Print commands without the picker
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)

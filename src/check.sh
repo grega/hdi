@@ -60,7 +60,7 @@ run_check() {
   fi
 
   # Header
-  printf "\n%s%s[hdi] %s%s  %scheck%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" "$DIM" "$RESET"
+  printf "\n%s%s[hdi] %s%s  %scheck (experimental)%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" "$DIM" "$RESET"
 
   local found=0 missing=0
   for tool in "${tools[@]}"; do
