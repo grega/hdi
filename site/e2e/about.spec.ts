@@ -6,7 +6,9 @@ test.describe("About page", () => {
   });
 
   test("renders hero and install section", async ({ page }) => {
-    await expect(page.locator("h1", { hasText: "How do I" })).toBeVisible();
+    await expect(
+      page.locator("h1", { hasText: "No more searching the README." }),
+    ).toBeVisible();
     await expect(page.locator(".install-section")).toBeVisible();
     await expect(page.locator(".install-method")).toHaveCount(2);
   });

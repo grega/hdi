@@ -52,24 +52,18 @@
 
     <main class="about" id="about">
       <section class="hero">
-        <h1><span class="hero-accent">"How do I...</span> run this thing?"</h1>
+        <pre class="hero-logo" role="img" aria-label="hdi">
+ _____ _____ _____ 
+||<span class="hero-logo-letter ">h</span>  |||<span class="hero-logo-letter ">d</span>  |||<span class="hero-logo-letter ">i</span>  ||
+||___|||___|||___||
+|/___\|/___\|/___\|
+        </pre>
+        <h1 class="hero-sub">No more searching the README.</h1>
         <p class="hero-sub">
-          Scan a project's README and extract the commands you need to get it
-          running. No more opening an editor and scrolling through docs to find
-          the <code>install</code>, <code>run</code>, <code>test</code> and
-          <code>deploy</code> steps.
+          "How do I" surfaces <code>install</code>, <code>run</code>,
+          <code>test</code> and <code>deploy</code> steps and commands all in
+          your terminal.
         </p>
-      </section>
-
-      <section class="demo-gif">
-        <img
-          src="https://raw.githubusercontent.com/grega/hdi/main/demo/demo.gif"
-          alt="Animated demo showing hdi in action"
-          width="800"
-          loading="lazy"
-        />
-
-        <p class="demo-link">Try out the <a href="#demo">demo</a>.</p>
       </section>
 
       <section class="install-section">
@@ -106,6 +100,30 @@
         <p class="install-note">
           No dependencies, just Bash. Works on macOS and Linux.
         </p>
+      </section>
+
+      <section class="demo-gif">
+        <h2>Demo</h2>
+        <img
+          src="https://raw.githubusercontent.com/grega/hdi/main/demo/demo.gif"
+          alt="Animated demo showing hdi in action"
+          width="800"
+          loading="lazy"
+        />
+
+        <p class="demo-link">Try out the <a href="#demo">demo</a>.</p>
+      </section>
+
+      <section>
+        <h2>How does it work?</h2>
+        <p>
+          <code>hdi</code> parses a given README's Markdown headings looking for
+          keywords like
+          <em>install, setup, prerequisites, run, usage, getting started</em>,
+          etc. It extracts the fenced code blocks from matching sections and
+          presents them as an interactive, executable list.
+        </p>
+        <p>No dependencies, just Bash. Works on macOS and Linux.</p>
       </section>
 
       <section class="usage-section">
