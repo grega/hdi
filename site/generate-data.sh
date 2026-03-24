@@ -118,4 +118,5 @@ print('    },')
   printf 'const VERSION = "%s";\n' "$VERSION"
 } > "$OUT"
 
+npx --prefix "$SCRIPT_DIR" prettier --write "$OUT"
 echo "Generated: $OUT ($(wc -l < "$OUT" | tr -d ' ') lines)"

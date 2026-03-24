@@ -12,6 +12,14 @@ npx http-server
 
 Then open http://localhost:8080
 
+## Prettier
+
+This is set up to run on any `site/` staged files in a pre-commit hook, but can be run manually with:
+
+```bash
+npx prettier . --write
+```
+
 ## Regenerating data
 
 `data.js` is auto-generated from the fixture READMEs using `hdi --json`. To regenerate after changing fixtures or the parser locally, run:
