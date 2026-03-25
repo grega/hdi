@@ -112,10 +112,9 @@ button,
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem;
   font-weight: 800;
   line-height: 1.5;
-  /* min-block-size: 40px; */
   cursor: pointer;
 
   transition: background-color 0.1s linear;
