@@ -40,7 +40,7 @@
   margin-top: 1.5rem;
 }
 
-/* Hero */
+/* ── Hero ─────────────────────────────────────────────────────── */
 
 .hero {
   display: flex;
@@ -98,7 +98,7 @@
   }
 }
 
-/* Demo GIF */
+/* ── Demo gif ─────────────────────────────────────────────────────── */
 
 .demo-gif img {
   max-width: 100%;
@@ -116,7 +116,7 @@
   color: var(--cyan);
 }
 
-/* Install */
+/* ── Install ─────────────────────────────────────────────────────── */
 
 .install-methods {
   display: grid;
@@ -189,7 +189,8 @@
   color: var(--overlay0);
 }
 
-/* Usage */
+/* ── Usage ─────────────────────────────────────────────────────── */
+
 .usage-block {
   background: var(--mantle);
   border: 0.0625rem solid var(--surface0);
@@ -230,9 +231,6 @@
   /* About */
   .about {
     padding: 2rem 1rem;
-  }
-  .hero h1 {
-    font-size: 1.25rem;
   }
   .links-section {
     flex-direction: column;
