@@ -23,7 +23,11 @@ See the [blog post](https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-
 
 ## Example
 
-<img src="./demo/demo-mocha.gif" alt="Animated demo showing hdi in action" width="800">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./demo/demo-mocha.gif" alt="Animated demo showing hdi in action" width="800">
+  <source media="(prefers-color-scheme: light)" srcset="./demo/demo-latte.gif" alt="Animated demo showing hdi in action" width="800">
+  <img alt="Animated demo showing hdi in action" src="./demo/demo-mocha.gif">
+</picture>
 
 ## Install
 
