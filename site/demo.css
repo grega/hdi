@@ -187,7 +187,7 @@
 }
 
 .t-dim {
-  color: var(--overlay0);
+  color: var(--subtext0);
 }
 
 .t-yellow {
@@ -224,7 +224,7 @@
 }
 
 .picker-footer {
-  color: var(--overlay0);
+  color: var(--subtext0);
   min-height: 1.6em;
   white-space: pre;
 }
@@ -249,7 +249,7 @@
   padding: 0.75rem 1.25rem;
   background: var(--mantle);
   border-block-start: 0.0625rem solid var(--surface0);
-  color: var(--overlay0);
+  color: var(--subtext0);
   flex-shrink: 0;
   line-height: 2;
 }
