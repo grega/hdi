@@ -106,13 +106,23 @@
 
       <section class="demo-gif">
         <h2>Demo</h2>
-        <img
-          src="https://raw.githubusercontent.com/grega/hdi/main/demo/demo.gif"
-          alt="Animated demo showing hdi in action"
-          width="800"
-          loading="lazy"
-        />
-
+        <picture>
+          <source
+            srcset="
+              https://raw.githubusercontent.com/grega/hdi/main/demo/demo-latte.gif
+            "
+            media="(prefers-color-scheme: light)"
+            alt="Animated demo showing hdi in action"
+            width="800"
+            loading="lazy"
+          />
+          <img
+            src="https://raw.githubusercontent.com/grega/hdi/main/demo/demo-mocha.gif"
+            alt="Animated demo showing hdi in action"
+            width="800"
+            loading="lazy"
+          />
+        </picture>
         <p class="demo-link">Try out the <a href="/demo">demo</a>.</p>
       </section>
 
@@ -134,11 +144,11 @@
 $ hdi
 <span class="u-yellow">[hdi]</span> some-project
 
- <span class="u-yellow">▸</span> <span class="u-cyan">Installation</span>
+ <span class="u-yellow">▸</span> <span class="u-sapphire">Installation</span>
   <span class="u-green">▶ npm install</span>
     <span class="u-green">cp .env.example .env</span>
 
- <span class="u-yellow">▸</span> <span class="u-cyan">Run</span>
+ <span class="u-yellow">▸</span> <span class="u-sapphire">Run</span>
     <span class="u-green">npm run dev</span>
 
   ↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit</code></pre>

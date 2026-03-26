@@ -1,9 +1,5 @@
-# VHS demo tape for hdi
-# Run: vhs demo.tape
-# Requires: brew install vhs
-# Uses the `../hdi` build through $PWD below (ie. not `hdi` installed via Homebrew) so that the demo always shows the latest version of hdi
-
-Output ./demo/demo.gif
+# Shared demo steps for hdi
+# This file is sourced by theme-specific tapes.
 
 Set Shell "bash"
 Set FontSize 36
@@ -11,7 +7,6 @@ Set Width 1600
 Set Height 1000
 Set Padding 40
 Set TypingSpeed 60ms
-Set Theme "Catppuccin Mocha"
 
 # ── Setup (hidden) ──────────────────────────────────────────────────────────
 
@@ -37,7 +32,6 @@ Down
 Sleep 500ms
 Down
 Sleep 500ms
-
 # Navigate back up
 Up
 Sleep 500ms
@@ -77,7 +71,6 @@ Type "hdi r"
 Sleep 200ms
 Enter
 Sleep 2s
-
 Type "q"
 Sleep 1.5s
 
@@ -87,7 +80,6 @@ Type "hdi t"
 Sleep 200ms
 Enter
 Sleep 2s
-
 Type "q"
 Sleep 1.5s
 
@@ -97,6 +89,5 @@ Type "hdi c"
 Sleep 200ms
 Enter
 Sleep 3s
-
 Type "q"
 Sleep 1.5s
