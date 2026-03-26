@@ -26,7 +26,7 @@
 .sidebar-heading {
   padding: 0.5rem 1rem 1rem;
   font-weight: 600;
-  color: var(--overlay0);
+  color: var(--subtext0);
 }
 
 .sidebar-item {
@@ -45,8 +45,8 @@
 }
 
 .sidebar-item.active {
-  background: var(--surface0);
-  border-inline-start-color: var(--cyan);
+  background: color-mix(in oklch, var(--overlay2), transparent 80%);
+  border-inline-start-color: var(--lavender);
 }
 
 .sidebar-badge {
@@ -71,7 +71,7 @@
   background: var(--red);
 }
 .sidebar-badge.lang-TS {
-  background: var(--cyan);
+  background: var(--sapphire);
 }
 .sidebar-badge.lang-GO {
   background: var(--green);
@@ -91,7 +91,7 @@
 
 .sidebar-desc {
   font-size: 0.75rem;
-  color: var(--overlay0);
+  color: var(--text);
 }
 
 /* Terminal */
@@ -169,12 +169,12 @@
 }
 
 .t-header {
-  color: var(--cyan);
+  color: var(--sapphire);
   font-weight: 700;
 }
 
 .t-subheader {
-  color: var(--magenta);
+  color: var(--mauve);
   font-weight: 700;
 }
 
@@ -286,7 +286,7 @@
   }
   .sidebar-item.active {
     border-inline-start-color: transparent;
-    border-block-end-color: var(--cyan);
+    border-block-end-color: var(--sapphire);
   }
 
   .sidebar-name {
