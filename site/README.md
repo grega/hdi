@@ -1,6 +1,6 @@
 # hdi demo site
 
-Interactive demo of the `hdi` CLI.
+Information page and demo of the `hdi` CLI.
 
 ## Local development
 
