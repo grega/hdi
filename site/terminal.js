@@ -13,7 +13,7 @@
   var autoPlayed = false;
 
   function focusTerminal() {
-    hiddenInput.focus();
+    hiddenInput.focus({ preventScroll: true });
   }
 
   function clearTerminal() {
