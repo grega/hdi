@@ -23,7 +23,7 @@ _term_height() {
 # Headers/subheaders take 2 lines (blank + text), others take 1
 _SL=1
 _sl() {
-  case "${LINE_TYPES[$1]}" in header|subheader) _SL=2 ;; *) _SL=1 ;; esac
+  case "${LINE_TYPES[$1]}" in header|subheader|filesep) _SL=2 ;; *) _SL=1 ;; esac
 }
 
 # Adjust VIEWPORT_TOP so that the selected item is visible
@@ -55,7 +55,7 @@ adjust_viewport() {
     # Walk back through consecutive headers/subheaders to show full context
     while (( VIEWPORT_TOP > 0 )); do
       local prev_type="${LINE_TYPES[$((VIEWPORT_TOP - 1))]}"
-      if [[ "$prev_type" == "header" || "$prev_type" == "subheader" ]]; then
+      if [[ "$prev_type" == "header" || "$prev_type" == "subheader" || "$prev_type" == "filesep" ]]; then
         (( VIEWPORT_TOP -= 1 ))
       else
         break
@@ -156,6 +156,7 @@ draw_picker() {
       fi
       ;;
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
+    contrib) hdr+="  ${DIM}[contrib]${RESET}" ;;
   esac
   _line "$hdr"
   local chrome=3
@@ -195,6 +196,13 @@ draw_picker() {
     fi
 
     case "$type" in
+      filesep)
+        if (( idx != VIEWPORT_TOP )); then
+          _blank; (( rendered += 1 ))
+        fi
+        _line "  ${DIM}── ${line} ──────────────────────────────${RESET}"
+        (( rendered += 1 ))
+        ;;
       header)
         if (( idx != VIEWPORT_TOP )); then
           _blank; (( rendered += 1 ))

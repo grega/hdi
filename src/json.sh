@@ -161,8 +161,8 @@ _json_full_prose() {
   printf '\n    ]'
 }
 
-# Print the check array as JSON using the current DISPLAY_LINES
-_json_check() {
+# Print the needs array as JSON using the current DISPLAY_LINES
+_json_needs() {
   local -a tools=()
   local tool
 
@@ -219,7 +219,7 @@ _json_platforms() {
   fi
 }
 
-# Main JSON renderer: outputs all modes, fullProse, and check
+# Main JSON renderer: outputs all modes, fullProse, and needs
 render_json() {
   local _modes=("default" "install" "run" "test" "deploy" "all")
   local first
@@ -230,7 +230,8 @@ render_json() {
     $first || printf ',\n'
     first=false
     _json_set_pattern "$_m"
-    SECTION_TITLES=(); SECTION_BODIES=()
+    SECTION_TITLES=(); SECTION_BODIES=(); SECTION_FILES=()
+    _PARSE_SOURCE="$README"
     parse_sections < "$README"
     DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
     build_display_list
@@ -243,19 +244,21 @@ render_json() {
     $first || printf ',\n'
     first=false
     _json_set_pattern "$_m"
-    SECTION_TITLES=(); SECTION_BODIES=()
+    SECTION_TITLES=(); SECTION_BODIES=(); SECTION_FILES=()
+    _PARSE_SOURCE="$README"
     parse_sections < "$README"
     _json_full_prose "$_m"
   done
 
-  # Re-parse with "all" pattern for check tool extraction
-  printf '\n  },\n  "check": '
+  # Re-parse with "all" pattern for needs tool extraction
+  printf '\n  },\n  "needs": '
   _json_set_pattern "all"
-  SECTION_TITLES=(); SECTION_BODIES=()
+  SECTION_TITLES=(); SECTION_BODIES=(); SECTION_FILES=()
+  _PARSE_SOURCE="$README"
   parse_sections < "$README"
   DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
   build_display_list
-  _json_check
+  _json_needs
 
   # Platform detection (uses deploy pattern)
   printf ',\n  "platforms": '

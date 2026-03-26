@@ -8,7 +8,8 @@
 #   hdi test                      Just test commands (alias: t)
 #   hdi deploy                    Just deploy/release commands and platform detection (alias: d)
 #   hdi all                       Show all matched sections (currently the default mode)
-#   hdi check                     Check if required tools are installed (experimental)
+#   hdi contrib                   Show commands from contributor/development docs (alias: c)
+#   hdi needs                     Check if required tools are installed (alias: n)
 #   hdi [mode] --no-interactive   Print commands without the picker (alias: --ni)
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)

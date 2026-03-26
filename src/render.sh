@@ -5,6 +5,13 @@ render_static() {
     local type="${LINE_TYPES[$idx]}"
 
     case "$type" in
+      filesep)
+        if $RAW; then
+          printf "\n--- %s ---\n" "$line"
+        else
+          printf "\n%s  ── %s ──────────────────────────────%s\n" "$DIM" "$line" "$RESET"
+        fi
+        ;;
       header)
         if $RAW; then
           printf "\n## %s\n" "$line"
@@ -39,9 +46,21 @@ render_static() {
 
 # ── Full-prose render ────────────────────────────────────────────────────────
 render_full() {
+  local _rf_prev_source=""
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local content="${SECTION_BODIES[$i]}"
+    local _rf_source="${SECTION_FILES[$i]:-}"
+
+    # File separator when source changes
+    if [[ -n "$_rf_prev_source" && -n "$_rf_source" && "$_rf_source" != "$_rf_prev_source" ]]; then
+      if $RAW; then
+        printf "\n--- %s ---\n" "$(basename "$_rf_source")"
+      else
+        printf "\n%s  ── %s ──────────────────────────────%s\n" "$DIM" "$(basename "$_rf_source")" "$RESET"
+      fi
+    fi
+    _rf_prev_source="$_rf_source"
 
     # Strip trailing blank lines (pure bash, no tail subprocess)
     while [[ "$content" == *$'\n' ]]; do

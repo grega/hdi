@@ -5,10 +5,24 @@ if $JSON; then
   exit 0
 fi
 
-parse_sections < "$README"
+# Parse README (unless contrib-only mode)
+if [[ "$MODE" != "contrib" ]] && [[ -n "$README" ]]; then
+  _PARSE_SOURCE="$README"
+  parse_sections < "$README"
+fi
+
+# Parse contributor docs
+for _cf in "${CONTRIB_FILES[@]+"${CONTRIB_FILES[@]}"}"; do
+  _PARSE_SOURCE="$_cf"
+  parse_sections < "$_cf"
+done
 
 if (( ${#SECTION_TITLES[@]} == 0 )); then
-  echo "${YELLOW}hdi: no matching sections found in ${README}${RESET}" >&2
+  if [[ "$MODE" == "contrib" ]]; then
+    echo "${YELLOW}hdi: no matching sections found in contributor docs${RESET}" >&2
+  else
+    echo "${YELLOW}hdi: no matching sections found in ${README}${RESET}" >&2
+  fi
   echo "${DIM}Try: hdi all --full${RESET}" >&2
   exit 1
 fi
@@ -26,8 +40,8 @@ if [[ "$MODE" == "deploy" ]]; then
   build_platform_display
 fi
 
-if [[ "$MODE" == "check" ]]; then
-  run_check
+if [[ "$MODE" == "needs" ]]; then
+  run_needs
 elif [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
   run_interactive
 else
@@ -45,6 +59,7 @@ else
         fi
         ;;
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
+      contrib) printf "  %s[contrib]%s" "$DIM" "$RESET" ;;
     esac
     printf "\n"
   fi

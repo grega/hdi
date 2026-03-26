@@ -10,9 +10,19 @@ declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
 declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
 
 build_display_list() {
+  local _prev_source=""
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
+    local _source="${SECTION_FILES[$i]:-}"
+
+    # File separator when source file changes
+    if [[ -n "$_prev_source" && -n "$_source" && "$_source" != "$_prev_source" ]]; then
+      DISPLAY_LINES+=("$(basename "$_source")")
+      LINE_TYPES+=("filesep")
+      LINE_CMDS+=("")
+    fi
+    _prev_source="$_source"
 
     # Section header
     DISPLAY_LINES+=("$title")
