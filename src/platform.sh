@@ -8,9 +8,9 @@ declare -a PLATFORM_GROUPS=()
 declare -a PLATFORM_NAMES=()
 declare -a PLATFORM_CONFIDENCE=()  # "high" | "low"
 
-# Add or upgrade a platform detection. Deduplicates by group key
+# Add or upgrade a platform detection. Deduplicates by group key.
 # If the group already exists: upgrade confidence to high if applicable,
-# and prefer the longer (more specific) name
+# and prefer the longer (more specific) name.
 _platform_add() {
   local group="$1" name="$2" confidence="$3"
   for i in "${!PLATFORM_GROUPS[@]}"; do
@@ -33,22 +33,22 @@ _platform_add() {
 detect_platforms_from_files() {
   local dir="$1"
 
-  [[ -f "$dir/wrangler.toml" || -f "$dir/wrangler.json" ]] && _platform_add "cloudflare" "Cloudflare" "high" || true
-  [[ -f "$dir/vercel.json" ]]       && _platform_add "vercel" "Vercel" "high" || true
-  [[ -f "$dir/netlify.toml" ]]      && _platform_add "netlify" "Netlify" "high" || true
-  [[ -f "$dir/fly.toml" ]]          && _platform_add "fly" "Fly.io" "high" || true
-  [[ -f "$dir/Procfile" ]]          && _platform_add "heroku" "Heroku" "high" || true
-  [[ -f "$dir/render.yaml" ]]       && _platform_add "render" "Render" "high" || true
-  [[ -f "$dir/firebase.json" ]]     && _platform_add "firebase" "Firebase" "high" || true
-  [[ -f "$dir/amplify.yml" ]]       && _platform_add "amplify" "AWS Amplify" "high" || true
-  [[ -f "$dir/serverless.yml" || -f "$dir/serverless.ts" ]] && _platform_add "serverless" "Serverless" "high" || true
-  [[ -f "$dir/cdk.json" ]]          && _platform_add "awscdk" "AWS CDK" "high" || true
-  [[ -f "$dir/pulumi.yaml" ]]       && _platform_add "pulumi" "Pulumi" "high" || true
-  [[ -f "$dir/railway.json" || -f "$dir/railway.toml" ]] && _platform_add "railway" "Railway" "high" || true
-  [[ -f "$dir/Chart.yaml" ]]        && _platform_add "helm" "Helm" "high" || true
-  [[ -f "$dir/CNAME" ]]             && _platform_add "ghpages" "GitHub Pages" "high" || true
-  [[ -d "$dir/k8s" || -d "$dir/kubernetes" ]] && _platform_add "kubernetes" "Kubernetes" "high" || true
-  [[ -d "$dir/.kamal" || -f "$dir/config/deploy.yml" ]] && _platform_add "kamal" "Kamal" "high" || true
+  if [[ -f "$dir/wrangler.toml" || -f "$dir/wrangler.json" ]]; then _platform_add "cloudflare" "Cloudflare" "high"; fi
+  if [[ -f "$dir/vercel.json" ]]; then       _platform_add "vercel" "Vercel" "high"; fi
+  if [[ -f "$dir/netlify.toml" ]]; then      _platform_add "netlify" "Netlify" "high"; fi
+  if [[ -f "$dir/fly.toml" ]]; then          _platform_add "fly" "Fly.io" "high"; fi
+  if [[ -f "$dir/Procfile" ]]; then          _platform_add "heroku" "Heroku" "high"; fi
+  if [[ -f "$dir/render.yaml" ]]; then       _platform_add "render" "Render" "high"; fi
+  if [[ -f "$dir/firebase.json" ]]; then     _platform_add "firebase" "Firebase" "high"; fi
+  if [[ -f "$dir/amplify.yml" ]]; then       _platform_add "amplify" "AWS Amplify" "high"; fi
+  if [[ -f "$dir/serverless.yml" || -f "$dir/serverless.ts" ]]; then _platform_add "serverless" "Serverless" "high"; fi
+  if [[ -f "$dir/cdk.json" ]]; then          _platform_add "awscdk" "AWS CDK" "high"; fi
+  if [[ -f "$dir/pulumi.yaml" ]]; then       _platform_add "pulumi" "Pulumi" "high"; fi
+  if [[ -f "$dir/railway.json" || -f "$dir/railway.toml" ]]; then _platform_add "railway" "Railway" "high"; fi
+  if [[ -f "$dir/Chart.yaml" ]]; then        _platform_add "helm" "Helm" "high"; fi
+  if [[ -f "$dir/CNAME" ]]; then             _platform_add "ghpages" "GitHub Pages" "high"; fi
+  if [[ -d "$dir/k8s" || -d "$dir/kubernetes" ]]; then _platform_add "kubernetes" "Kubernetes" "high"; fi
+  if [[ -d "$dir/.kamal" || -f "$dir/config/deploy.yml" ]]; then _platform_add "kamal" "Kamal" "high"; fi
 
   # Terraform: glob for *.tf files
   local _tf
@@ -94,35 +94,35 @@ detect_platforms_from_commands() {
 }
 
 # Layer 3: Prose mention detection in deploy section bodies (low confidence)
-# Matches are case-insensitive. Captures the most specific variant mentioned
+# Matches are case-insensitive. Captures the most specific variant mentioned.
 detect_platforms_from_prose() {
   local body
   for body in "${SECTION_BODIES[@]+"${SECTION_BODIES[@]}"}"; do
     [[ -z "$body" ]] && continue
 
     shopt -s nocasematch
-    [[ "$body" =~ Cloudflare[[:space:]]Pages ]]   && _platform_add "cloudflare"  "Cloudflare Pages"   "low" || true
-    [[ "$body" =~ Cloudflare[[:space:]]Workers ]]  && _platform_add "cloudflare"  "Cloudflare Workers" "low" || true
-    [[ "$body" =~ Vercel ]]                        && _platform_add "vercel"      "Vercel"             "low" || true
-    [[ "$body" =~ Netlify ]]                       && _platform_add "netlify"     "Netlify"            "low" || true
-    [[ "$body" =~ Heroku ]]                        && _platform_add "heroku"      "Heroku"             "low" || true
-    [[ "$body" =~ Fly\.io ]]                       && _platform_add "fly"         "Fly.io"             "low" || true
-    [[ "$body" =~ GitHub[[:space:]]Pages ]]        && _platform_add "ghpages"     "GitHub Pages"       "low" || true
-    [[ "$body" =~ Dokku ]]                         && _platform_add "dokku"       "Dokku"              "low" || true
-    [[ "$body" =~ Railway ]]                       && _platform_add "railway"     "Railway"            "low" || true
-    [[ "$body" =~ Render ]]                        && _platform_add "render"      "Render"             "low" || true
-    [[ "$body" =~ Firebase ]]                      && _platform_add "firebase"    "Firebase"           "low" || true
-    [[ "$body" =~ AWS[[:space:]]Amplify ]]         && _platform_add "amplify"     "AWS Amplify"        "low" || true
-    [[ "$body" =~ DigitalOcean ]]                  && _platform_add "digitalocean" "DigitalOcean"      "low" || true
-    [[ "$body" =~ Kamal ]]                         && _platform_add "kamal"       "Kamal"              "low" || true
-    [[ "$body" =~ Surge ]]                         && _platform_add "surge"       "Surge"              "low" || true
+    if [[ "$body" =~ Cloudflare[[:space:]]Pages ]]; then   _platform_add "cloudflare"   "Cloudflare Pages"   "low"; fi
+    if [[ "$body" =~ Cloudflare[[:space:]]Workers ]]; then _platform_add "cloudflare"   "Cloudflare Workers" "low"; fi
+    if [[ "$body" =~ Vercel ]]; then                       _platform_add "vercel"       "Vercel"             "low"; fi
+    if [[ "$body" =~ Netlify ]]; then                      _platform_add "netlify"      "Netlify"            "low"; fi
+    if [[ "$body" =~ Heroku ]]; then                       _platform_add "heroku"       "Heroku"             "low"; fi
+    if [[ "$body" =~ Fly\.io ]]; then                      _platform_add "fly"          "Fly.io"             "low"; fi
+    if [[ "$body" =~ GitHub[[:space:]]Pages ]]; then       _platform_add "ghpages"      "GitHub Pages"       "low"; fi
+    if [[ "$body" =~ Dokku ]]; then                        _platform_add "dokku"        "Dokku"              "low"; fi
+    if [[ "$body" =~ Railway ]]; then                      _platform_add "railway"      "Railway"            "low"; fi
+    if [[ "$body" =~ Render ]]; then                       _platform_add "render"       "Render"             "low"; fi
+    if [[ "$body" =~ Firebase ]]; then                     _platform_add "firebase"     "Firebase"           "low"; fi
+    if [[ "$body" =~ AWS[[:space:]]Amplify ]]; then        _platform_add "amplify"      "AWS Amplify"        "low"; fi
+    if [[ "$body" =~ DigitalOcean ]]; then                 _platform_add "digitalocean" "DigitalOcean"       "low"; fi
+    if [[ "$body" =~ Kamal ]]; then                        _platform_add "kamal"        "Kamal"              "low"; fi
+    if [[ "$body" =~ Surge ]]; then                        _platform_add "surge"        "Surge"              "low"; fi
     shopt -u nocasematch
   done
 }
 
-# Build a display string from detected platforms
-# High-confidence names are plain; low-confidence get a "?" suffix
-# Sets _PLATFORM_DISPLAY (empty string if no platforms detected)
+# Build a display string from detected platforms.
+# High-confidence names are plain; low-confidence get a "?" suffix.
+# Sets _PLATFORM_DISPLAY (empty string if no platforms detected).
 _PLATFORM_DISPLAY=""
 build_platform_display() {
   _PLATFORM_DISPLAY=""
