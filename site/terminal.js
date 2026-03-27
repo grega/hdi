@@ -470,9 +470,9 @@
 
   hiddenInput.addEventListener("keydown", onKeyDown);
 
-  // Handle mobile keyboard input via the hidden input element.
+  // Handle mobile keyboard input via the hidden input element
   // iOS Safari only shows the on-screen keyboard for real input elements,
-  // so we focus a hidden <input> and proxy its value into inputBuffer.
+  // so we focus a hidden <input> and proxy its value into inputBuffer
   hiddenInput.addEventListener("input", function () {
     if (!promptActive) return;
     if (currentPicker && currentPicker.isActive()) return;

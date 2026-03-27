@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# release - bump version, tag, push, and print the sha256 for the Homebrew tap.
+# release - bump version, tag, push, and print the sha256 for the Homebrew tap
 #
 # Usage:
 #   ./release 0.1.0
