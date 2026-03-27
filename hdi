@@ -1359,9 +1359,9 @@ declare -a PLATFORM_GROUPS=()
 declare -a PLATFORM_NAMES=()
 declare -a PLATFORM_CONFIDENCE=()  # "high" | "low"
 
-# Add or upgrade a platform detection. Deduplicates by group key.
+# Add or upgrade a platform detection. Deduplicates by group key
 # If the group already exists: upgrade confidence to high if applicable,
-# and prefer the longer (more specific) name.
+# and prefer the longer (more specific) name
 _platform_add() {
   local group="$1" name="$2" confidence="$3"
   for i in "${!PLATFORM_GROUPS[@]}"; do
@@ -1472,8 +1472,8 @@ detect_platforms_from_prose() {
 }
 
 # Build a display string from detected platforms.
-# High-confidence names are plain; low-confidence get a "?" suffix.
-# Sets _PLATFORM_DISPLAY (empty string if no platforms detected).
+# High-confidence names are plain; low-confidence get a "?" suffix
+# Sets _PLATFORM_DISPLAY (empty string if no platforms detected)
 _PLATFORM_DISPLAY=""
 build_platform_display() {
   _PLATFORM_DISPLAY=""
