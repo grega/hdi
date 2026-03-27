@@ -1613,3 +1613,32 @@ assert all(p['confidence'] == 'high' for p in platforms), 'expected all high con
   [ "$status" -eq 0 ]
   [[ "$output" != *"Vercel"* ]]
 }
+
+@test "platform: Docker detected from deploy section commands" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-docker"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deploy → Docker"* ]]
+  [[ "$output" != *"Docker?"* ]]
+}
+
+@test "platform: Docker CLI tool detection" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-docker"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"docker build"* ]]
+  [[ "$output" == *"docker push"* ]]
+}
+
+@test "platform: Docker json output" {
+  run "$HDI" --json "$FIXTURES/platform-docker"
+  [ "$status" -eq 0 ]
+  echo "$output" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+platforms = d['platforms']
+names = [p['name'] for p in platforms]
+assert 'Docker' in names, f'expected Docker in {names}'
+dk = [p for p in platforms if p['name'] == 'Docker'][0]
+assert dk['confidence'] == 'high', f'expected high confidence, got {dk[\"confidence\"]}'
+assert dk['group'] == 'docker'
+"
+}

@@ -1437,6 +1437,7 @@ detect_platforms_from_commands() {
       cdk)                   _platform_add "awscdk"      "AWS CDK"     "high" ;;
       dokku)                 _platform_add "dokku"       "Dokku"       "high" ;;
       surge)                 _platform_add "surge"       "Surge"       "high" ;;
+      docker|docker-compose|podman) _platform_add "docker" "Docker" "high" ;;
     esac
   done
 }
@@ -1464,6 +1465,7 @@ detect_platforms_from_prose() {
     if [[ "$body" =~ DigitalOcean ]]; then                 _platform_add "digitalocean" "DigitalOcean"       "low"; fi
     if [[ "$body" =~ Kamal ]]; then                        _platform_add "kamal"        "Kamal"              "low"; fi
     if [[ "$body" =~ Surge ]]; then                        _platform_add "surge"        "Surge"              "low"; fi
+    if [[ "$body" =~ Docker ]]; then                       _platform_add "docker"       "Docker"             "low"; fi
     shopt -u nocasematch
   done
 }
