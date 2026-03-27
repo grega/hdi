@@ -3,6 +3,7 @@ name: Deploy demo site
 on:
   push:
     tags: ['v*'] # build and deploy the demo site on every release
+  workflow_dispatch:
 
 permissions:
   pages: write
