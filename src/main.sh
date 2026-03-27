@@ -16,6 +16,16 @@ fi
 PROJECT_NAME=$(basename "$(cd "$DIR" && pwd)")
 build_display_list
 
+# Platform detection (deploy mode only, including interactive)
+if [[ "$MODE" == "deploy" ]]; then
+  _project_dir="$DIR"
+  if [[ -n "$FILE" ]]; then _project_dir="${FILE%/*}"; fi
+  detect_platforms_from_files "$_project_dir"
+  detect_platforms_from_commands
+  detect_platforms_from_prose
+  build_platform_display
+fi
+
 if [[ "$MODE" == "check" ]]; then
   run_check
 elif [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
@@ -27,7 +37,13 @@ else
       install) printf "  %s[install]%s" "$DIM" "$RESET" ;;
       run)     printf "  %s[run]%s" "$DIM" "$RESET" ;;
       test)    printf "  %s[test]%s" "$DIM" "$RESET" ;;
-      deploy)  printf "  %s[deploy]%s" "$DIM" "$RESET" ;;
+      deploy)
+        if [[ -n "${_PLATFORM_DISPLAY:-}" ]]; then
+          printf "  %s[deploy → %s%s%s%s]%s" "$DIM" "$RESET" "$CYAN" "$_PLATFORM_DISPLAY" "$DIM" "$RESET"
+        else
+          printf "  %s[deploy]%s" "$DIM" "$RESET"
+        fi
+        ;;
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
     esac
     printf "\n"

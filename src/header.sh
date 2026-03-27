@@ -2,14 +2,14 @@
 # hdi - "How do I..." - Extracts setup/run/test commands from a README.
 #
 # Usage:
-#   hdi                           Interactive command picker (default in a terminal)
-#   hdi install                   Just install/setup commands
-#   hdi run                       Just run/start commands
-#   hdi test                      Just test commands
-#   hdi deploy                    Just deploy/release commands
-#   hdi all                       Show all matched sections
+#   hdi                           Interactive picker - shows all sections (default)
+#   hdi install                   Just install/setup commands (aliases: setup, i)
+#   hdi run                       Just run/start commands (aliases: start, r)
+#   hdi test                      Just test commands (alias: t)
+#   hdi deploy                    Just deploy/release commands and platform detection (alias: d)
+#   hdi all                       Show all matched sections (currently the default mode)
 #   hdi check                     Check if required tools are installed (experimental)
-#   hdi [mode] --no-interactive   Print commands without the picker
+#   hdi [mode] --no-interactive   Print commands without the picker (alias: --ni)
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
 #   hdi --json                    Structured JSON output (includes all sections)
@@ -22,9 +22,6 @@
 #   Enter              Execute the highlighted command
 #   c                  Copy highlighted command to clipboard
 #   q / Esc / Ctrl+C   Quit
-#
-# Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t",
-#          "deploy" = "d", "check" = "c"
 
 set -euo pipefail
 

@@ -61,7 +61,7 @@ hdi                    Interactive picker - shows all sections (default)
 hdi install            Just install/setup commands (aliases: setup, i)
 hdi run                Just run/start commands (aliases: start, r)
 hdi test               Just test commands (alias: t)
-hdi deploy             Just deploy/release commands (alias: d)
+hdi deploy             Just deploy/release commands and platform detection (alias: d)
 hdi all                All sections (aliases: a)
 hdi check              Check if required tools are installed (alias: c)
 hdi /path/to/project   Scan a different directory
@@ -103,6 +103,24 @@ Example: `hdi --raw | pbcopy` to copy commands to clipboard.
 | `Enter` | Execute highlighted command |
 | `c` | Copy highlighted command to clipboard |
 | `q` / `Esc` | Quit |
+
+### Deployment platform detection
+
+The `deploy` (or `d`) subcommand makes a best effort to extract what platform(s) a project uses for deployment (eg. Cloudflare, Heroku, Vercel, Netlify, AWS, etc), and displays this in the output:
+
+```bash
+$ hdi d
+[hdi] example-project  [deploy → Cloudflare Pages]
+...
+```
+
+Or if the certainty is low:
+
+```bash
+$ hdi d
+[hdi] example-project  [deploy → Netlify?]
+...
+```
 
 ## How it works
 

@@ -1509,3 +1509,107 @@ texts = [i['text'] for i in d['modes']['all'] if i['type'] == 'command']
 assert '\"status\": \"ok\",' not in texts
 "
 }
+
+# ── Platform detection ─────────────────────────────────────────────────────
+
+@test "platform: config file detected (cloudflare)" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-cloudflare"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deploy → Cloudflare Pages"* ]]
+  # High confidence — no question mark
+  [[ "$output" != *"Cloudflare Pages?"* ]]
+}
+
+@test "platform: multiple platforms detected" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-multi"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deploy → Vercel, Netlify"* ]]
+}
+
+@test "platform: CLI tool detection (kamal)" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-cmd"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deploy → Kamal"* ]]
+  # High confidence from CLI tool — no question mark
+  [[ "$output" != *"Kamal?"* ]]
+}
+
+@test "platform: prose-only detection is low confidence" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-prose"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deploy → GitHub Pages?"* ]]
+}
+
+@test "platform: no platform detected shows plain [deploy]" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-none"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"[deploy]"* ]]
+  [[ "$output" != *"deploy →"* ]]
+}
+
+@test "platform: dedup — config + prose same group shows high confidence" {
+  run "$HDI" deploy --ni "$FIXTURES/platform-cloudflare"
+  [ "$status" -eq 0 ]
+  # wrangler.toml (file) + "Cloudflare Pages" (prose) = high confidence
+  [[ "$output" == *"deploy → Cloudflare Pages"* ]]
+  [[ "$output" != *"Cloudflare Pages?"* ]]
+}
+
+@test "platform: --raw skips header (no platform shown)" {
+  run "$HDI" deploy --raw "$FIXTURES/platform-cloudflare"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"deploy →"* ]]
+  [[ "$output" == *"wrangler deploy"* ]]
+}
+
+@test "platform: json output includes platforms array" {
+  run "$HDI" --json "$FIXTURES/platform-cloudflare"
+  [ "$status" -eq 0 ]
+  echo "$output" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+platforms = d['platforms']
+assert len(platforms) > 0, 'expected at least one platform'
+names = [p['name'] for p in platforms]
+assert 'Cloudflare Pages' in names, f'expected Cloudflare Pages in {names}'
+cf = [p for p in platforms if p['name'] == 'Cloudflare Pages'][0]
+assert cf['confidence'] == 'high', f'expected high confidence, got {cf[\"confidence\"]}'
+assert cf['group'] == 'cloudflare'
+"
+}
+
+@test "platform: json output with no platforms returns empty array" {
+  run "$HDI" --json "$FIXTURES/platform-none"
+  [ "$status" -eq 0 ]
+  echo "$output" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+assert d['platforms'] == [], f'expected empty platforms, got {d[\"platforms\"]}'
+"
+}
+
+@test "platform: json output with multiple platforms" {
+  run "$HDI" --json "$FIXTURES/platform-multi"
+  [ "$status" -eq 0 ]
+  echo "$output" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+platforms = d['platforms']
+names = [p['name'] for p in platforms]
+assert 'Vercel' in names, f'expected Vercel in {names}'
+assert 'Netlify' in names, f'expected Netlify in {names}'
+assert all(p['confidence'] == 'high' for p in platforms), 'expected all high confidence'
+"
+}
+
+@test "platform: not shown in install mode" {
+  run "$HDI" install --ni "$FIXTURES/platform-cloudflare"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"Cloudflare"* ]]
+}
+
+@test "platform: not shown in run mode" {
+  run "$HDI" run --ni "$FIXTURES/react-nextjs"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"Vercel"* ]]
+}

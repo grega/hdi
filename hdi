@@ -2,14 +2,14 @@
 # hdi - "How do I..." - Extracts setup/run/test commands from a README.
 #
 # Usage:
-#   hdi                           Interactive command picker (default in a terminal)
-#   hdi install                   Just install/setup commands
-#   hdi run                       Just run/start commands
-#   hdi test                      Just test commands
-#   hdi deploy                    Just deploy/release commands
-#   hdi all                       Show all matched sections
+#   hdi                           Interactive picker - shows all sections (default)
+#   hdi install                   Just install/setup commands (aliases: setup, i)
+#   hdi run                       Just run/start commands (aliases: start, r)
+#   hdi test                      Just test commands (alias: t)
+#   hdi deploy                    Just deploy/release commands and platform detection (alias: d)
+#   hdi all                       Show all matched sections (currently the default mode)
 #   hdi check                     Check if required tools are installed (experimental)
-#   hdi [mode] --no-interactive   Print commands without the picker
+#   hdi [mode] --no-interactive   Print commands without the picker (alias: --ni)
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
 #   hdi --json                    Structured JSON output (includes all sections)
@@ -22,9 +22,6 @@
 #   Enter              Execute the highlighted command
 #   c                  Copy highlighted command to clipboard
 #   q / Esc / Ctrl+C   Quit
-#
-# Aliases: "install" = "setup" = "i", "run" = "start" = "r", "test" = "t",
-#          "deploy" = "d", "check" = "c"
 
 set -euo pipefail
 
@@ -938,10 +935,16 @@ draw_picker() {
     install) hdr+="  ${DIM}[install]${RESET}" ;;
     run)     hdr+="  ${DIM}[run]${RESET}" ;;
     test)    hdr+="  ${DIM}[test]${RESET}" ;;
+    deploy)
+      if [[ -n "${_PLATFORM_DISPLAY:-}" ]]; then
+        hdr+="  ${DIM}[deploy → ${RESET}${CYAN}${_PLATFORM_DISPLAY}${DIM}]${RESET}"
+      else
+        hdr+="  ${DIM}[deploy]${RESET}"
+      fi
+      ;;
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
   esac
   _line "$hdr"
-
   local chrome=3
 
   # Scroll-up indicator (only if meaningful content is above the viewport)
@@ -1054,6 +1057,11 @@ run_interactive() {
   local num_cmds=${#CMD_INDICES[@]}
 
   if (( num_cmds == 0 )); then
+    if [[ -n "${_PLATFORM_DISPLAY:-}" ]]; then
+      printf "%s%s[hdi] %s%s  %s[deploy → %s%s%s%s]%s\n\n" \
+        "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" \
+        "$DIM" "$RESET" "$CYAN" "$_PLATFORM_DISPLAY" "$DIM" "$RESET"
+    fi
     echo "${YELLOW}hdi: no commands to pick from${RESET}" >&2
     echo "${DIM}Try: hdi all --full${RESET}" >&2
     exit 1
@@ -1338,6 +1346,144 @@ run_check() {
   fi
 }
 
+# ── Platform detection ────────────────────────────────────────────────────────
+# Detects deployment platforms from three sources:
+#   1. Config files in the project directory (high confidence)
+#   2. CLI tools in extracted commands (high confidence)
+#   3. Platform names mentioned in deploy section prose (low confidence)
+
+declare -a PLATFORM_GROUPS=()
+declare -a PLATFORM_NAMES=()
+declare -a PLATFORM_CONFIDENCE=()  # "high" | "low"
+
+# Add or upgrade a platform detection. Deduplicates by group key
+# If the group already exists: upgrade confidence to high if applicable,
+# and prefer the longer (more specific) name
+_platform_add() {
+  local group="$1" name="$2" confidence="$3"
+  for i in "${!PLATFORM_GROUPS[@]}"; do
+    if [[ "${PLATFORM_GROUPS[$i]}" == "$group" ]]; then
+      if [[ "$confidence" == "high" ]]; then
+        PLATFORM_CONFIDENCE[i]="high"
+      fi
+      if (( ${#name} > ${#PLATFORM_NAMES[i]} )); then
+        PLATFORM_NAMES[i]="$name"
+      fi
+      return
+    fi
+  done
+  PLATFORM_GROUPS+=("$group")
+  PLATFORM_NAMES+=("$name")
+  PLATFORM_CONFIDENCE+=("$confidence")
+}
+
+# Layer 1: Config file detection (high confidence)
+detect_platforms_from_files() {
+  local dir="$1"
+
+  if [[ -f "$dir/wrangler.toml" || -f "$dir/wrangler.json" ]]; then _platform_add "cloudflare" "Cloudflare" "high"; fi
+  if [[ -f "$dir/vercel.json" ]]; then       _platform_add "vercel" "Vercel" "high"; fi
+  if [[ -f "$dir/netlify.toml" ]]; then      _platform_add "netlify" "Netlify" "high"; fi
+  if [[ -f "$dir/fly.toml" ]]; then          _platform_add "fly" "Fly.io" "high"; fi
+  if [[ -f "$dir/Procfile" ]]; then          _platform_add "heroku" "Heroku" "high"; fi
+  if [[ -f "$dir/render.yaml" ]]; then       _platform_add "render" "Render" "high"; fi
+  if [[ -f "$dir/firebase.json" ]]; then     _platform_add "firebase" "Firebase" "high"; fi
+  if [[ -f "$dir/amplify.yml" ]]; then       _platform_add "amplify" "AWS Amplify" "high"; fi
+  if [[ -f "$dir/serverless.yml" || -f "$dir/serverless.ts" ]]; then _platform_add "serverless" "Serverless" "high"; fi
+  if [[ -f "$dir/cdk.json" ]]; then          _platform_add "awscdk" "AWS CDK" "high"; fi
+  if [[ -f "$dir/pulumi.yaml" ]]; then       _platform_add "pulumi" "Pulumi" "high"; fi
+  if [[ -f "$dir/railway.json" || -f "$dir/railway.toml" ]]; then _platform_add "railway" "Railway" "high"; fi
+  if [[ -f "$dir/Chart.yaml" ]]; then        _platform_add "helm" "Helm" "high"; fi
+  if [[ -f "$dir/CNAME" ]]; then             _platform_add "ghpages" "GitHub Pages" "high"; fi
+  if [[ -d "$dir/k8s" || -d "$dir/kubernetes" ]]; then _platform_add "kubernetes" "Kubernetes" "high"; fi
+  if [[ -d "$dir/.kamal" || -f "$dir/config/deploy.yml" ]]; then _platform_add "kamal" "Kamal" "high"; fi
+
+  # Terraform: glob for *.tf files
+  local _tf
+  for _tf in "$dir"/*.tf; do
+    if [[ -f "$_tf" ]]; then
+      _platform_add "terraform" "Terraform" "high"
+      break
+    fi
+  done
+
+  return 0
+}
+
+# Layer 2: CLI tool detection from extracted commands (high confidence)
+detect_platforms_from_commands() {
+  local tool
+  for idx in "${!DISPLAY_LINES[@]}"; do
+    [[ "${LINE_TYPES[$idx]}" != "command" ]] && continue
+    _check_tool_name "${LINE_CMDS[$idx]}"
+    [[ -z "$_CT_RESULT" ]] && continue
+    tool="$_CT_RESULT"
+
+    case "$tool" in
+      wrangler)              _platform_add "cloudflare"  "Cloudflare"  "high" ;;
+      vercel)                _platform_add "vercel"      "Vercel"      "high" ;;
+      netlify)               _platform_add "netlify"     "Netlify"     "high" ;;
+      flyctl|fly)            _platform_add "fly"         "Fly.io"      "high" ;;
+      heroku)                _platform_add "heroku"      "Heroku"      "high" ;;
+      firebase)              _platform_add "firebase"    "Firebase"    "high" ;;
+      kubectl)               _platform_add "kubernetes"  "Kubernetes"  "high" ;;
+      helm)                  _platform_add "helm"        "Helm"        "high" ;;
+      kamal)                 _platform_add "kamal"       "Kamal"       "high" ;;
+      terraform)             _platform_add "terraform"   "Terraform"   "high" ;;
+      pulumi)                _platform_add "pulumi"      "Pulumi"      "high" ;;
+      railway)               _platform_add "railway"     "Railway"     "high" ;;
+      serverless|sls)        _platform_add "serverless"  "Serverless"  "high" ;;
+      sam)                   _platform_add "awssam"      "AWS SAM"     "high" ;;
+      cdk)                   _platform_add "awscdk"      "AWS CDK"     "high" ;;
+      dokku)                 _platform_add "dokku"       "Dokku"       "high" ;;
+      surge)                 _platform_add "surge"       "Surge"       "high" ;;
+    esac
+  done
+}
+
+# Layer 3: Prose mention detection in deploy section bodies (low confidence)
+# Matches are case-insensitive. Captures the most specific variant mentioned.
+detect_platforms_from_prose() {
+  local body
+  for body in "${SECTION_BODIES[@]+"${SECTION_BODIES[@]}"}"; do
+    [[ -z "$body" ]] && continue
+
+    shopt -s nocasematch
+    if [[ "$body" =~ Cloudflare[[:space:]]Pages ]]; then   _platform_add "cloudflare"   "Cloudflare Pages"   "low"; fi
+    if [[ "$body" =~ Cloudflare[[:space:]]Workers ]]; then _platform_add "cloudflare"   "Cloudflare Workers" "low"; fi
+    if [[ "$body" =~ Vercel ]]; then                       _platform_add "vercel"       "Vercel"             "low"; fi
+    if [[ "$body" =~ Netlify ]]; then                      _platform_add "netlify"      "Netlify"            "low"; fi
+    if [[ "$body" =~ Heroku ]]; then                       _platform_add "heroku"       "Heroku"             "low"; fi
+    if [[ "$body" =~ Fly\.io ]]; then                      _platform_add "fly"          "Fly.io"             "low"; fi
+    if [[ "$body" =~ GitHub[[:space:]]Pages ]]; then       _platform_add "ghpages"      "GitHub Pages"       "low"; fi
+    if [[ "$body" =~ Dokku ]]; then                        _platform_add "dokku"        "Dokku"              "low"; fi
+    if [[ "$body" =~ Railway ]]; then                      _platform_add "railway"      "Railway"            "low"; fi
+    if [[ "$body" =~ Render ]]; then                       _platform_add "render"       "Render"             "low"; fi
+    if [[ "$body" =~ Firebase ]]; then                     _platform_add "firebase"     "Firebase"           "low"; fi
+    if [[ "$body" =~ AWS[[:space:]]Amplify ]]; then        _platform_add "amplify"      "AWS Amplify"        "low"; fi
+    if [[ "$body" =~ DigitalOcean ]]; then                 _platform_add "digitalocean" "DigitalOcean"       "low"; fi
+    if [[ "$body" =~ Kamal ]]; then                        _platform_add "kamal"        "Kamal"              "low"; fi
+    if [[ "$body" =~ Surge ]]; then                        _platform_add "surge"        "Surge"              "low"; fi
+    shopt -u nocasematch
+  done
+}
+
+# Build a display string from detected platforms.
+# High-confidence names are plain; low-confidence get a "?" suffix
+# Sets _PLATFORM_DISPLAY (empty string if no platforms detected)
+_PLATFORM_DISPLAY=""
+build_platform_display() {
+  _PLATFORM_DISPLAY=""
+  if (( ${#PLATFORM_NAMES[@]} == 0 )); then return; fi
+  local parts=""
+  for i in "${!PLATFORM_NAMES[@]}"; do
+    if [[ -n "$parts" ]]; then parts+=", "; fi
+    parts+="${PLATFORM_NAMES[$i]}"
+    if [[ "${PLATFORM_CONFIDENCE[$i]}" == "low" ]]; then parts+="?"; fi
+  done
+  _PLATFORM_DISPLAY="$parts"
+}
+
 # ── JSON output ───────────────────────────────────────────────────────────────
 
 # Escape a string for safe embedding in JSON
@@ -1540,6 +1686,25 @@ _json_check() {
   printf '\n  ]'
 }
 
+# Print the platforms array as JSON using the current PLATFORM_* arrays
+_json_platforms() {
+  printf '['
+  local first=true
+  for i in "${!PLATFORM_NAMES[@]}"; do
+    $first || printf ','
+    first=false
+    printf '\n    {"name": "%s", "group": "%s", "confidence": "%s"}' \
+      "$(_json_esc "${PLATFORM_NAMES[$i]}")" \
+      "$(_json_esc "${PLATFORM_GROUPS[$i]}")" \
+      "${PLATFORM_CONFIDENCE[$i]}"
+  done
+  if (( ${#PLATFORM_NAMES[@]} > 0 )); then
+    printf '\n  ]'
+  else
+    printf ']'
+  fi
+}
+
 # Main JSON renderer: outputs all modes, fullProse, and check
 render_json() {
   local _modes=("default" "install" "run" "test" "deploy" "all")
@@ -1578,6 +1743,22 @@ render_json() {
   build_display_list
   _json_check
 
+  # Platform detection (uses deploy pattern)
+  printf ',\n  "platforms": '
+  _json_set_pattern "deploy"
+  SECTION_TITLES=(); SECTION_BODIES=()
+  parse_sections < "$README"
+  DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
+  SECTION_FIRST_CMD=()
+  build_display_list
+  PLATFORM_GROUPS=(); PLATFORM_NAMES=(); PLATFORM_CONFIDENCE=()
+  local _pdir="$DIR"
+  if [[ -n "$FILE" ]]; then _pdir="${FILE%/*}"; fi
+  detect_platforms_from_files "$_pdir"
+  detect_platforms_from_commands
+  detect_platforms_from_prose
+  _json_platforms
+
   printf '\n}\n'
 }
 
@@ -1599,6 +1780,16 @@ fi
 PROJECT_NAME=$(basename "$(cd "$DIR" && pwd)")
 build_display_list
 
+# Platform detection (deploy mode only, including interactive)
+if [[ "$MODE" == "deploy" ]]; then
+  _project_dir="$DIR"
+  if [[ -n "$FILE" ]]; then _project_dir="${FILE%/*}"; fi
+  detect_platforms_from_files "$_project_dir"
+  detect_platforms_from_commands
+  detect_platforms_from_prose
+  build_platform_display
+fi
+
 if [[ "$MODE" == "check" ]]; then
   run_check
 elif [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
@@ -1610,7 +1801,13 @@ else
       install) printf "  %s[install]%s" "$DIM" "$RESET" ;;
       run)     printf "  %s[run]%s" "$DIM" "$RESET" ;;
       test)    printf "  %s[test]%s" "$DIM" "$RESET" ;;
-      deploy)  printf "  %s[deploy]%s" "$DIM" "$RESET" ;;
+      deploy)
+        if [[ -n "${_PLATFORM_DISPLAY:-}" ]]; then
+          printf "  %s[deploy → %s%s%s%s]%s" "$DIM" "$RESET" "$CYAN" "$_PLATFORM_DISPLAY" "$DIM" "$RESET"
+        else
+          printf "  %s[deploy]%s" "$DIM" "$RESET"
+        fi
+        ;;
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
     esac
     printf "\n"
