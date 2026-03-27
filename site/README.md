@@ -64,3 +64,11 @@ npx playwright show-report
 ## Deployment
 
 Deploys to GitHub Pages automatically on release (tag push) via `.github/workflows/pages.yml`. The `release` script regenerates `data.js` before committing.
+
+If you _need_ to deploy manually, run:
+
+```bash
+gh workflow run pages.yml --ref main
+```
+
+Or use the "Run workflow" button on the [Actions tab in GitHub](https://github.com/grega/hdi/actions/workflows/pages.yml).

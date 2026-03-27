@@ -3,6 +3,7 @@ name: Deploy demo site
 on:
   push:
     tags: ['v*'] # build and deploy the demo site on every release
+  workflow_dispatch:
 
 permissions:
   pages: write
@@ -20,9 +21,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

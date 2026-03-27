@@ -200,6 +200,25 @@ _json_check() {
   printf '\n  ]'
 }
 
+# Print the platforms array as JSON using the current PLATFORM_* arrays
+_json_platforms() {
+  printf '['
+  local first=true
+  for i in "${!PLATFORM_NAMES[@]}"; do
+    $first || printf ','
+    first=false
+    printf '\n    {"name": "%s", "group": "%s", "confidence": "%s"}' \
+      "$(_json_esc "${PLATFORM_NAMES[$i]}")" \
+      "$(_json_esc "${PLATFORM_GROUPS[$i]}")" \
+      "${PLATFORM_CONFIDENCE[$i]}"
+  done
+  if (( ${#PLATFORM_NAMES[@]} > 0 )); then
+    printf '\n  ]'
+  else
+    printf ']'
+  fi
+}
+
 # Main JSON renderer: outputs all modes, fullProse, and check
 render_json() {
   local _modes=("default" "install" "run" "test" "deploy" "all")
@@ -237,6 +256,22 @@ render_json() {
   DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
   build_display_list
   _json_check
+
+  # Platform detection (uses deploy pattern)
+  printf ',\n  "platforms": '
+  _json_set_pattern "deploy"
+  SECTION_TITLES=(); SECTION_BODIES=()
+  parse_sections < "$README"
+  DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
+  SECTION_FIRST_CMD=()
+  build_display_list
+  PLATFORM_GROUPS=(); PLATFORM_NAMES=(); PLATFORM_CONFIDENCE=()
+  local _pdir="$DIR"
+  if [[ -n "$FILE" ]]; then _pdir="${FILE%/*}"; fi
+  detect_platforms_from_files "$_pdir"
+  detect_platforms_from_commands
+  detect_platforms_from_prose
+  _json_platforms
 
   printf '\n}\n'
 }

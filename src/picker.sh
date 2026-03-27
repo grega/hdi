@@ -148,10 +148,16 @@ draw_picker() {
     install) hdr+="  ${DIM}[install]${RESET}" ;;
     run)     hdr+="  ${DIM}[run]${RESET}" ;;
     test)    hdr+="  ${DIM}[test]${RESET}" ;;
+    deploy)
+      if [[ -n "${_PLATFORM_DISPLAY:-}" ]]; then
+        hdr+="  ${DIM}[deploy → ${RESET}${CYAN}${_PLATFORM_DISPLAY}${DIM}]${RESET}"
+      else
+        hdr+="  ${DIM}[deploy]${RESET}"
+      fi
+      ;;
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
   esac
   _line "$hdr"
-
   local chrome=3
 
   # Scroll-up indicator (only if meaningful content is above the viewport)
@@ -264,6 +270,11 @@ run_interactive() {
   local num_cmds=${#CMD_INDICES[@]}
 
   if (( num_cmds == 0 )); then
+    if [[ -n "${_PLATFORM_DISPLAY:-}" ]]; then
+      printf "%s%s[hdi] %s%s  %s[deploy → %s%s%s%s]%s\n\n" \
+        "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" \
+        "$DIM" "$RESET" "$CYAN" "$_PLATFORM_DISPLAY" "$DIM" "$RESET"
+    fi
     echo "${YELLOW}hdi: no commands to pick from${RESET}" >&2
     echo "${DIM}Try: hdi all --full${RESET}" >&2
     exit 1

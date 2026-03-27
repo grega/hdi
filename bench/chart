@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# bench/chart - render bench/results.csv as an SVG line chart.
+# bench/chart - render bench/results.csv as an SVG line chart
 #
 # Usage:
-#   ./bench/chart              # writes bench/results.svg
+#   ./bench/chart  # writes bench/results.svg
 
 set -euo pipefail
 
@@ -15,7 +15,7 @@ if [[ ! -f "$CSV" ]]; then
   exit 1
 fi
 
-# ── Generate SVG via awk ─────────────────────────────────────────────────────
+# ── Generate SVG ─────────────────────────────────────────────────────
 
 awk -F, '
 BEGIN {

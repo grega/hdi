@@ -1,5 +1,6 @@
 # Shared demo steps for hdi
-# This file is sourced by theme-specific tapes.
+# This file is sourced by theme-specific tapes
+# Uses the `../hdi` build through $PWD below (ie. not `hdi` installed via Homebrew) so that the demo always shows the latest version of hdi
 
 Set Shell "bash"
 Set FontSize 36
@@ -61,7 +62,6 @@ Type "hdi i"
 Sleep 200ms
 Enter
 Sleep 2s
-
 Type "q"
 Sleep 1.5s
 

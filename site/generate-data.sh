@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# generate-data.sh - Generate site/data.js from fixture READMEs using hdi --json
+# generate-data.sh - Generate site/data.js from fixture READMEs using `hdi --json`
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
