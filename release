@@ -65,6 +65,7 @@ sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$SRC_HEADER" && rm -f "$
 
 # Update site version references
 sed -i.bak "s/v$current/v$new/" "$SCRIPT_DIR/site/index.html" && rm -f "$SCRIPT_DIR/site/index.html.bak"
+sed -i.bak "s/v$current/v$new/" "$SCRIPT_DIR/site/demo.html" && rm -f "$SCRIPT_DIR/site/demo.html.bak"
 
 # Rebuild hdi from source
 "$SCRIPT_DIR/build"
