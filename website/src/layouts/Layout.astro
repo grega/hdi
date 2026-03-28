@@ -1,5 +1,6 @@
 ---
 import "../styles/index.css";
+const { title } = Astro.props;
 ---
 
 <!doctype html>
@@ -11,6 +12,16 @@ import "../styles/index.css";
     <link rel="icon" href="/favicon.ico" />
     <link rel="stylesheet" href="../styles/index.css" />
     <meta name="generator" content={Astro.generator} />
+    <title>hdi - {title}</title>
+    <meta
+      name="description"
+      content="CLI tool that scans a project's README and extracts the commands you need to get it running. No dependencies, just Bash."
+    />
+    <script
+      defer
+      data-domain="hdi.md"
+      src="https://analytics.gregdev.com/js/script.file-downloads.hash.outbound-links.js"
+    ></script>
     <title>Astro Basics</title>
   </head>
   <body>
