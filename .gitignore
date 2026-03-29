@@ -17,8 +17,11 @@ pnpm-debug.log*
 
 # Node / Playwright (site tests)
 node_modules/
-site/test-results/
-site/playwright-report/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
 
 # build output
 dist/
