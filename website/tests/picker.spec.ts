@@ -92,12 +92,27 @@ test.describe("Interactive picker", () => {
     ).toBeVisible();
   });
 
-  test("c copies and shows flash", async ({ page, context }) => {
-    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  test("c copies and shows flash", async ({ page, context, browserName }) => {
+    test.skip(
+      browserName !== "chromium",
+      "Real clipboard permission support is inconsistent in Firefox/WebKit.",
+    );
+
+    const selected = page.locator(".picker-row.selected .t-command");
+    const expected = (await selected.textContent())?.trim();
+    expect(expected).toBeTruthy();
+
+    await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+      origin: new URL(page.url()).origin,
+    });
+
     await page.keyboard.press("c");
     await expect(
       page.locator(".flash-msg", { hasText: "Copied" }),
     ).toBeVisible();
+
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toBe(expected);
   });
 
   test("q quits picker", async ({ page }) => {
