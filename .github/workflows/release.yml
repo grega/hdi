@@ -23,12 +23,11 @@ jobs:
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
 
-      # Build a minimal tarball with just the hdi script and LICENSE
       - name: Create minimal tarball
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           mkdir -p "dist/hdi-${tag}"
-          cp hdi LICENSE "dist/hdi-${tag}/"
+          cp hdi LICENSE doc/hdi.1 "dist/hdi-${tag}/"
           tar -czf "dist/hdi-${tag}.tar.gz" -C dist "hdi-${tag}"
 
       - name: Create GitHub release
