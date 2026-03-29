@@ -1,6 +1,8 @@
 # ── Extract matching sections ────────────────────────────────────────────────
 declare -a SECTION_TITLES=()
 declare -a SECTION_BODIES=()
+declare -a SECTION_FILES=()
+_PARSE_SOURCE=""
 
 parse_sections() {
   local in_section=false
@@ -38,12 +40,14 @@ parse_sections() {
       if (( level <= section_level )); then
         SECTION_TITLES+=("$heading_text")
         SECTION_BODIES+=("$body")
+        SECTION_FILES+=("$_PARSE_SOURCE")
         in_section=false
         body=""
       elif [[ "$text" =~ $PATTERN ]]; then
         # Deeper child heading also matches - save parent body first
         SECTION_TITLES+=("$heading_text")
         SECTION_BODIES+=("$body")
+        SECTION_FILES+=("$_PARSE_SOURCE")
         in_section=false
         body=""
       fi
@@ -163,6 +167,7 @@ parse_sections() {
   if $in_section; then
     SECTION_TITLES+=("$heading_text")
     SECTION_BODIES+=("$body")
+    SECTION_FILES+=("$_PARSE_SOURCE")
   fi
 
   shopt -u nocasematch

@@ -1,4 +1,4 @@
-# ── Check mode: report which tools are installed ─────────────────────────────
+# ── Needs mode: report which tools are installed ─────────────────────────────
 
 # Shell builtins and coreutils that are always available - not worth checking
 _CHECK_SKIP="^(cd|cp|mv|rm|mkdir|echo|export|source|cat|chmod|chown|ln|touch|ls|printf|trap|pwd|set|unset|eval|exec|exit|return|read|test|true|false|tee|head|tail|wc|sort|grep|xargs|find|tar|gzip|gunzip|sed|awk|tr|cut|diff|date|sleep|kill|whoami|env|which|man|less|more)$"
@@ -33,7 +33,7 @@ _check_tool_name() {
   _CT_RESULT="$tool"
 }
 
-run_check() {
+run_needs() {
   local -a tools=()
   local tool
 
@@ -60,7 +60,7 @@ run_check() {
   fi
 
   # Header
-  printf "\n%s%s[hdi] %s%s  %scheck (experimental)%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" "$DIM" "$RESET"
+  printf "\n%s%s[hdi] %s%s  %sneeds%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" "$DIM" "$RESET"
 
   local found=0 missing=0
   for tool in "${tools[@]}"; do

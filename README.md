@@ -63,7 +63,8 @@ hdi run                Just run/start commands (aliases: start, r)
 hdi test               Just test commands (alias: t)
 hdi deploy             Just deploy/release commands and platform detection (alias: d)
 hdi all                All sections (aliases: a)
-hdi check              Check if required tools are installed (alias: c)
+hdi contrib            Commands from contributor/development docs (alias: c)
+hdi needs              Check if required tools are installed (alias: n)
 hdi /path/to/project   Scan a different directory
 hdi /path/to/file.md   Parse a specific markdown file
 ```
@@ -78,7 +79,8 @@ hdi r      Run/start commands
 hdi t      Test commands
 hdi d      Deploy/release commands
 hdi a      All sections
-hdi c      Check required tools
+hdi c      Contributor/development docs
+hdi n      Check required tools
 ```
 
 ### Flags
