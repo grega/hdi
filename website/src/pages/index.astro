@@ -1,5 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import DemoLatte from "../assets/demo-latte.gif";
+import DemoMocha from "../assets/demo-mocha.gif";
 ---
 
 <Layout title="Extract install/run/test commands from project READMEs">
@@ -87,14 +89,9 @@ import Layout from "../layouts/Layout.astro";
     <section class="demo-gif">
       <h2>Demo</h2>
       <picture>
-        <source
-          srcset="
-              https://raw.githubusercontent.com/grega/hdi/main/demo/demo-latte.gif
-            "
-          media="(prefers-color-scheme: light)"
-        />
+        <source srcset={DemoLatte.src} media="(prefers-color-scheme: light)" />
         <img
-          src="https://raw.githubusercontent.com/grega/hdi/main/demo/demo-mocha.gif"
+          src={DemoMocha.src}
           alt="Animated demo showing hdi in action"
           width="800"
           loading="lazy"
