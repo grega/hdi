@@ -1,9 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { VERSION } from "../data/data";
+import { VERSION, PROJECTS } from "../data/data";
+import Terminal from "../components/Terminal.astro";
 ---
 
 <Layout title="Demo">
+  <Terminal />
   <h1 class="visually-hidden">hdi interactive demo</h1>
   <header>
     <nav class="nav">
@@ -34,7 +36,24 @@ import { VERSION } from "../data/data";
 
   <main class="demo-view" id="demo-view">
     <div class="demo-layout">
-      <aside class="sidebar" id="sidebar"></aside>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-heading">Example projects</div>
+        {
+          PROJECTS.map((p, i) => (
+            <div
+              class={"sidebar-item" + (i === 0 ? " active" : "")}
+              data-project-index={i}
+              tabindex="0"
+            >
+              <span class={"sidebar-badge lang-" + p.lang}>{p.lang}</span>
+              <div class="sidebar-info">
+                <div class="sidebar-name">{p.name}</div>
+                <div class="sidebar-desc">{p.description}</div>
+              </div>
+            </div>
+          ))
+        }
+      </aside>
       <section class="terminal-wrap">
         <div class="terminal" id="terminal" tabindex="0">
           <input
@@ -50,14 +69,15 @@ import { VERSION } from "../data/data";
       </section>
     </div>
     <footer class="hints" id="hints">
-      Try: <code>hdi</code>
-      <code>hdi install</code>
-      <code>hdi run</code>
-      <code>hdi test</code>
-      <code>hdi all</code>
-      <code>hdi check</code>
-      <code>hdi --full</code>
-      <code>hdi --raw</code>
+      Try:
+      <code data-hint="hdi">hdi</code>
+      <code data-hint="hdi install">hdi install</code>
+      <code data-hint="hdi run">hdi run</code>
+      <code data-hint="hdi test">hdi test</code>
+      <code data-hint="hdi all">hdi all</code>
+      <code data-hint="hdi check">hdi check</code>
+      <code data-hint="hdi --full">hdi --full</code>
+      <code data-hint="hdi --raw">hdi --raw</code>
     </footer>
   </main>
 </Layout>
@@ -374,7 +394,3 @@ import { VERSION } from "../data/data";
     }
   }
 </style>
-
-<script is:inline src="/data.js"></script>
-<script is:inline src="/picker.js"></script>
-<script is:inline src="/terminal.js"></script>
