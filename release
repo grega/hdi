@@ -66,6 +66,10 @@ sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$SRC_HEADER" && rm -f "$
 # Rebuild hdi from source
 "$SCRIPT_DIR/build"
 
+# Regenerate demo GIFs
+vhs "$SCRIPT_DIR/demo/demo-latte.tape"
+vhs "$SCRIPT_DIR/demo/demo-mocha.tape"
+
 # Run benchmarks against the new version
 if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   echo ""
@@ -73,7 +77,7 @@ if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   "$SCRIPT_DIR/bench/chart"
 fi
 
-git add src/header.sh hdi bench/results.csv bench/results.svg
+git add src/header.sh hdi bench/results.csv bench/results.svg demo/demo-latte.gif demo/demo-mocha.gif
 git commit -m "Bump version to $new"
 git tag "$tag"
 git push origin HEAD --tags
