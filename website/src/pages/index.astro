@@ -1,0 +1,417 @@
+---
+import Layout from "../layouts/Layout.astro";
+import DemoLatte from "../assets/demo-latte.gif";
+import DemoMocha from "../assets/demo-mocha.gif";
+import { VERSION } from "../data/data";
+---
+
+<Layout title="Extract install/run/test commands from project READMEs">
+  <main class="about stack" id="about">
+    <section class="hero stack">
+      <header class="hero-header stack">
+        <pre
+          class="hero-logo"
+          role="img"
+          aria-label="hdi">
+ _____ _____ _____ 
+||<span class="hero-logo-letter ">h</span>  |||<span class="hero-logo-letter ">d</span>  |||<span class="hero-logo-letter ">i</span>  ||
+||___|||___|||___||
+|/___\|/___\|/___\|
+          </pre>
+        <a
+          href="https://github.com/grega/hdi"
+          class="gh-link"
+          target="_blank"
+          title="hdi on GitHub"
+          rel="noopener"
+        >
+          <svg
+            width="128"
+            height="128"
+            viewBox="0 0 128 128"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            class="gh-logo"
+          >
+            <path
+              d="M56.7937 84.9688C44.4187 83.4688 35.7 74.5625 35.7 63.0313C35.7 58.3438 37.3875 53.2813 40.2 49.9063C38.9812 46.8125 39.1687 40.25 40.575 37.5313C44.325 37.0625 49.3875 39.0313 52.3875 41.75C55.95 40.625 59.7 40.0625 64.2937 40.0625C68.8875 40.0625 72.6375 40.625 76.0125 41.6563C78.9187 39.0313 84.075 37.0625 87.825 37.5313C89.1375 40.0625 89.325 46.625 88.1062 49.8125C91.1062 53.375 92.7 58.1563 92.7 63.0313C92.7 74.5625 83.9812 83.2813 71.4187 84.875C74.6062 86.9375 76.7625 91.4375 76.7625 96.5938L76.7625 106.344C76.7625 109.156 79.1062 110.75 81.9187 109.625C98.8875 103.156 112.2 86.1875 112.2 65.1875C112.2 38.6563 90.6375 17 64.1062 17C37.575 17 16.2 38.6562 16.2 65.1875C16.2 86 29.4187 103.25 47.2312 109.719C49.7625 110.656 52.2 108.969 52.2 106.438L52.2 98.9375C50.8875 99.5 49.2 99.875 47.7 99.875C41.5125 99.875 37.8562 96.5 35.2312 90.2188C34.2 87.6875 33.075 86.1875 30.9187 85.9063C29.7937 85.8125 29.4187 85.3438 29.4187 84.7813C29.4187 83.6563 31.2937 82.8125 33.1687 82.8125C35.8875 82.8125 38.2312 84.5 40.6687 87.9688C42.5437 90.6875 44.5125 91.9063 46.8562 91.9063C49.2 91.9063 50.7 91.0625 52.8562 88.9063C54.45 87.3125 55.6687 85.9063 56.7937 84.9688Z"
+              fill="currentColor"></path>
+          </svg>
+          <span class="version">{VERSION}</span>
+        </a>
+      </header>
+      <div class="hero-content stack">
+        <h1 class="hero-text">No more searching the README.</h1>
+        <p class="hero-text">
+          "How do I" surfaces <code>install</code>, <code>run</code>,
+          <code>test</code> and <code>deploy</code> steps and commands all in your
+          terminal.
+        </p>
+        <a class="button" href="./demo">Try the demo -></a>
+      </div>
+    </section>
+
+    <section class="install-section">
+      <h2>Install</h2>
+      <div class="install-methods">
+        <div class="install-method">
+          <h3>Homebrew</h3>
+          <div class="install-code">
+            <pre><code>brew install grega/tap/hdi</code></pre>
+            <button
+              class="copy-btn"
+              data-copy="brew install grega/tap/hdi"
+              title="Copy to clipboard"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+        <div class="install-method">
+          <h3>Manual</h3>
+          <div class="install-code">
+            <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
+  -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
+            <button
+              class="copy-btn"
+              data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
+              title="Copy to clipboard"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="install-note">
+        No dependencies, just Bash. Works on macOS and Linux.
+      </p>
+    </section>
+
+    <section class="demo-gif">
+      <h2>Demo</h2>
+      <picture>
+        <source srcset={DemoLatte.src} media="(prefers-color-scheme: light)" />
+        <img
+          src={DemoMocha.src}
+          alt="Animated demo showing hdi in action"
+          width="800"
+          loading="lazy"
+        />
+      </picture>
+      <p class="demo-link">Try out the <a href="/demo">demo</a>.</p>
+    </section>
+
+    <section>
+      <h2>How does it work?</h2>
+      <p>
+        <code>hdi</code> parses a given README's Markdown headings looking for keywords
+        like
+        <em>install, setup, prerequisites, run, usage, getting started</em>,
+        etc. It extracts the fenced code blocks from matching sections and
+        presents them as an interactive, executable list.
+      </p>
+    </section>
+
+    <section class="usage-section">
+      <h2>Usage</h2>
+      <pre
+        class="usage-block"><code>$ cd some-project
+$ hdi
+<span class="u-yellow">[hdi]</span> some-project
+
+ <span class="u-yellow">▸</span> <span class="u-sapphire">Installation</span>
+  <span class="u-green">▶ npm install</span>
+    <span class="u-green">cp .env.example .env</span>
+
+ <span class="u-yellow">▸</span> <span class="u-sapphire">Run</span>
+    <span class="u-green">npm run dev</span>
+
+  ↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit</code></pre>
+      <p class="usage-docs-link">
+        <a
+          href="https://github.com/grega/hdi#usage"
+          target="_blank"
+          rel="noopener">Full documentation on GitHub &rarr;</a
+        >
+      </p>
+    </section>
+
+    <section class="links-section">
+      <p class="usage-docs-link">
+        <a
+          href="https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-extract-run-commands-from-project-readmes/"
+          target="_blank"
+          rel="noopener">Read the blog post &rarr;</a
+        >
+      </p>
+    </section>
+  </main>
+
+  <script>
+    // Copy buttons
+    document.querySelectorAll(".copy-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const htmlBtn = btn as HTMLElement;
+        navigator.clipboard
+          .writeText(htmlBtn.dataset.copy || "")
+          .then(function () {
+            var original = htmlBtn.textContent;
+            htmlBtn.textContent = "Copied!";
+            htmlBtn.classList.add("copied");
+            setTimeout(function () {
+              htmlBtn.textContent = original;
+              htmlBtn.classList.remove("copied");
+            }, 1500);
+          });
+      });
+    });
+  </script>
+</Layout>
+
+<style>
+  /* ── About page ─────────────────────────────────────────────────────── */
+
+  .about {
+    flex: 1;
+    padding: 2rem 1.5rem;
+    max-width: 48rem;
+    margin: 0 auto;
+    width: 100%;
+
+    --space: 3rem;
+
+    h2 {
+      font-size: 1.25rem;
+      color: var(--sapphire);
+      margin-bottom: 1rem;
+    }
+    h2::before {
+      content: "▸ ";
+    }
+
+    p {
+      line-height: 1.5;
+
+      code {
+        background: var(--crust);
+        padding: 0.125em 0.375em;
+        border-radius: 2px;
+
+        @media (prefers-color-scheme: dark) {
+          background: var(--surface0);
+        }
+      }
+    }
+  }
+  /* 
+  .about section p + p {
+    margin-top: 1rem;
+  } */
+
+  /* .about section + section {
+    margin-top: 3rem;
+  } */
+
+  .about .links-section {
+    margin-top: 1.5rem;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────── */
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-header {
+    align-items: center;
+    --space: 0;
+  }
+
+  .hero-logo {
+    font-size: 1.5rem;
+    line-height: initial;
+
+    .hero-logo-letter {
+      color: var(--green);
+    }
+  }
+
+  .hero h1 {
+    font-weight: 400;
+  }
+
+  .hero-accent {
+    color: var(--yellow);
+  }
+
+  .hero-content {
+    align-items: center;
+    --space: 1.5rem;
+  }
+
+  .hero-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    max-inline-size: 55ch;
+
+    code:nth-of-type(1) {
+      color: var(--green);
+    }
+
+    code:nth-of-type(2) {
+      color: var(--mauve);
+    }
+
+    code:nth-of-type(3) {
+      color: var(--yellow);
+    }
+
+    code:nth-of-type(4) {
+      color: var(--sapphire);
+    }
+  }
+
+  /* ── Demo gif ─────────────────────────────────────────────────────── */
+
+  .demo-gif img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    border: 0.0625rem solid var(--surface0);
+  }
+
+  .demo-link {
+    margin-top: 0.75rem;
+    text-align: left;
+  }
+
+  .demo-link a {
+    color: var(--sapphire);
+  }
+
+  /* ── Install ─────────────────────────────────────────────────────── */
+
+  .install-methods {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .install-method {
+    background: var(--mantle);
+    border: 0.0625rem solid var(--surface1);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    min-width: 0;
+  }
+
+  .install-method h3 {
+    font-size: 0.8125rem;
+    color: var(--subtext0);
+    margin-bottom: 0.625rem;
+    font-weight: 600;
+  }
+
+  .install-code {
+    position: relative;
+  }
+
+  .install-method pre {
+    border: 0.0625rem solid var(--surface0);
+    background: var(--base);
+    padding: 0.75rem;
+    padding-right: 4rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0.5rem;
+    /* background: var(--surface0);
+  border: 0.0625rem solid var(--surface1);
+  color: var(--overlay0);
+  font-family: var(--font-mono);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s; */
+  }
+
+  /* .copy-btn:hover {
+  color: var(--text);
+  border-color: var(--overlay0);
+} */
+
+  /* .copy-btn.copied {
+  color: var(--green);
+  border-color: var(--green);
+} */
+
+  .install-method code {
+    color: var(--green);
+    /* font-size: 0.8125rem; */
+    font-family: var(--font-mono);
+  }
+
+  .install-note {
+    margin-top: 0.75rem;
+    color: var(--subtext0);
+  }
+
+  /* ── Usage ─────────────────────────────────────────────────────── */
+
+  .usage-block {
+    background: var(--mantle);
+    border: 0.0625rem solid var(--surface0);
+    border-radius: 0.375rem;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .usage-block code {
+    font-family: var(--font-mono);
+    color: var(--text);
+  }
+
+  .u-yellow {
+    color: var(--yellow);
+  }
+  .u-sapphire {
+    color: var(--sapphire);
+  }
+  .u-green {
+    color: var(--green);
+  }
+
+  .usage-docs-link a {
+    color: var(--sapphire);
+    text-decoration: none;
+  }
+
+  .usage-docs-link a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Responsive ─────────────────────────────────────────────────────── */
+
+  @media (max-width: 43.75rem) {
+    /* About */
+    .about {
+      padding: 1rem 1.5rem 2rem;
+    }
+    .links-section {
+      flex-direction: column;
+    }
+  }
+</style>

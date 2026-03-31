@@ -1,0 +1,93 @@
+# hdi website
+
+Information page and interactive demo of the `hdi` CLI, built with [Astro](https://astro.build).
+
+## Local development
+
+Install Node via [asdf](https://asdf-vm.com/) (see `.tool-versions`):
+
+```bash
+asdf install
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Dev server will open at http://localhost:4321
+
+## Formatting
+
+This project uses Prettier for formatting.
+
+Run manually:
+
+```bash
+npm run format
+```
+
+Run without writing:
+
+```bash
+npm run format:check
+```
+
+## E2E tests
+
+This project uses Playwright for E2E tests. Tests run on chromium, firefox and webkit.
+
+Run in headless mode:
+
+```bash
+npm run test
+```
+
+Run with browser ui:
+
+```bash
+npm run test:ui
+```
+
+Run in debug mode:
+
+```bash
+npm run test:debug
+```
+
+## Preview & build
+
+Preview your build locally, before deploying:
+
+```bash
+npm run preview
+```
+
+Build website:
+
+```bash
+npm run build
+```
+
+## Astro commands
+
+Get help using the Astro CLI:
+
+```bash
+npm run astro -- --help
+```
+
+## Regenerating data
+
+`src/data/data.js` is auto-generated from the fixture READMEs using `hdi --json`. To regenerate after changing fixtures or the parser locally, run from the `website/` directory:
+
+```bash
+./generate-data.sh
+```

@@ -3,5 +3,6 @@
 # Requires: brew install vhs
 
 Output demo/demo-latte.gif
+Output website/src/assets/demo-latte.gif
 Set Theme "Catppuccin Latte"
 Source demo/demo-content.tape
