@@ -2,6 +2,16 @@
 
 Information page and interactive demo of the `hdi` CLI, built with [Astro](https://astro.build).
 
+## Prerequisites
+
+The website depends on demo data generated from the `hdi` CLI. Before running the dev server or building, make sure `hdi` is built from the project root:
+
+```bash
+./build
+```
+
+Data generation happens automatically via `predev` and `prebuild` npm scripts, so you don't need to run `generate-data.sh` manually.
+
 ## Local development
 
 Install Node via [asdf](https://asdf-vm.com/) (see `.tool-versions`):
@@ -86,7 +96,7 @@ npm run astro -- --help
 
 ## Regenerating data
 
-`src/data/data.js` is auto-generated from the fixture READMEs using `hdi --json`. To regenerate after changing fixtures or the parser locally, run from the `website/` directory:
+`src/data/data.js` is auto-generated from the fixture READMEs using `hdi --json` and is not committed to git. It is regenerated automatically when running `npm run dev` or `npm run build`. To regenerate manually, run from the `website/` directory:
 
 ```bash
 ./generate-data.sh

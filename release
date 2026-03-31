@@ -63,15 +63,8 @@ echo "Releasing: $current → $new ($tag)"
 
 sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$SRC_HEADER" && rm -f "$SRC_HEADER.bak"
 
-# Update site version references
-sed -i.bak "s/v$current/v$new/" "$SCRIPT_DIR/site/index.html" && rm -f "$SCRIPT_DIR/site/index.html.bak"
-sed -i.bak "s/v$current/v$new/" "$SCRIPT_DIR/site/demo.html" && rm -f "$SCRIPT_DIR/site/demo.html.bak"
-
 # Rebuild hdi from source
 "$SCRIPT_DIR/build"
-
-# Regenerate site data from fixtures
-bash "$SCRIPT_DIR/website/generate-data.sh"
 
 # Run benchmarks against the new version
 if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
@@ -80,7 +73,7 @@ if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   "$SCRIPT_DIR/bench/chart"
 fi
 
-git add src/header.sh hdi bench/results.csv bench/results.svg site/index.html site/data.js
+git add src/header.sh hdi bench/results.csv bench/results.svg
 git commit -m "Bump version to $new"
 git tag "$tag"
 git push origin HEAD --tags

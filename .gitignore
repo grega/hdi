@@ -26,6 +26,9 @@ playwright/.auth/
 # build output
 dist/
 
+# auto-generated website data (produced by website/generate-data.sh)
+website/src/data/data.js
+
 # generated types
 .astro/
 

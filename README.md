@@ -172,6 +172,10 @@ vhs ./demo/demo.tape
 
 This outputs `demo.gif` from the tape file.
 
+## Website
+
+See `website/README.md` for instructions on running the demo website at https://hdi.md
+
 ## Benchmarking
 
 Static benchmark READMEs in `bench/` (small, medium, large, stress) exercise parsing path at different scales. Run benchmarks with:
@@ -186,7 +190,7 @@ Benchmarks run automatically during `./release` and are recorded in `bench/resul
 
 ## Publishing a new release
 
-The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, regenerates `site/data.js`, commits, tags and pushes. The `release` Actions workflow will automatically build and publish a GitHub release when the tag is pushed, and the demo site is redeployed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`).
+The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, commits, tags and pushes. The `release` Actions workflow will automatically build and publish a GitHub release when the tag is pushed, and the demo site is built and deployed via the `pages` workflow. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`).
 
 ```bash
 ./release patch          # 0.1.0 → 0.1.1

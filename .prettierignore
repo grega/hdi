@@ -8,4 +8,4 @@ bench/results.csv
 bench/results.svg
 
 # Generated test files  
-site/playwright-temp/
+website/playwright-temp/
