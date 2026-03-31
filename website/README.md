@@ -10,7 +10,7 @@ The website depends on demo data generated from the `hdi` CLI. Before running th
 ./build
 ```
 
-Data generation happens automatically via `predev` and `prebuild` npm scripts, so you don't need to run `generate-data.sh` manually.
+Data generation and asset copying happens automatically via `predev` and `prebuild` npm scripts, so you don't need to run `prepare-website.sh` manually.
 
 ## Local development
 
@@ -96,8 +96,8 @@ npm run astro -- --help
 
 ## Regenerating data
 
-`src/data/data.js` is auto-generated from the fixture READMEs using `hdi --json` and is not committed to git. It is regenerated automatically when running `npm run dev` or `npm run build`. To regenerate manually, run from the `website/` directory:
+`src/data/data.js` and the demo GIFs in `src/assets/` are auto-generated and not committed to git. They are regenerated automatically when running `npm run dev` or `npm run build`. To regenerate manually, run from the `website/` directory:
 
 ```bash
-./generate-data.sh
+./prepare-website.sh
 ```

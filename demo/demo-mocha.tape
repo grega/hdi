@@ -3,6 +3,5 @@
 # Requires: brew install vhs
 
 Output demo/demo-mocha.gif
-Output website/src/assets/demo-mocha.gif
 Set Theme "Catppuccin Mocha"
 Source demo/demo-content.tape

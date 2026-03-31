@@ -6,9 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "predev": "bash ./generate-data.sh",
+    "predev": "bash ./prepare-website.sh",
     "dev": "astro dev",
-    "prebuild": "bash ./generate-data.sh",
+    "prebuild": "bash ./prepare-website.sh",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
