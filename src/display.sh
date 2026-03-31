@@ -10,6 +10,7 @@ declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
 declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
 
 build_display_list() {
+  _MAX_CONTENT_WIDTH=0
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
@@ -37,6 +38,7 @@ build_display_list() {
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$tcmd")
+        (( ${#tcmd} + 4 > _MAX_CONTENT_WIDTH )) && _MAX_CONTENT_WIDTH=$(( ${#tcmd} + 4 ))
       done <<< "$title_cmds"
     fi
 
@@ -98,6 +100,7 @@ build_display_list() {
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$_entry")
+        (( ${#_entry} + 4 > _MAX_CONTENT_WIDTH )) && _MAX_CONTENT_WIDTH=$(( ${#_entry} + 4 ))
       done <<< "$cmds"
     fi
 

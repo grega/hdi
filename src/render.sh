@@ -9,7 +9,7 @@ render_static() {
         if $RAW; then
           printf "\n## %s\n" "$line"
         else
-          printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$line" "$RESET"
+          _section_header "$line"; printf "\n%s\n" "$_SH"
         fi
         ;;
       subheader)
@@ -60,7 +60,7 @@ render_full() {
       continue
     fi
 
-    printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$title" "$RESET"
+    _section_header "$title"; printf "\n%s\n" "$_SH"
 
     local in_code=false
     local code_buf=""
