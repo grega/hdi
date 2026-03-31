@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Page navigation", () => {
   test("navigates to demo page via link", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await page
       .locator('a.button, a[href*="demo"], .demo-link a')
       .first()
@@ -11,7 +11,7 @@ test.describe("Page navigation", () => {
   });
 
   test("navigates back to main page from demo", async ({ page }) => {
-    await page.goto("/demo");
+    await page.goto("/demo", { waitUntil: "domcontentloaded" });
     await page.locator(".t-prompt").waitFor();
     await page.locator("a.nav-back").click();
     await page.waitForURL("/");
@@ -19,14 +19,14 @@ test.describe("Page navigation", () => {
   });
 
   test("direct navigation to /demo shows demo view", async ({ page }) => {
-    await page.goto("/demo");
+    await page.goto("/demo", { waitUntil: "domcontentloaded" });
     await expect(page.locator("#demo-view")).toBeVisible();
   });
 });
 
 test.describe("Sidebar", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/demo");
+    await page.goto("/demo", { waitUntil: "domcontentloaded" });
     await page.locator(".t-prompt").waitFor();
   });
 
