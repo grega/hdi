@@ -62,7 +62,7 @@ Run in debug mode:
 npm run test:debug
 ```
 
-## Preview & build
+## Preview and build
 
 Preview your build locally, before deploying:
 

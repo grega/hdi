@@ -71,7 +71,7 @@ sed -i.bak "s/v$current/v$new/" "$SCRIPT_DIR/site/demo.html" && rm -f "$SCRIPT_D
 "$SCRIPT_DIR/build"
 
 # Regenerate site data from fixtures
-bash "$SCRIPT_DIR/site/generate-data.sh"
+bash "$SCRIPT_DIR/website/generate-data.sh"
 
 # Run benchmarks against the new version
 if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
