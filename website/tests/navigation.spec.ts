@@ -7,20 +7,19 @@ test.describe("Page navigation", () => {
       .locator('a.button, a[href*="demo"], .demo-link a')
       .first()
       .click();
-    const url = page.url();
-    expect(url.endsWith("/demo"));
+    expect(page.url()).toContain("/demo");
   });
 
   test("navigates back to main page from demo", async ({ page }) => {
-    await page.goto("/demo.html");
+    await page.goto("/demo");
+    await page.locator(".t-prompt").waitFor();
     await page.locator("a.nav-back").click();
-    const url = page.url();
-    expect(url.endsWith("/"));
+    await page.waitForURL("/");
     await expect(page.locator("#about")).toBeVisible();
   });
 
-  test("direct navigation to /demo.html shows demo view", async ({ page }) => {
-    await page.goto("/demo.html");
+  test("direct navigation to /demo shows demo view", async ({ page }) => {
+    await page.goto("/demo");
     await expect(page.locator("#demo-view")).toBeVisible();
   });
 });
