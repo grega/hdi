@@ -1198,7 +1198,12 @@ run_interactive() {
 
         echo ""
         if (( rc == 0 )); then
-          printf "%s%s✓ Done (exit %d)%s\n" "$DIM" "$GREEN" "$rc" "$RESET"
+          printf "%s✓ Done (exit %d)%s\n" "$GREEN" "$rc" "$RESET"
+          # Warn about commands that modify the shell environment
+          if [[ "$cmd" =~ (^|[;&|]\ *)(source|\.)\  ]] || [[ "$cmd" =~ activate ]]; then
+            printf "%s  Tip: environment changes (eg. venv activation) don't persist outside hdi.%s\n" "$DIM" "$RESET"
+            printf "%s  You may prefer to run this command directly in your shell instead.%s\n\n" "$DIM" "$RESET"
+          fi
         else
           printf "%s%s✗ Exited with code %d%s\n" "$BOLD" "$YELLOW" "$rc" "$RESET"
         fi
