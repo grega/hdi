@@ -52,7 +52,13 @@ npm run format:check
 
 ## E2E tests
 
-This project uses Playwright for E2E tests. Tests run on chromium, firefox and webkit.
+This project uses Playwright for E2E tests. Tests run on Chromium, Firefox and Webkit.
+
+Initial set up (installs browsers):
+
+```bash
+npx playwright install
+```
 
 Run in headless mode:
 
@@ -60,7 +66,7 @@ Run in headless mode:
 npm run test
 ```
 
-Run with browser ui:
+Run with browser UI:
 
 ```bash
 npm run test:ui
