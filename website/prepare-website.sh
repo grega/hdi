@@ -7,7 +7,7 @@ ROOT="$(dirname "$SCRIPT_DIR")"
 HDI="$ROOT/hdi"
 OUT="$SCRIPT_DIR/src/data/data.js"
 
-mkdir -p "$(dirname "$OUT")"
+mkdir -p "$(dirname "$OUT")" "$SCRIPT_DIR/src/assets"
 
 # Project metadata: slug|name|description|lang|langFull
 projects=(
