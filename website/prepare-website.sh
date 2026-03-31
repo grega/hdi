@@ -7,6 +7,8 @@ ROOT="$(dirname "$SCRIPT_DIR")"
 HDI="$ROOT/hdi"
 OUT="$SCRIPT_DIR/src/data/data.js"
 
+mkdir -p "$(dirname "$OUT")"
+
 # Project metadata: slug|name|description|lang|langFull
 projects=(
   "node-express|express-api|Invoice management REST API|JS|JavaScript"
