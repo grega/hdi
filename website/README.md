@@ -1,46 +1,93 @@
-# Astro Starter Kit: Basics
+# hdi website
 
-```sh
-npm create astro@latest -- --template basics
+Information page and interactive demo of the `hdi` CLI, built with [Astro](https://astro.build).
+
+## Local development
+
+Install Node via [asdf](https://asdf-vm.com/) (see `.tool-versions`):
+
+```bash
+asdf install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Install dependencies:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```bash
+npm install
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+Start the dev server:
 
-## 🧞 Commands
+```bash
+npm run dev
+```
 
-All commands are run from the root of the project, from a terminal:
+Dev server will open at http://localhost:4321
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Formatting
 
-## 👀 Want to learn more?
+This project uses Prettier for formatting.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Run manually:
+
+```bash
+npm run format
+```
+
+Run without writing:
+
+```bash
+npm run format:check
+```
+
+## E2E tests
+
+This project uses Playwright for E2E tests. Tests run on chromium, firefox and webkit.
+
+Run in headless mode:
+
+```bash
+npm run test
+```
+
+Run with browser ui:
+
+```bash
+npm run test:ui
+```
+
+Run in debug mode:
+
+```bash
+npm run test:debug
+```
+
+## Preview & build
+
+Preview your build locally, before deploying:
+
+```bash
+npm run preview
+```
+
+Build website:
+
+```bash
+npm run build
+```
+
+## Astro commands
+
+Get help using the Astro CLI:
+
+```bash
+npm run astro -- --help
+```
+
+## Regenerating data
+
+`src/data/data.js` is auto-generated from the fixture READMEs using `hdi --json`. To regenerate after changing fixtures or the parser locally, run from the `website/` directory:
+
+```bash
+./generate-data.sh
+```
