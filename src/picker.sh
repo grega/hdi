@@ -173,7 +173,8 @@ draw_picker() {
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
   esac
   _line "$hdr"
-  local chrome=3
+  _blank
+  local chrome=4
 
   # Scroll-up indicator (only if meaningful content is above the viewport)
   local has_above=false

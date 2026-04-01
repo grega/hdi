@@ -46,7 +46,7 @@ else
         ;;
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
     esac
-    printf "\n"
+    printf "\n\n"
   fi
 
   if $FULL; then
