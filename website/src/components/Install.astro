@@ -1,55 +1,57 @@
-<div class="tabs">
-  <div role="tablist" aria-labelledby="tablist-1" class="automatic">
-    <button
-      id="tab-1"
-      type="button"
-      role="tab"
-      aria-selected="true"
-      aria-controls="tabpanel-1"
-    >
-      <span class="focus">brew</span>
-    </button>
-    <button
-      id="tab-2"
-      type="button"
-      role="tab"
-      aria-selected="false"
-      aria-controls="tabpanel-2"
-      tabindex="-1"
-    >
-      <span class="focus">curl</span>
-    </button>
-  </div>
-
-  <div id="tabpanel-1" role="tabpanel" tabindex="0" aria-labelledby="tab-1">
-    <div class="code-block">
-      <pre><code>brew install grega/tap/hdi</code></pre>
+<div class="install">
+  <div class="tabs">
+    <div role="tablist" aria-labelledby="tablist-1" class="automatic">
       <button
-        class="code-block-btn"
-        data-copy="brew install grega/tap/hdi"
-        title="Copy to clipboard"
+        id="tab-1"
+        type="button"
+        role="tab"
+        aria-selected="true"
+        aria-controls="tabpanel-1"
       >
-        Copy
+        <span class="focus">brew</span>
+      </button>
+      <button
+        id="tab-2"
+        type="button"
+        role="tab"
+        aria-selected="false"
+        aria-controls="tabpanel-2"
+        tabindex="-1"
+      >
+        <span class="focus">curl</span>
       </button>
     </div>
-  </div>
-  <div
-    id="tabpanel-2"
-    role="tabpanel"
-    tabindex="0"
-    aria-labelledby="tab-2"
-    class="is-hidden"
-  >
-    <div class="code-block">
-      <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
-  -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
-      <button
-        class="code-block-btn"
-        data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
-        title="Copy to clipboard"
-      >
-        Copy
-      </button>
+
+    <div id="tabpanel-1" role="tabpanel" tabindex="0" aria-labelledby="tab-1">
+      <div class="code-block">
+        <pre><code>brew install grega/tap/hdi</code></pre>
+        <button
+          class="code-block-btn"
+          data-copy="brew install grega/tap/hdi"
+          title="Copy to clipboard"
+        >
+          Copy
+        </button>
+      </div>
+    </div>
+    <div
+      id="tabpanel-2"
+      role="tabpanel"
+      tabindex="0"
+      aria-labelledby="tab-2"
+      class="is-hidden"
+    >
+      <div class="code-block">
+        <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
+      -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
+        <button
+          class="code-block-btn"
+          data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
+          title="Copy to clipboard"
+        >
+          Copy
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -59,7 +61,6 @@
     border: 1px solid var(--surface0);
     padding: 1rem;
     padding-block-start: 0.5rem;
-    margin: var(--tabs-margin);
     border-radius: 0.5rem;
   }
 
