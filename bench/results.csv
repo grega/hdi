@@ -263,3 +263,11 @@ timestamp,version,machine,fixture,lines,median_ms
 2026-04-01T09:52:00Z,0.23.1,Apple_M1_Pro_8c,large_picker,439,117.3
 2026-04-01T09:52:00Z,0.23.1,Apple_M1_Pro_8c,stress,561,119.1
 2026-04-01T09:52:00Z,0.23.1,Apple_M1_Pro_8c,stress_picker,561,125.7
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,small,21,22.5
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,small_picker,21,28.0
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,medium,164,50.6
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,medium_picker,164,56.5
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,large,439,106.7
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,large_picker,439,111.3
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,stress,561,118.9
+2026-04-01T20:39:34Z,0.24.0,Apple_M1_Pro_8c,stress_picker,561,126.1
