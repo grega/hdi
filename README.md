@@ -208,6 +208,15 @@ The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, commi
 ./release 1.2.3          # explicit version
 ```
 
+## AI transparency
+
+AI tooling (eg. Claude Code) has been used to assist with areas of the project, such as:
+
+- Researching common README formats across a large array of project types, and creating fixtures from these findings
+- Prototyping the parsing logic
+- Creating the website's data generation pipeline, along with elements of the demo page's terminal simulator
+- Converting the use of `sed`, `awk` etc into Bash natives (ie. the [v0.10.0](https://github.com/grega/hdi/releases/tag/v0.10.0) performance release)
+
 ## License
 
 [MIT](LICENSE)
