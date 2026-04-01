@@ -66,10 +66,6 @@ sed -i.bak "s/^VERSION=\"$current\"/VERSION=\"$new\"/" "$SRC_HEADER" && rm -f "$
 # Rebuild hdi from source
 "$SCRIPT_DIR/build"
 
-# Regenerate demo GIFs
-vhs "$SCRIPT_DIR/demo/demo-latte.tape"
-vhs "$SCRIPT_DIR/demo/demo-mocha.tape"
-
 # Run benchmarks against the new version
 if [[ -x "$SCRIPT_DIR/bench/run" ]]; then
   echo ""

@@ -107,3 +107,7 @@ npm run astro -- --help
 ```bash
 ./prepare-website.sh
 ```
+
+## Deployment
+
+Deployment to GitHub Pages is automatic on every release via the `pages.yml` GitHub Actions workflow. It can also be triggered manually by running the workflow from the [Actions tab in GitHub](https://github.com/grega/hdi/actions).

@@ -163,18 +163,27 @@ act -j test --matrix os:ubuntu-latest --container-architecture linux/amd64
 
 ## Demo
 
-The demo GIF is generated with [VHS](https://github.com/charmbracelet/vhs). To regenerate it:
+The demo GIFs are generated with [VHS](https://github.com/charmbracelet/vhs). To regenerate them:
 
 ```bash
 brew install vhs
-vhs ./demo/demo.tape
+vhs ./demo/demo-latte.tape
+vhs ./demo/demo-mocha.tape
 ```
 
-This outputs `demo.gif` from the tape file.
+Or:
+
+```bash
+vhs demo/demo-latte.tape & vhs demo/demo-mocha.tape & wait
+```
+
+These output GIFs in `./demo/`.
 
 ## Website
 
-See `website/README.md` for instructions on running the demo website at https://hdi.md
+See `website/README.md` for instructions on running the demo website locally.
+
+It is deployed to https://hdi.md via GitHub Pages on every release.
 
 ## Benchmarking
 
