@@ -1,0 +1,108 @@
+<pre
+  class="hero-logo"
+  id="hero-logo-pre"
+  role="img"
+  aria-label="hdi">
+ _____ _____ _____ 
+||h  |||d  |||i  ||
+||___|||___|||___||
+|/___\|/___\|/___\|
+</pre>
+
+<script>
+  // ── Logo key press animation ──────────────────────────────────────────
+  // Each key has 4 rows of exactly 6 chars.
+  // "pressed" shifts the key down one row: top becomes spaces, shadow gone.
+  // prettier-ignore
+  const KEY_COLS: Record<string, { normal: string[]; pressed: string[] }> = {
+    //               row0      row1      row2      row3
+    h: {
+      normal:  [' _____', '||h  |', '||___|', '|/___\\'],
+      pressed: ['      ', ' _____', '||h  |', '||___|' ],
+    },
+    d: {
+      normal:  [' _____', '||d  |', '||___|', '|/___\\'],
+      pressed: ['      ', ' _____', '||d  |', '||___|' ],
+    },
+    i: {
+      normal:  [' _____', '||i  |', '||___|', '|/___\\'],
+      pressed: ['      ', ' _____', '||i  |', '||___|' ],
+    },
+  };
+  // Trailing char appended after the 3 key columns, one per row:
+  // Row 1 suffix disappears when "i" (last key) is pressed
+  const LOGO_ROW_SUFFIX = [" ", "|", "|", "|"];
+  const LOGO_ROW_SUFFIX_I_PRESSED = [" ", " ", "|", "|"];
+
+  const _pressedKeys = new Set<string>();
+  const _logoPre = document.getElementById("hero-logo-pre")!;
+
+  function _renderLogo() {
+    const keys = ["h", "d", "i"] as const;
+    const rows = [0, 1, 2, 3].map(
+      (row) =>
+        keys
+          .map((k) => {
+            const seg = (
+              _pressedKeys.has(k) ? KEY_COLS[k].pressed : KEY_COLS[k].normal
+            )[row];
+            // Position 2 in each 6-char segment is the letter — wrap it in a clickable span
+            return /[a-z]/.test(seg[2])
+              ? `${seg.slice(0, 2)}<span class="hero-logo-letter" data-key="${k}">${seg[2]}</span>${seg.slice(3)}`
+              : seg;
+          })
+          .join("") +
+        (_pressedKeys.has("i") ? LOGO_ROW_SUFFIX_I_PRESSED : LOGO_ROW_SUFFIX)[
+          row
+        ],
+    );
+    _logoPre.innerHTML = "\n" + rows.join("\n") + "\n";
+  }
+
+  function _pressLogoKey(key: string) {
+    if (_pressedKeys.has(key)) return;
+    _pressedKeys.add(key);
+    _renderLogo();
+  }
+  function _releaseLogoKey(key: string) {
+    if (!_pressedKeys.has(key)) return;
+    _pressedKeys.delete(key);
+    _renderLogo();
+  }
+
+  _logoPre.addEventListener("mousedown", (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>(
+      ".hero-logo-letter",
+    );
+    if (el?.dataset.key) _pressLogoKey(el.dataset.key);
+  });
+  document.addEventListener("mouseup", () => {
+    [..._pressedKeys].forEach((k) => _releaseLogoKey(k));
+  });
+  document.addEventListener("keydown", (e) => {
+    if (
+      ["h", "d", "i"].includes(e.key) &&
+      !(e.target instanceof HTMLInputElement) &&
+      !(e.target instanceof HTMLTextAreaElement)
+    )
+      _pressLogoKey(e.key);
+  });
+  document.addEventListener("keyup", (e) => {
+    if (["h", "d", "i"].includes(e.key)) _releaseLogoKey(e.key);
+  });
+
+  _renderLogo();
+</script>
+
+<style>
+  .hero-logo {
+    font-size: 1.5rem;
+    line-height: initial;
+    user-select: none;
+    /* cursor: pointer; */
+
+    .hero-logo-letter {
+      color: var(--green);
+    }
+  }
+</style>
