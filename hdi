@@ -821,9 +821,11 @@ _term_width() {
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
 
 # Format a section header with trailing dashes (sets _SH, no subshell)
-# _RENDER_WIDTH is set at the top of draw_picker (content width capped to terminal)
+# _RENDER_WIDTH defaults to _MAX_CONTENT_WIDTH; draw_picker caps it to terminal width
 _SH=""
+_RENDER_WIDTH=0
 _section_header() {
+  (( _RENDER_WIDTH == 0 )) && _RENDER_WIDTH=$_MAX_CONTENT_WIDTH
   local prefix=" ▸ $1 "
   local prefix_len=${#prefix}
   local target=$(( _RENDER_WIDTH > prefix_len ? _RENDER_WIDTH : prefix_len + 4 ))
