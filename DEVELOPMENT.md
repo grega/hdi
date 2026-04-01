@@ -1,8 +1,18 @@
 # Development
 
-## Git hooks
+## Usage
 
-After editing any file in `src/`, run `./build` to regenerate `hdi`, then commit both. CI will fail if `hdi` is out of date with `src/`.
+Make changes to `src/` files, then run `./build` to regenerate `hdi`.
+
+Run the `hdi` script directly to test changes before committing:
+
+```bash
+./hdi
+```
+
+Both changes in `src/`, and the resulting / built `hdi`, need to be committed. CI will fail if `hdi` is out of date with `src/`.
+
+### Git hooks
 
 A pre-commit hook is included that automatically rebuilds `hdi` when `src/` files are staged. To install it:
 
