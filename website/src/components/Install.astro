@@ -1,0 +1,276 @@
+<div class="tabs">
+  <div role="tablist" aria-labelledby="tablist-1" class="automatic">
+    <button
+      id="tab-1"
+      type="button"
+      role="tab"
+      aria-selected="true"
+      aria-controls="tabpanel-1"
+    >
+      <span class="focus">brew</span>
+    </button>
+    <button
+      id="tab-2"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="tabpanel-2"
+      tabindex="-1"
+    >
+      <span class="focus">curl</span>
+    </button>
+  </div>
+
+  <div id="tabpanel-1" role="tabpanel" tabindex="0" aria-labelledby="tab-1">
+    <div class="code-block">
+      <pre><code>brew install grega/tap/hdi</code></pre>
+      <button
+        class="code-block-btn"
+        data-copy="brew install grega/tap/hdi"
+        title="Copy to clipboard"
+      >
+        Copy
+      </button>
+    </div>
+  </div>
+  <div
+    id="tabpanel-2"
+    role="tabpanel"
+    tabindex="0"
+    aria-labelledby="tab-2"
+    class="is-hidden"
+  >
+    <div class="code-block">
+      <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
+  -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
+      <button
+        class="code-block-btn"
+        data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
+        title="Copy to clipboard"
+      >
+        Copy
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tabs {
+    border: 1px solid var(--surface0);
+    padding: 1rem;
+    padding-block-start: 0.5rem;
+    margin: var(--tabs-margin);
+    border-radius: 0.5rem;
+  }
+
+  [role="tablist"] {
+    min-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0rem 1rem;
+    margin-block-end: 1rem;
+  }
+
+  [role="tab"],
+  [role="tab"]:focus,
+  [role="tab"]:hover {
+    background-color: unset;
+    color: var(--text);
+    padding-inline: 0;
+    text-underline-offset: 0.5rem;
+    text-decoration: underline 4px solid;
+  }
+
+  [role="tab"][aria-selected="true"] {
+    text-decoration-color: var(--blue);
+  }
+
+  [role="tab"][aria-selected="false"] {
+    text-decoration-color: var(--surface2);
+  }
+
+  [role="tabpanel"] {
+    padding: 1rem;
+    background-color: var(--mantle);
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  [role="tabpanel"].is-hidden {
+    display: none;
+  }
+
+  .code-block {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    pre {
+      flex: 1;
+      overflow: auto;
+      justify-self: stretch;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .code-block-btn {
+    align-self: start;
+  }
+</style>
+
+<script>
+  /*
+   *   Follows W3C Accessible Tabs Pattern
+   *   https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+   */
+
+  class TabsAutomatic {
+    constructor(groupNode) {
+      this.tablistNode = groupNode;
+
+      this.tabs = [];
+
+      this.firstTab = null;
+      this.lastTab = null;
+
+      this.tabs = Array.from(this.tablistNode.querySelectorAll("[role=tab]"));
+      this.tabpanels = [];
+
+      for (var i = 0; i < this.tabs.length; i += 1) {
+        var tab = this.tabs[i];
+        var tabpanel = document.getElementById(
+          tab.getAttribute("aria-controls"),
+        );
+
+        tab.tabIndex = -1;
+        tab.setAttribute("aria-selected", "false");
+        this.tabpanels.push(tabpanel);
+
+        tab.addEventListener("keydown", this.onKeydown.bind(this));
+        tab.addEventListener("click", this.onClick.bind(this));
+
+        if (!this.firstTab) {
+          this.firstTab = tab;
+        }
+        this.lastTab = tab;
+      }
+
+      this.setSelectedTab(this.firstTab, false);
+    }
+
+    setSelectedTab(currentTab, setFocus) {
+      if (typeof setFocus !== "boolean") {
+        setFocus = true;
+      }
+      for (var i = 0; i < this.tabs.length; i += 1) {
+        var tab = this.tabs[i];
+        if (currentTab === tab) {
+          tab.setAttribute("aria-selected", "true");
+          tab.removeAttribute("tabindex");
+          this.tabpanels[i].classList.remove("is-hidden");
+          if (setFocus) {
+            tab.focus();
+          }
+        } else {
+          tab.setAttribute("aria-selected", "false");
+          tab.tabIndex = -1;
+          this.tabpanels[i].classList.add("is-hidden");
+        }
+      }
+    }
+
+    setSelectedToPreviousTab(currentTab) {
+      var index;
+
+      if (currentTab === this.firstTab) {
+        this.setSelectedTab(this.lastTab);
+      } else {
+        index = this.tabs.indexOf(currentTab);
+        this.setSelectedTab(this.tabs[index - 1]);
+      }
+    }
+
+    setSelectedToNextTab(currentTab) {
+      var index;
+
+      if (currentTab === this.lastTab) {
+        this.setSelectedTab(this.firstTab);
+      } else {
+        index = this.tabs.indexOf(currentTab);
+        this.setSelectedTab(this.tabs[index + 1]);
+      }
+    }
+
+    /* EVENT HANDLERS */
+
+    onKeydown(event) {
+      var tgt = event.currentTarget,
+        flag = false;
+
+      switch (event.key) {
+        case "ArrowLeft":
+          this.setSelectedToPreviousTab(tgt);
+          flag = true;
+          break;
+
+        case "ArrowRight":
+          this.setSelectedToNextTab(tgt);
+          flag = true;
+          break;
+
+        case "Home":
+          this.setSelectedTab(this.firstTab);
+          flag = true;
+          break;
+
+        case "End":
+          this.setSelectedTab(this.lastTab);
+          flag = true;
+          break;
+
+        default:
+          break;
+      }
+
+      if (flag) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    }
+
+    onClick(event) {
+      this.setSelectedTab(event.currentTarget);
+    }
+  }
+
+  // Initialize tablist
+
+  window.addEventListener("load", function () {
+    var tablists = document.querySelectorAll("[role=tablist].automatic");
+    for (var i = 0; i < tablists.length; i++) {
+      new TabsAutomatic(tablists[i]);
+    }
+  });
+</script>
+
+<script>
+  // Copy buttons
+  document.querySelectorAll(".code-block-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const htmlBtn = btn as HTMLElement;
+      navigator.clipboard
+        .writeText(htmlBtn.dataset.copy || "")
+        .then(function () {
+          var original = htmlBtn.textContent;
+          htmlBtn.textContent = "Copied!";
+          htmlBtn.classList.add("copied");
+          setTimeout(function () {
+            htmlBtn.textContent = original;
+            htmlBtn.classList.remove("copied");
+          }, 1500);
+        });
+    });
+  });
+</script>
