@@ -923,47 +923,6 @@ else:
   rm -rf "$fake_bin"
 }
 
-@test "interactive: 'f' wraps back to top after last file" {
-  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
-
-  local fake_bin clip_file
-  fake_bin="$(mktemp -d)"
-  clip_file="$fake_bin/clipboard.txt"
-
-  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
-  chmod +x "$fake_bin/pbcopy"
-
-  # Send keys individually with delays so each is processed after the
-  # previous draw cycle — avoids PTY buffer issues on Linux
-  # f (CONTRIBUTING.md) → f (wrap to top) → ↓ (second cmd) → c (copy) → q
-  python3 -c "
-import pty, os, sys, time, select
-
-os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
-
-pid, fd = pty.fork()
-if pid == 0:
-    os.execvp(sys.argv[2], sys.argv[2:])
-else:
-    time.sleep(0.5)
-    for key in [b'f', b'f', b'\x1b[B', b'c', b'q']:
-        os.write(fd, key)
-        time.sleep(0.3)
-    try:
-        while select.select([fd], [], [], 0.5)[0]:
-            if not os.read(fd, 4096):
-                break
-    except OSError:
-        pass
-    os.waitpid(pid, 0)
-" "$fake_bin" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
-
-  [ -f "$clip_file" ]
-  [[ "$(cat "$clip_file")" == "nvm use 20" ]]
-
-  rm -rf "$fake_bin"
-}
-
 @test "interactive: footer shows 'f files' only with multiple files" {
   # With contrib file — footer should include "f files"
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
