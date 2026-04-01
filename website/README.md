@@ -4,13 +4,7 @@ Information page and interactive demo of the `hdi` CLI, built with [Astro](https
 
 ## Prerequisites
 
-The website depends on demo data generated from the `hdi` CLI. Before running the dev server or building, make sure `hdi` is built from the project root:
-
-```bash
-./build
-```
-
-Data generation and asset copying happens automatically via `predev` and `prebuild` npm scripts, so you don't need to run `prepare-website.sh` manually.
+The website depends on demo data generated from the `hdi` CLI. Before running the dev server or building, make sure to run `../build`. This isn't needed if you've made no modifications to the `hdi` CLI via changes in `/src/`.
 
 ## Local development
 
@@ -102,7 +96,7 @@ npm run astro -- --help
 
 ## Regenerating data
 
-`src/data/data.js` and the demo GIFs in `src/assets/` are auto-generated and not committed to git. They are regenerated automatically when running `npm run dev` or `npm run build`. To regenerate manually, run from the `website/` directory:
+`src/data/data.js` and the demo GIFs in `src/assets/` are auto-generated and not committed to git. They are regenerated automatically when running `npm run dev` or `npm run build`. To regenerate manually run:
 
 ```bash
 ./prepare-website.sh
