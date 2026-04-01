@@ -838,7 +838,7 @@ else:
   local keys=$'\x03'
 
   python3 -c "
-import pty, os, sys, time, select
+import pty, os, sys, time, select, threading
 
 keys = sys.argv[1].encode()
 
@@ -846,15 +846,23 @@ pid, fd = pty.fork()
 if pid == 0:
     os.execvp(sys.argv[2], sys.argv[2:])
 else:
+    # Drain PTY output continuously in a background thread to prevent
+    # the child from blocking on a full PTY buffer (especially on macOS)
+    def drain():
+        try:
+            while True:
+                if not select.select([fd], [], [], 5.0)[0]:
+                    break
+                if not os.read(fd, 4096):
+                    break
+        except OSError:
+            pass
+    t = threading.Thread(target=drain, daemon=True)
+    t.start()
+
     time.sleep(0.5)
     os.write(fd, keys)
-    time.sleep(0.5)
-    try:
-        while select.select([fd], [], [], 0.5)[0]:
-            if not os.read(fd, 4096):
-                break
-    except OSError:
-        pass
+
     _, status = os.waitpid(pid, 0)
     sys.exit(os.waitstatus_to_exitcode(status))
 " "$keys" "$HDI" "$FIXTURES/node-express"
