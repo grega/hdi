@@ -134,68 +134,16 @@ No dependencies, just Bash. Works on macOS and Linux.
 
 ## Development
 
-After editing any file in `src/`, run `./build` to regenerate `hdi`, then commit both. CI will fail if `hdi` is out of date with `src/`.
+See `DEVELOPMENT.md` for instructions on setting up a local development environment, running tests, benchmarking, and generating demo GIFs.
 
-A pre-commit hook is included that automatically rebuilds `hdi` when `src/` files are staged. To install it:
+## AI transparency
 
-```bash
-git config core.hooksPath .githooks
-```
+AI tooling (eg. Claude Code) has been used to assist with areas of the project, such as:
 
-## Testing
-
-Tests use [bats-core](https://github.com/bats-core/bats-core). Linting uses [ShellCheck](https://www.shellcheck.net/).
-
-```bash
-brew install bats-core shellcheck  # or: apt-get install bats shellcheck
-shellcheck hdi
-bats test/hdi.bats
-```
-
-### Running Linux tests locally with Act
-
-This assumes that the host system is macOS.
-
-CI runs tests on both macOS and Ubuntu. To run the Ubuntu job locally using [Act](https://github.com/nektos/act) (requires Docker / Docker Desktop):
-
-```bash
-brew install act
-act -j test --matrix os:ubuntu-latest --container-architecture linux/amd64
-```
-
-## Demo
-
-The demo GIF is generated with [VHS](https://github.com/charmbracelet/vhs). To regenerate it:
-
-```bash
-brew install vhs
-vhs ./demo/demo.tape
-```
-
-This outputs `demo.gif` from the tape file.
-
-## Benchmarking
-
-Static benchmark READMEs in `bench/` (small, medium, large, stress) exercise parsing path at different scales. Run benchmarks with:
-
-```bash
-./bench/run              # run benchmarks, print results
-./bench/run --compare    # compare current results against last release
-./bench/run --log        # also save to bench/results.csv (should only be used by release script / only run when creating a new release)
-```
-
-Benchmarks run automatically during `./release` and are recorded in `bench/results.csv`. A chart (`bench/results.svg`) is also generated to visualise performance across releases (via `bench/chart`).
-
-## Publishing a new release
-
-The `release` script bumps the version in `src/header.sh`, rebuilds `hdi`, regenerates `site/data.js`, commits, tags and pushes. The `release` Actions workflow will automatically build and publish a GitHub release when the tag is pushed, and the demo site is redeployed. The script then prints the `url` and `sha256` values to update in the [homebrew-tap](https://github.com/grega/homebrew-tap) repo (`Formula/hdi.rb`).
-
-```bash
-./release patch          # 0.1.0 → 0.1.1
-./release minor          # 0.1.0 → 0.2.0
-./release major          # 0.1.0 → 1.0.0
-./release 1.2.3          # explicit version
-```
+- Researching common README formats across a large array of project types, and creating fixtures from these findings
+- Prototyping the parsing logic
+- Creating the website's data generation pipeline, along with elements of the demo page's terminal simulator
+- Converting the use of `sed`, `awk` etc into Bash natives (ie. the [v0.10.0](https://github.com/grega/hdi/releases/tag/v0.10.0) performance release)
 
 ## License
 

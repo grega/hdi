@@ -1,0 +1,46 @@
+---
+// No server-side code — this component only contributes a bundled client script.
+---
+
+<script>
+  import { PROJECTS, VERSION, HELP_TEXT } from "../data/data";
+  import { initTerminal } from "../scripts/terminal";
+
+  const termEl = document.getElementById("terminal") as HTMLElement;
+  const hiddenInput = document.getElementById(
+    "terminal-input",
+  ) as HTMLInputElement;
+  const sidebarEl = document.getElementById("sidebar") as HTMLElement;
+  const hintsEl = document.getElementById("hints") as HTMLElement;
+
+  const { selectProject, typeHint } = initTerminal({
+    termEl,
+    hiddenInput,
+    projects: PROJECTS,
+    version: VERSION,
+    helpText: HELP_TEXT,
+  });
+
+  // Wire sidebar — rendered by Astro, clicks delegate to terminal module.
+  sidebarEl?.addEventListener("click", (e) => {
+    const item = (e.target as HTMLElement).closest<HTMLElement>(
+      ".sidebar-item",
+    );
+    if (!item) return;
+    sidebarEl
+      .querySelectorAll(".sidebar-item")
+      .forEach((el) => el.classList.remove("active"));
+    item.classList.add("active");
+    selectProject(PROJECTS[Number(item.dataset.projectIndex)]);
+  });
+
+  // Wire hints — rendered by Astro, single delegated listener dispatches a
+  // custom event so the hint bar stays decoupled from terminal internals.
+  hintsEl?.addEventListener("click", (e) => {
+    const code = (e.target as HTMLElement).closest<HTMLElement>(
+      "code[data-hint]",
+    );
+    if (!code) return;
+    typeHint(code.dataset.hint!);
+  });
+</script>

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Terminal simulator", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/demo");
+    await page.goto("/demo", { waitUntil: "domcontentloaded" });
     await page.locator(".t-prompt").waitFor();
     await page.locator("#terminal-input").focus();
   });

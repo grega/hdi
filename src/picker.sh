@@ -19,6 +19,31 @@ _term_height() {
   echo 24
 }
 
+# Get terminal width reliably (stty from tty, fallback to tput, then 80)
+_term_width() {
+  local w
+  w=$(stty size < /dev/tty 2>/dev/null) && w="${w##* }" && (( w > 0 )) && { echo "$w"; return; }
+  w=$(tput cols 2>/dev/null) && (( w > 0 )) && { echo "$w"; return; }
+  echo 80
+}
+
+# Pre-computed dash string (200 chars covers any reasonable terminal width)
+_DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+
+# Format a section header with trailing dashes (sets _SH, no subshell)
+# _RENDER_WIDTH defaults to _MAX_CONTENT_WIDTH; draw_picker caps it to terminal width
+_SH=""
+_RENDER_WIDTH=0
+_section_header() {
+  (( _RENDER_WIDTH == 0 )) && _RENDER_WIDTH=$_MAX_CONTENT_WIDTH
+  local prefix=" ▸ $1 "
+  local prefix_len=${#prefix}
+  local target=$(( _RENDER_WIDTH > prefix_len ? _RENDER_WIDTH : prefix_len + 4 ))
+  local n=$(( target - prefix_len ))
+  (( n < 2 )) && n=2
+  _SH="${BOLD}${CYAN}${prefix}${RESET}${DIM}${_DASH_POOL:0:n}${RESET}"
+}
+
 # Screen lines per display entry type — sets _SL (no subshell)
 # Headers/subheaders take 2 lines (blank + text), others take 1
 _SL=1
@@ -129,9 +154,13 @@ draw_picker() {
     printf '\033[%dA\r' "$((PICKER_LINES - 1))"
   fi
 
-  local term_h
+  local term_h term_w
   term_h=$(_term_height)
+  term_w=$(_term_width)
   (( term_h < 5 )) && term_h=5
+
+  # Cap content width to terminal so dividers and highlights don't wrap
+  _RENDER_WIDTH=$(( _MAX_CONTENT_WIDTH < term_w ? _MAX_CONTENT_WIDTH : term_w ))
 
   local count=0
   local n_items=${#DISPLAY_LINES[@]}
@@ -159,7 +188,8 @@ draw_picker() {
     contrib) hdr+="  ${DIM}[contrib]${RESET}" ;;
   esac
   _line "$hdr"
-  local chrome=3
+  _blank
+  local chrome=4
 
   # Scroll-up indicator (only if meaningful content is above the viewport)
   local has_above=false
@@ -207,7 +237,7 @@ draw_picker() {
         if (( idx != VIEWPORT_TOP )); then
           _blank; (( rendered += 1 ))
         fi
-        _line "${BOLD}${CYAN} ▸ ${line}${RESET}"
+        _section_header "$line"; _line "$_SH"
         (( rendered += 1 ))
         ;;
       subheader)
@@ -218,10 +248,16 @@ draw_picker() {
         (( rendered += 1 ))
         ;;
       command)
-        if (( idx == selected )) && [[ -n "$FLASH_MSG" ]]; then
-          _line "  ${BG_SELECT}${GREEN}${BOLD}✔ ${line} ${RESET}"
-        elif (( idx == selected )); then
-          _line "  ${BG_SELECT}${WHITE}${BOLD}▶ ${line} ${RESET}"
+        if (( idx == selected )); then
+          local _pad_n=$(( _RENDER_WIDTH - ${#line} - 5 ))
+          (( _pad_n < 0 )) && _pad_n=0
+          local _pad="${_DASH_POOL:0:_pad_n}"
+          _pad="${_pad//?/ }"
+          if [[ -n "$FLASH_MSG" ]]; then
+            _line "  ${BG_SELECT}${GREEN}${BOLD}✔ ${line} ${_pad}${RESET}"
+          else
+            _line "  ${BG_SELECT}${WHITE}${BOLD}▶ ${line} ${_pad}${RESET}"
+          fi
         else
           _line "  ${GREEN}  ${line}${RESET}"
         fi
@@ -419,7 +455,12 @@ run_interactive() {
 
         echo ""
         if (( rc == 0 )); then
-          printf "%s%s✓ Done (exit %d)%s\n" "$DIM" "$GREEN" "$rc" "$RESET"
+          printf "%s✓ Done (exit %d)%s\n" "$GREEN" "$rc" "$RESET"
+          # Warn about commands that modify the shell environment
+          if [[ "$cmd" =~ (^|[;&|]\ *)(source|\.)\  ]] || [[ "$cmd" =~ activate ]]; then
+            printf "%s  Tip: environment changes (eg. venv activation) don't persist outside hdi.%s\n" "$DIM" "$RESET"
+            printf "%s  You may prefer to run this command directly in your shell instead.%s\n\n" "$DIM" "$RESET"
+          fi
         else
           printf "%s%s✗ Exited with code %d%s\n" "$BOLD" "$YELLOW" "$rc" "$RESET"
         fi

@@ -61,7 +61,7 @@ else
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
       contrib) printf "  %s[contrib]%s" "$DIM" "$RESET" ;;
     esac
-    printf "\n"
+    printf "\n\n"
   fi
 
   if $FULL; then

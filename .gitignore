@@ -10,8 +10,32 @@ Thumbs.db
 
 # logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Node / Playwright (site tests)
 node_modules/
-site/test-results/
-site/playwright-report/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# build output
+dist/
+
+# auto-generated website files (produced by website/prepare-website.sh)
+website/src/data/data.js
+website/src/assets/demo-*.gif
+
+# generated types
+.astro/
+
+# environment variables
+.env
+.env.production
+
+# jetbrains setting folder
+.idea/

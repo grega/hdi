@@ -89,6 +89,7 @@ detect_platforms_from_commands() {
       cdk)                   _platform_add "awscdk"      "AWS CDK"     "high" ;;
       dokku)                 _platform_add "dokku"       "Dokku"       "high" ;;
       surge)                 _platform_add "surge"       "Surge"       "high" ;;
+      docker|docker-compose|podman) _platform_add "docker" "Docker" "high" ;;
     esac
   done
 }
@@ -116,6 +117,7 @@ detect_platforms_from_prose() {
     if [[ "$body" =~ DigitalOcean ]]; then                 _platform_add "digitalocean" "DigitalOcean"       "low"; fi
     if [[ "$body" =~ Kamal ]]; then                        _platform_add "kamal"        "Kamal"              "low"; fi
     if [[ "$body" =~ Surge ]]; then                        _platform_add "surge"        "Surge"              "low"; fi
+    if [[ "$body" =~ Docker ]]; then                       _platform_add "docker"       "Docker"             "low"; fi
     shopt -u nocasematch
   done
 }
@@ -127,11 +129,18 @@ _PLATFORM_DISPLAY=""
 build_platform_display() {
   _PLATFORM_DISPLAY=""
   if (( ${#PLATFORM_NAMES[@]} == 0 )); then return; fi
-  local parts=""
+  local parts="" prev_low=false
   for i in "${!PLATFORM_NAMES[@]}"; do
-    if [[ -n "$parts" ]]; then parts+=", "; fi
+    if [[ -n "$parts" ]]; then
+      if $prev_low; then parts+=" "; else parts+=", "; fi
+    fi
     parts+="${PLATFORM_NAMES[$i]}"
-    if [[ "${PLATFORM_CONFIDENCE[$i]}" == "low" ]]; then parts+="?"; fi
+    if [[ "${PLATFORM_CONFIDENCE[$i]}" == "low" ]]; then
+      parts+="?"
+      prev_low=true
+    else
+      prev_low=false
+    fi
   done
   _PLATFORM_DISPLAY="$parts"
 }

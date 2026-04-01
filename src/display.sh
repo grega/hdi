@@ -3,14 +3,16 @@
 # We store parallel arrays for the display lines, their types, and
 # (for commands) the actual command.
 
-declare -a DISPLAY_LINES=()   # what to print
-declare -a LINE_TYPES=()      # "header" | "subheader" | "command" | "empty"
-declare -a LINE_CMDS=()       # the raw command (only for type=command)
-declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
-declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
+declare -a DISPLAY_LINES=()     # what to print
+declare -a LINE_TYPES=()        # "header" | "subheader" | "command" | "empty"
+declare -a LINE_CMDS=()         # the raw command (only for type=command)
+declare -a CMD_INDICES=()       # indices into DISPLAY_LINES that are commands
+declare -a SECTION_FIRST_CMD=() # cursor indices (into CMD_INDICES) of first cmd per section
 
 build_display_list() {
   local _prev_source=""
+  _MAX_CONTENT_WIDTH=0
+
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
@@ -47,6 +49,7 @@ build_display_list() {
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$tcmd")
+        (( ${#tcmd} + 4 > _MAX_CONTENT_WIDTH )) && _MAX_CONTENT_WIDTH=$(( ${#tcmd} + 4 ))
       done <<< "$title_cmds"
     fi
 
@@ -58,7 +61,7 @@ build_display_list() {
     _EC_GROUPED=false
     local cmds="$_EC_RESULT"
 
-    # Deduplicate commands within each sub-group (pure bash, no awk)
+    # Deduplicate commands within each sub-group
     if [[ -n "$cmds" ]]; then
       local _deduped="" _dup _cur_group="" _group_seen=""
       while IFS= read -r _cmd; do
@@ -108,6 +111,7 @@ build_display_list() {
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$_entry")
+        (( ${#_entry} + 4 > _MAX_CONTENT_WIDTH )) && _MAX_CONTENT_WIDTH=$(( ${#_entry} + 4 ))
       done <<< "$cmds"
     fi
 
