@@ -458,22 +458,19 @@ run_interactive() {
         ;;
 
       f)
-        if (( ${#FILE_FIRST_CMD[@]} > 0 )); then
-          local _found=false
-          for _ff in "${FILE_FIRST_CMD[@]}"; do
-            if (( _ff > cursor )); then
-              cursor=$_ff
-              selected="${CMD_INDICES[$cursor]}"
-              _found=true
-              break
-            fi
-          done
-          # Wrap to top if no next file found
-          if ! $_found; then
-            cursor=0
-            selected="${CMD_INDICES[$cursor]}"
+        local _fnext=-1
+        for _ff in "${FILE_FIRST_CMD[@]}"; do
+          if (( _ff > cursor )); then
+            _fnext=$_ff
+            break
           fi
+        done
+        if (( _fnext >= 0 )); then
+          cursor=$_fnext
+        elif (( ${#FILE_FIRST_CMD[@]} > 0 )); then
+          cursor=0
         fi
+        selected="${CMD_INDICES[$cursor]}"
         ;;
 
       enter)
