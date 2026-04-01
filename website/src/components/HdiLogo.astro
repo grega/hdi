@@ -6,8 +6,7 @@
  _____ _____ _____ 
 ||h  |||d  |||i  ||
 ||___|||___|||___||
-|/___\|/___\|/___\|
-</pre>
+|/___\|/___\|/___\|</pre>
 
 <script>
   // ── Logo key press animation ──────────────────────────────────────────
@@ -56,7 +55,7 @@
           row
         ],
     );
-    _logoPre.innerHTML = "\n" + rows.join("\n") + "\n";
+    _logoPre.innerHTML = rows.join("\n");
   }
 
   function _pressLogoKey(key: string) {
@@ -71,10 +70,13 @@
   }
 
   _logoPre.addEventListener("mousedown", (e) => {
-    const el = (e.target as HTMLElement).closest<HTMLElement>(
-      ".hero-logo-letter",
-    );
-    if (el?.dataset.key) _pressLogoKey(el.dataset.key);
+    // Measure one character's width using the pre's own font
+    const charWidth = _logoPre.getBoundingClientRect().width / 19; // logo is 19 chars wide
+    const rect = _logoPre.getBoundingClientRect();
+    const col = Math.floor((e.clientX - rect.left) / charWidth);
+    // h: cols 0-5, d: cols 6-11, i: cols 12-17 (col 18 is trailing '|', ignore)
+    const key = col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
+    if (key) _pressLogoKey(key);
   });
   document.addEventListener("mouseup", () => {
     [..._pressedKeys].forEach((k) => _releaseLogoKey(k));
@@ -98,8 +100,8 @@
   .hero-logo {
     font-size: 1.5rem;
     line-height: initial;
+    cursor: pointer;
     user-select: none;
-    /* cursor: pointer; */
 
     .hero-logo-letter {
       color: var(--green);
