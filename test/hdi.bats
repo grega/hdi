@@ -695,6 +695,8 @@ setup() {
   [[ "$output" != *"Installs dependencies"* ]]
 }
 
+# ── Interactive: footer hints ────────────────────────────────────────────────
+
 @test "interactive: footer shows navigation hints" {
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
@@ -931,9 +933,9 @@ else:
   printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
   chmod +x "$fake_bin/pbcopy"
 
-  # Keys: f (jump to CONTRIBUTING.md) f (wrap to top) c (copy) q (quit)
-  # After wrapping, cursor should be on the first command: "nvm install 20"
-  local keys='ffcq'
+  # Keys: f (jump to CONTRIBUTING.md) f (wrap to top) ↓ (second cmd) c (copy) q (quit)
+  # After wrapping then ↓, cursor is on "nvm use 20" (unique to README top)
+  local keys='ff'$'\x1b[B''cq'
 
   python3 -c "
 import pty, os, sys, time, select
@@ -958,7 +960,7 @@ else:
 " "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
 
   [ -f "$clip_file" ]
-  [[ "$(cat "$clip_file")" == "nvm install 20" ]]
+  [[ "$(cat "$clip_file")" == "nvm use 20" ]]
 
   rm -rf "$fake_bin"
 }
@@ -973,6 +975,7 @@ else:
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/python-flask"
   [ "$status" -eq 0 ]
   [[ "$output" != *"f files"* ]]
+}
 
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
