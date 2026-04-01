@@ -19,16 +19,26 @@ _term_height() {
   echo 24
 }
 
+# Get terminal width reliably (stty from tty, fallback to tput, then 80)
+_term_width() {
+  local w
+  w=$(stty size < /dev/tty 2>/dev/null) && w="${w##* }" && (( w > 0 )) && { echo "$w"; return; }
+  w=$(tput cols 2>/dev/null) && (( w > 0 )) && { echo "$w"; return; }
+  echo 80
+}
+
 # Pre-computed dash string (200 chars covers any reasonable terminal width)
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
 
 # Format a section header with trailing dashes (sets _SH, no subshell)
-# _MAX_CONTENT_WIDTH is computed during build_display_list
+# _RENDER_WIDTH defaults to _MAX_CONTENT_WIDTH; draw_picker caps it to terminal width
 _SH=""
+_RENDER_WIDTH=0
 _section_header() {
+  (( _RENDER_WIDTH == 0 )) && _RENDER_WIDTH=$_MAX_CONTENT_WIDTH
   local prefix=" ▸ $1 "
   local prefix_len=${#prefix}
-  local target=$(( _MAX_CONTENT_WIDTH > prefix_len ? _MAX_CONTENT_WIDTH : prefix_len + 4 ))
+  local target=$(( _RENDER_WIDTH > prefix_len ? _RENDER_WIDTH : prefix_len + 4 ))
   local n=$(( target - prefix_len ))
   (( n < 2 )) && n=2
   _SH="${BOLD}${CYAN}${prefix}${RESET}${DIM}${_DASH_POOL:0:n}${RESET}"
@@ -144,9 +154,13 @@ draw_picker() {
     printf '\033[%dA\r' "$((PICKER_LINES - 1))"
   fi
 
-  local term_h
+  local term_h term_w
   term_h=$(_term_height)
+  term_w=$(_term_width)
   (( term_h < 5 )) && term_h=5
+
+  # Cap content width to terminal so dividers and highlights don't wrap
+  _RENDER_WIDTH=$(( _MAX_CONTENT_WIDTH < term_w ? _MAX_CONTENT_WIDTH : term_w ))
 
   local count=0
   local n_items=${#DISPLAY_LINES[@]}
@@ -227,7 +241,7 @@ draw_picker() {
         ;;
       command)
         if (( idx == selected )); then
-          local _pad_n=$(( _MAX_CONTENT_WIDTH - ${#line} - 5 ))
+          local _pad_n=$(( _RENDER_WIDTH - ${#line} - 5 ))
           (( _pad_n < 0 )) && _pad_n=0
           local _pad="${_DASH_POOL:0:_pad_n}"
           _pad="${_pad//?/ }"
