@@ -695,6 +695,16 @@ setup() {
   [[ "$output" != *"Installs dependencies"* ]]
 }
 
+@test "interactive: footer shows navigation hints" {
+  _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"↑↓ navigate"* ]]
+  [[ "$output" == *"⇥ sections"* ]]
+  [[ "$output" == *"⏎ execute"* ]]
+  [[ "$output" == *"c copy"* ]]
+  [[ "$output" == *"q quit"* ]]
+}
+
 # ── Interactive: copy to clipboard ───────────────────────────────────────────
 
 @test "interactive: 'c' copies highlighted command to clipboard" {
@@ -963,7 +973,6 @@ else:
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/python-flask"
   [ "$status" -eq 0 ]
   [[ "$output" != *"f files"* ]]
-}
 
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
