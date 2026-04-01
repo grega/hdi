@@ -1578,8 +1578,9 @@ _check_tool_name() {
   # First word
   local tool="${cmd%% *}"
 
-  # Skip paths (./foo, /foo, bin/foo), flags (-h, --help), empty, builtins
-  if [[ -z "$tool" ]] || [[ "$tool" == -* ]] || [[ "$tool" == */* ]] || [[ "$tool" =~ $_CHECK_SKIP ]]; then
+  # Skip paths (./foo, /foo, bin/foo), flags (-h, --help), empty, builtins,
+  # bracketed text ([hdi]), and placeholders (...)
+  if [[ -z "$tool" ]] || [[ "$tool" == -* ]] || [[ "$tool" == */* ]] || [[ "$tool" == \[* ]] || [[ "$tool" == "..." ]] || [[ "$tool" =~ $_CHECK_SKIP ]]; then
     _CT_RESULT=""
     return
   fi
