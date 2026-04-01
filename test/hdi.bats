@@ -868,6 +868,103 @@ else:
 " "$keys" "$HDI" "$FIXTURES/node-express"
 }
 
+@test "interactive: 'f' jumps to next file's first command" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
+
+  local fake_bin clip_file
+  fake_bin="$(mktemp -d)"
+  clip_file="$fake_bin/clipboard.txt"
+
+  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
+  chmod +x "$fake_bin/pbcopy"
+
+  # Keys: f (jump to CONTRIBUTING.md first cmd) ↓ (next cmd) c (copy) q (quit)
+  # First cmd in CONTRIBUTING.md is "npm install", second is "cp .env.example .env.test"
+  local keys='f'$'\x1b[B''cq'
+
+  python3 -c "
+import pty, os, sys, time, select
+
+os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
+keys = sys.argv[2].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[3], sys.argv[3:])
+else:
+    time.sleep(0.5)
+    os.write(fd, keys)
+    time.sleep(0.5)
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    os.waitpid(pid, 0)
+" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+
+  [ -f "$clip_file" ]
+  # "cp .env.example .env.test" is unique to CONTRIBUTING.md
+  [[ "$(cat "$clip_file")" == "cp .env.example .env.test" ]]
+
+  rm -rf "$fake_bin"
+}
+
+@test "interactive: 'f' wraps back to top after last file" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
+
+  local fake_bin clip_file
+  fake_bin="$(mktemp -d)"
+  clip_file="$fake_bin/clipboard.txt"
+
+  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
+  chmod +x "$fake_bin/pbcopy"
+
+  # Keys: f (jump to CONTRIBUTING.md) f (wrap to top) c (copy) q (quit)
+  # After wrapping, cursor should be on the first command: "nvm install 20"
+  local keys='ffcq'
+
+  python3 -c "
+import pty, os, sys, time, select
+
+os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
+keys = sys.argv[2].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[3], sys.argv[3:])
+else:
+    time.sleep(0.5)
+    os.write(fd, keys)
+    time.sleep(0.5)
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    os.waitpid(pid, 0)
+" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+
+  [ -f "$clip_file" ]
+  [[ "$(cat "$clip_file")" == "nvm install 20" ]]
+
+  rm -rf "$fake_bin"
+}
+
+@test "interactive: footer shows 'f files' only with multiple files" {
+  # With contrib file — footer should include "f files"
+  _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"f files"* ]]
+
+  # Without contrib file — footer should not include "f files"
+  _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/python-flask"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"f files"* ]]
+}
+
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
 @test "tilde fences: extracts commands from ~~~ blocks" {

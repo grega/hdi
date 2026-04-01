@@ -562,11 +562,13 @@ declare -a LINE_TYPES=()        # "header" | "subheader" | "command" | "empty"
 declare -a LINE_CMDS=()         # the raw command (only for type=command)
 declare -a CMD_INDICES=()       # indices into DISPLAY_LINES that are commands
 declare -a SECTION_FIRST_CMD=() # cursor indices (into CMD_INDICES) of first cmd per section
+declare -a FILE_FIRST_CMD=()    # cursor indices of first cmd after each filesep
 
 build_display_list() {
   local _prev_source=""
   _MAX_CONTENT_WIDTH=0
 
+  local _file_recorded=true  # true initially so we don't record the first file
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
@@ -577,6 +579,7 @@ build_display_list() {
       DISPLAY_LINES+=("$(basename "$_source")")
       LINE_TYPES+=("filesep")
       LINE_CMDS+=("")
+      _file_recorded=false
     fi
     _prev_source="$_source"
 
@@ -599,6 +602,10 @@ build_display_list() {
         if ! $_section_recorded; then
           SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
           _section_recorded=true
+        fi
+        if ! $_file_recorded; then
+          FILE_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _file_recorded=true
         fi
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
@@ -661,6 +668,10 @@ build_display_list() {
         if ! $_section_recorded; then
           SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
           _section_recorded=true
+        fi
+        if ! $_file_recorded; then
+          FILE_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _file_recorded=true
         fi
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
@@ -1156,7 +1167,10 @@ draw_picker() {
   if [[ -n "$FLASH_MSG" ]]; then
     _line "  ${DIM}${FLASH_MSG}${RESET}"
   else
-    _line "  ${DIM}↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit${RESET}"
+    local _footer="↑↓ navigate  ⇥ sections"
+    (( ${#FILE_FIRST_CMD[@]} > 0 )) && _footer+="  f files"
+    _footer+="  ⏎ execute  c copy  q quit"
+    _line "  ${DIM}${_footer}${RESET}"
   fi
 
   # Strip trailing newline so the cursor stays on the last line (no scroll)
@@ -1303,6 +1317,25 @@ run_interactive() {
         if (( _prev >= 0 )); then
           cursor=$_prev
           selected="${CMD_INDICES[$cursor]}"
+        fi
+        ;;
+
+      f)
+        if (( ${#FILE_FIRST_CMD[@]} > 0 )); then
+          local _found=false
+          for _ff in "${FILE_FIRST_CMD[@]}"; do
+            if (( _ff > cursor )); then
+              cursor=$_ff
+              selected="${CMD_INDICES[$cursor]}"
+              _found=true
+              break
+            fi
+          done
+          # Wrap to top if no next file found
+          if ! $_found; then
+            cursor=0
+            selected="${CMD_INDICES[$cursor]}"
+          fi
         fi
         ;;
 
@@ -1889,7 +1922,7 @@ render_json() {
   SECTION_TITLES=(); SECTION_BODIES=()
   parse_sections < "$README"
   DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
-  SECTION_FIRST_CMD=()
+  SECTION_FIRST_CMD=(); FILE_FIRST_CMD=()
   build_display_list
   PLATFORM_GROUPS=(); PLATFORM_NAMES=(); PLATFORM_CONFIDENCE=()
   local _pdir="$DIR"

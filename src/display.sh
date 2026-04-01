@@ -8,11 +8,13 @@ declare -a LINE_TYPES=()        # "header" | "subheader" | "command" | "empty"
 declare -a LINE_CMDS=()         # the raw command (only for type=command)
 declare -a CMD_INDICES=()       # indices into DISPLAY_LINES that are commands
 declare -a SECTION_FIRST_CMD=() # cursor indices (into CMD_INDICES) of first cmd per section
+declare -a FILE_FIRST_CMD=()    # cursor indices of first cmd after each filesep
 
 build_display_list() {
   local _prev_source=""
   _MAX_CONTENT_WIDTH=0
 
+  local _file_recorded=true  # true initially so we don't record the first file
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
@@ -23,6 +25,7 @@ build_display_list() {
       DISPLAY_LINES+=("$(basename "$_source")")
       LINE_TYPES+=("filesep")
       LINE_CMDS+=("")
+      _file_recorded=false
     fi
     _prev_source="$_source"
 
@@ -45,6 +48,10 @@ build_display_list() {
         if ! $_section_recorded; then
           SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
           _section_recorded=true
+        fi
+        if ! $_file_recorded; then
+          FILE_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _file_recorded=true
         fi
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
@@ -107,6 +114,10 @@ build_display_list() {
         if ! $_section_recorded; then
           SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
           _section_recorded=true
+        fi
+        if ! $_file_recorded; then
+          FILE_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _file_recorded=true
         fi
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")

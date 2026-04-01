@@ -266,7 +266,7 @@ render_json() {
   SECTION_TITLES=(); SECTION_BODIES=()
   parse_sections < "$README"
   DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
-  SECTION_FIRST_CMD=()
+  SECTION_FIRST_CMD=(); FILE_FIRST_CMD=()
   build_display_list
   PLATFORM_GROUPS=(); PLATFORM_NAMES=(); PLATFORM_CONFIDENCE=()
   local _pdir="$DIR"

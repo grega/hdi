@@ -304,7 +304,10 @@ draw_picker() {
   if [[ -n "$FLASH_MSG" ]]; then
     _line "  ${DIM}${FLASH_MSG}${RESET}"
   else
-    _line "  ${DIM}↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit${RESET}"
+    local _footer="↑↓ navigate  ⇥ sections"
+    (( ${#FILE_FIRST_CMD[@]} > 0 )) && _footer+="  f files"
+    _footer+="  ⏎ execute  c copy  q quit"
+    _line "  ${DIM}${_footer}${RESET}"
   fi
 
   # Strip trailing newline so the cursor stays on the last line (no scroll)
@@ -451,6 +454,25 @@ run_interactive() {
         if (( _prev >= 0 )); then
           cursor=$_prev
           selected="${CMD_INDICES[$cursor]}"
+        fi
+        ;;
+
+      f)
+        if (( ${#FILE_FIRST_CMD[@]} > 0 )); then
+          local _found=false
+          for _ff in "${FILE_FIRST_CMD[@]}"; do
+            if (( _ff > cursor )); then
+              cursor=$_ff
+              selected="${CMD_INDICES[$cursor]}"
+              _found=true
+              break
+            fi
+          done
+          # Wrap to top if no next file found
+          if ! $_found; then
+            cursor=0
+            selected="${CMD_INDICES[$cursor]}"
+          fi
         fi
         ;;
 
