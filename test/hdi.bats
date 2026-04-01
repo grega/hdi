@@ -923,20 +923,21 @@ else:
 
   # Keys: f (jump to CONTRIBUTING.md) f (wrap to top) c (copy) q (quit)
   # After wrapping, cursor should be on the first command: "nvm install 20"
-  local keys='ffcq'
-
+  # Send navigation keys first, then copy+quit after a pause so the picker
+  # has time to redraw between bursts
   python3 -c "
 import pty, os, sys, time, select
 
 os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
-keys = sys.argv[2].encode()
 
 pid, fd = pty.fork()
 if pid == 0:
-    os.execvp(sys.argv[3], sys.argv[3:])
+    os.execvp(sys.argv[2], sys.argv[2:])
 else:
     time.sleep(0.5)
-    os.write(fd, keys)
+    os.write(fd, b'ff')
+    time.sleep(0.3)
+    os.write(fd, b'cq')
     time.sleep(0.5)
     try:
         while select.select([fd], [], [], 0.5)[0]:
@@ -945,7 +946,7 @@ else:
     except OSError:
         pass
     os.waitpid(pid, 0)
-" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+" "$fake_bin" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
 
   [ -f "$clip_file" ]
   [[ "$(cat "$clip_file")" == "nvm install 20" ]]
