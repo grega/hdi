@@ -80,9 +80,9 @@ for mode, items in d['modes'].items():
         print(f'      {mode}: [],')
 print('    },')
 
-# check
-print('    check: [')
-print_array(d['check'], 6)
+# needs
+print('    needs: [')
+print_array(d['needs'], 6)
 print('    ],')
 
 # fullProse

@@ -3,7 +3,7 @@
 
 import { Picker, esc, type PickerItem, type PickerInstance } from "./picker";
 
-export interface CheckItem {
+export interface NeedsItem {
   tool: string;
   installed: boolean;
   version?: string;
@@ -16,7 +16,7 @@ export interface Project {
   readme: string;
   modes: Record<string, PickerItem[]>;
   fullProse: Record<string, PickerItem[]>;
-  check: CheckItem[];
+  needs: NeedsItem[];
 }
 
 export interface TerminalConfig {
@@ -184,9 +184,13 @@ export function initTerminal(config: TerminalConfig): TerminalInstance {
         case "a":
           mode = "all";
           break;
-        case "check":
+        case "contrib":
         case "c":
-          mode = "check";
+          mode = "contrib";
+          break;
+        case "needs":
+        case "n":
+          mode = "needs";
           break;
         case "--full":
         case "-f":
@@ -265,8 +269,8 @@ export function initTerminal(config: TerminalConfig): TerminalInstance {
       return;
     }
 
-    if (parsed.mode === "check") {
-      renderCheck();
+    if (parsed.mode === "needs") {
+      renderNeeds();
       showPrompt();
       return;
     }
@@ -358,10 +362,10 @@ export function initTerminal(config: TerminalConfig): TerminalInstance {
     appendLine("", "");
   }
 
-  // ── Check renderer ───────────────────────────────────────────────────────
+  // ── Needs renderer ──────────────────────────────────────────────────────
 
-  function renderCheck() {
-    const items = currentProject.check;
+  function renderNeeds() {
+    const items = currentProject.needs;
     if (!items || items.length === 0) {
       appendLine("t-yellow", "No tool references found in commands.");
       appendLine("", "");
@@ -372,7 +376,7 @@ export function initTerminal(config: TerminalConfig): TerminalInstance {
       "t-title-line",
       "[hdi] " +
         esc(currentProject.name) +
-        '<span class="t-dim">  check</span>',
+        '<span class="t-dim">  needs</span>',
     );
     appendLine("", "");
 
