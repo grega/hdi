@@ -868,6 +868,16 @@ else:
 " "$keys" "$HDI" "$FIXTURES/node-express"
 }
 
+@test "interactive: footer shows navigation hints" {
+  _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"↑↓ navigate"* ]]
+  [[ "$output" == *"⇥ sections"* ]]
+  [[ "$output" == *"⏎ execute"* ]]
+  [[ "$output" == *"c copy"* ]]
+  [[ "$output" == *"q quit"* ]]
+}
+
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
 @test "tilde fences: extracts commands from ~~~ blocks" {
