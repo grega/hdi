@@ -8,7 +8,8 @@
 #   hdi test                      Just test commands (alias: t)
 #   hdi deploy                    Just deploy/release commands and platform detection (alias: d)
 #   hdi all                       Show all matched sections (currently the default mode)
-#   hdi check                     Check if required tools are installed (experimental)
+#   hdi contrib                   Show commands from contributor/development docs (alias: c)
+#   hdi needs                     Check if required tools are installed (alias: n)
 #   hdi [mode] --no-interactive   Print commands without the picker (alias: --ni)
 #   hdi [mode] --full             Include prose around commands
 #   hdi [mode] --raw              Plain markdown output (no colour, good for piping)
@@ -52,7 +53,8 @@ for arg in "$@"; do
     test|t)                 MODE="test" ;;
     deploy|d)               MODE="deploy" ;;
     all|a)                  MODE="all" ;;
-    check|c)                MODE="check" ;;
+    needs|n)                MODE="needs" ;;
+    contrib|c)              MODE="contrib" ;;
     --full|-f)              FULL=true ;;
     --raw)                  RAW=true; INTERACTIVE="no" ;;
     --json)                 JSON=true; INTERACTIVE="no" ;;
@@ -98,7 +100,8 @@ case "$MODE" in
   test)     PATTERN="($KW_TEST)" ;;
   deploy)   PATTERN="($KW_DEPLOY)" ;;
   all)      PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
-  check)    PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
+  needs)    PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
+  contrib)  PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
   default)  PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
 esac
 
@@ -125,16 +128,42 @@ else
   done
 fi
 
-if [[ -z "$README" ]]; then
+if [[ -z "$README" ]] && [[ "$MODE" != "contrib" ]]; then
   echo "${YELLOW}hdi: no README found in ${DIR}${RESET}" >&2
   echo "${DIM}Looked for README.md, readme.md, Readme.md, README.rst${RESET}" >&2
   echo "${DIM}Try: hdi --help${RESET}" >&2
   exit 1
 fi
 
+# ── Discover contributor/development docs ───────────────────────────────────
+CONTRIB_FILES=()
+if [[ -z "$FILE" ]]; then
+  for _cname in CONTRIBUTING.md contributing.md Contributing.md \
+                DEVELOPMENT.md development.md Development.md \
+                DEVELOPERS.md developers.md Developers.md \
+                HACKING.md hacking.md; do
+    [[ -f "$DIR/$_cname" ]] || continue
+    # Deduplicate (case-insensitive filesystems may match multiple variants)
+    _cf_dup=false
+    _cf_real=$(cd "$DIR" && realpath "$_cname" 2>/dev/null || echo "$DIR/$_cname")
+    for _cf_existing in "${CONTRIB_FILES[@]+"${CONTRIB_FILES[@]}"}"; do
+      [[ "$_cf_existing" == "$_cf_real" ]] && _cf_dup=true && break
+    done
+    $_cf_dup || CONTRIB_FILES+=("$_cf_real")
+  done
+fi
+
+if [[ "$MODE" == "contrib" ]] && (( ${#CONTRIB_FILES[@]} == 0 )); then
+  echo "${YELLOW}hdi: no contributor docs found in ${DIR}${RESET}" >&2
+  echo "${DIM}Looked for CONTRIBUTING.md, DEVELOPMENT.md, DEVELOPERS.md, HACKING.md${RESET}" >&2
+  exit 1
+fi
+
 # ── Extract matching sections ────────────────────────────────────────────────
 declare -a SECTION_TITLES=()
 declare -a SECTION_BODIES=()
+declare -a SECTION_FILES=()
+_PARSE_SOURCE=""
 
 parse_sections() {
   local in_section=false
@@ -172,12 +201,14 @@ parse_sections() {
       if (( level <= section_level )); then
         SECTION_TITLES+=("$heading_text")
         SECTION_BODIES+=("$body")
+        SECTION_FILES+=("$_PARSE_SOURCE")
         in_section=false
         body=""
       elif [[ "$text" =~ $PATTERN ]]; then
         # Deeper child heading also matches - save parent body first
         SECTION_TITLES+=("$heading_text")
         SECTION_BODIES+=("$body")
+        SECTION_FILES+=("$_PARSE_SOURCE")
         in_section=false
         body=""
       fi
@@ -297,6 +328,7 @@ parse_sections() {
   if $in_section; then
     SECTION_TITLES+=("$heading_text")
     SECTION_BODIES+=("$body")
+    SECTION_FILES+=("$_PARSE_SOURCE")
   fi
 
   shopt -u nocasematch
@@ -525,17 +557,31 @@ extract_commands() {
 # We store parallel arrays for the display lines, their types, and
 # (for commands) the actual command.
 
-declare -a DISPLAY_LINES=()   # what to print
-declare -a LINE_TYPES=()      # "header" | "subheader" | "command" | "empty"
-declare -a LINE_CMDS=()       # the raw command (only for type=command)
-declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
-declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
+declare -a DISPLAY_LINES=()     # what to print
+declare -a LINE_TYPES=()        # "header" | "subheader" | "command" | "empty"
+declare -a LINE_CMDS=()         # the raw command (only for type=command)
+declare -a CMD_INDICES=()       # indices into DISPLAY_LINES that are commands
+declare -a SECTION_FIRST_CMD=() # cursor indices (into CMD_INDICES) of first cmd per section
+declare -a FILE_FIRST_CMD=()    # cursor indices of first cmd after each filesep
 
 build_display_list() {
+  local _prev_source=""
   _MAX_CONTENT_WIDTH=0
+
+  local _file_recorded=true  # true initially so we don't record the first file
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
+    local _source="${SECTION_FILES[$i]:-}"
+
+    # File separator when source file changes
+    if [[ -n "$_prev_source" && -n "$_source" && "$_source" != "$_prev_source" ]]; then
+      DISPLAY_LINES+=("$(basename "$_source")")
+      LINE_TYPES+=("filesep")
+      LINE_CMDS+=("")
+      _file_recorded=false
+    fi
+    _prev_source="$_source"
 
     # Section header
     DISPLAY_LINES+=("$title")
@@ -557,6 +603,10 @@ build_display_list() {
           SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
           _section_recorded=true
         fi
+        if ! $_file_recorded; then
+          FILE_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _file_recorded=true
+        fi
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$tcmd")
@@ -572,7 +622,7 @@ build_display_list() {
     _EC_GROUPED=false
     local cmds="$_EC_RESULT"
 
-    # Deduplicate commands within each sub-group (pure bash, no awk)
+    # Deduplicate commands within each sub-group
     if [[ -n "$cmds" ]]; then
       local _deduped="" _dup _cur_group="" _group_seen=""
       while IFS= read -r _cmd; do
@@ -619,6 +669,10 @@ build_display_list() {
           SECTION_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
           _section_recorded=true
         fi
+        if ! $_file_recorded; then
+          FILE_FIRST_CMD+=("$(( ${#CMD_INDICES[@]} - 1 ))")
+          _file_recorded=true
+        fi
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$_entry")
@@ -646,6 +700,13 @@ render_static() {
     local type="${LINE_TYPES[$idx]}"
 
     case "$type" in
+      filesep)
+        if $RAW; then
+          printf "\n--- %s ---\n" "$line"
+        else
+          _file_separator "$line"; printf "\n%s\n\n" "$_FS"
+        fi
+        ;;
       header)
         if $RAW; then
           printf "\n## %s\n" "$line"
@@ -680,9 +741,21 @@ render_static() {
 
 # ── Full-prose render ────────────────────────────────────────────────────────
 render_full() {
+  local _rf_prev_source=""
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local content="${SECTION_BODIES[$i]}"
+    local _rf_source="${SECTION_FILES[$i]:-}"
+
+    # File separator when source changes
+    if [[ -n "$_rf_prev_source" && -n "$_rf_source" && "$_rf_source" != "$_rf_prev_source" ]]; then
+      if $RAW; then
+        printf "\n--- %s ---\n" "$(basename "$_rf_source")"
+      else
+        _file_separator "$(basename "$_rf_source")"; printf "\n%s\n\n" "$_FS"
+      fi
+    fi
+    _rf_prev_source="$_rf_source"
 
     # Strip trailing blank lines (pure bash, no tail subprocess)
     while [[ "$content" == *$'\n' ]]; do
@@ -809,16 +882,18 @@ _term_height() {
   echo 24
 }
 
-# Get terminal width reliably (stty from tty, fallback to tput, then 80)
+# Get terminal width reliably (COLUMNS, stty from tty, fallback to tput, then 80)
 _term_width() {
+  if (( ${COLUMNS:-0} > 0 )); then echo "$COLUMNS"; return; fi
   local w
   w=$(stty size < /dev/tty 2>/dev/null) && w="${w##* }" && (( w > 0 )) && { echo "$w"; return; }
   w=$(tput cols 2>/dev/null) && (( w > 0 )) && { echo "$w"; return; }
   echo 80
 }
 
-# Pre-computed dash string (200 chars covers any reasonable terminal width)
+# Pre-computed dash strings (200 chars covers any reasonable terminal width)
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+_DOUBLE_DASH_POOL="════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════"
 
 # Format a section header with trailing dashes (sets _SH, no subshell)
 # _RENDER_WIDTH defaults to _MAX_CONTENT_WIDTH; draw_picker caps it to terminal width
@@ -834,11 +909,23 @@ _section_header() {
   _SH="${BOLD}${CYAN}${prefix}${RESET}${DIM}${_DASH_POOL:0:n}${RESET}"
 }
 
+# Format a file separator with double-line dashes (sets _FS, no subshell)
+_FS=""
+_file_separator() {
+  (( _RENDER_WIDTH == 0 )) && _RENDER_WIDTH=$_MAX_CONTENT_WIDTH
+  local prefix="  ══ $1 "
+  local prefix_len=${#prefix}
+  local target=$(( _RENDER_WIDTH > prefix_len ? _RENDER_WIDTH : prefix_len + 4 ))
+  local n=$(( target - prefix_len ))
+  (( n < 2 )) && n=2
+  _FS="${DIM}  ══ ${RESET}${BOLD}${YELLOW}$1${RESET}${DIM} ${_DOUBLE_DASH_POOL:0:n}${RESET}"
+}
+
 # Screen lines per display entry type — sets _SL (no subshell)
 # Headers/subheaders take 2 lines (blank + text), others take 1
 _SL=1
 _sl() {
-  case "${LINE_TYPES[$1]}" in header|subheader) _SL=2 ;; *) _SL=1 ;; esac
+  case "${LINE_TYPES[$1]}" in filesep) _SL=3 ;; header|subheader) _SL=2 ;; *) _SL=1 ;; esac
 }
 
 # Adjust VIEWPORT_TOP so that the selected item is visible
@@ -858,7 +945,7 @@ adjust_viewport() {
   for (( _i = 0; _i < n_items; _i++ )); do
     _sl "$_i"; (( total += _SL ))
   done
-  case "${LINE_TYPES[0]}" in header|subheader) (( total -= 1 )) ;; esac
+  case "${LINE_TYPES[0]}" in header|subheader|filesep) (( total -= 1 )) ;; esac
   if (( total + chrome <= term_h )); then
     VIEWPORT_TOP=0
     return
@@ -870,7 +957,7 @@ adjust_viewport() {
     # Walk back through consecutive headers/subheaders to show full context
     while (( VIEWPORT_TOP > 0 )); do
       local prev_type="${LINE_TYPES[$((VIEWPORT_TOP - 1))]}"
-      if [[ "$prev_type" == "header" || "$prev_type" == "subheader" ]]; then
+      if [[ "$prev_type" == "header" || "$prev_type" == "subheader" || "$prev_type" == "filesep" ]]; then
         (( VIEWPORT_TOP -= 1 ))
       else
         break
@@ -893,7 +980,7 @@ adjust_viewport() {
     _sl "$idx"; lines=$_SL
     # First item at viewport_top has blank line suppressed in draw_picker
     if (( idx == VIEWPORT_TOP )); then
-      case "${LINE_TYPES[$idx]}" in header|subheader) (( lines -= 1 )) ;; esac
+      case "${LINE_TYPES[$idx]}" in header|subheader|filesep) (( lines -= 1 )) ;; esac
     fi
     if (( idx == selected )); then
       if (( row + lines > avail )); then break; fi
@@ -920,7 +1007,7 @@ adjust_viewport() {
       # try again with 1 fewer line.  Also, reaching idx==0 removes the
       # "more above" indicator, freeing 1 more line of budget
       local saving=0
-      case "${LINE_TYPES[$idx]}" in header|subheader) saving=1 ;; esac
+      case "${LINE_TYPES[$idx]}" in header|subheader|filesep) saving=1 ;; esac
       (( idx == 0 )) && (( saving += 1 ))
       if (( saving > 0 && used + lines - saving <= budget )); then
         (( used += lines - saving ))
@@ -975,6 +1062,7 @@ draw_picker() {
       fi
       ;;
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
+    contrib) hdr+="  ${DIM}[contrib]${RESET}" ;;
   esac
   _line "$hdr"
   _blank
@@ -1015,6 +1103,13 @@ draw_picker() {
     fi
 
     case "$type" in
+      filesep)
+        if (( idx != VIEWPORT_TOP )); then
+          _blank; (( rendered += 1 ))
+        fi
+        _file_separator "$line"; _line "$_FS"
+        _blank; (( rendered += 1 ))
+        ;;
       header)
         if (( idx != VIEWPORT_TOP )); then
           _blank; (( rendered += 1 ))
@@ -1072,7 +1167,10 @@ draw_picker() {
   if [[ -n "$FLASH_MSG" ]]; then
     _line "  ${DIM}${FLASH_MSG}${RESET}"
   else
-    _line "  ${DIM}↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit${RESET}"
+    local _footer="↑↓ navigate  ⇥ sections"
+    (( ${#FILE_FIRST_CMD[@]} > 0 )) && _footer+="  f files"
+    _footer+="  ⏎ execute  c copy  q quit"
+    _line "  ${DIM}${_footer}${RESET}"
   fi
 
   # Strip trailing newline so the cursor stays on the last line (no scroll)
@@ -1222,6 +1320,22 @@ run_interactive() {
         fi
         ;;
 
+      f)
+        local _fnext=-1
+        for _ff in "${FILE_FIRST_CMD[@]}"; do
+          if (( _ff > cursor )); then
+            _fnext=$_ff
+            break
+          fi
+        done
+        if (( _fnext >= 0 )); then
+          cursor=$_fnext
+        elif (( ${#FILE_FIRST_CMD[@]} > 0 )); then
+          cursor=0
+        fi
+        selected="${CMD_INDICES[$cursor]}"
+        ;;
+
       enter)
         local cmd="${LINE_CMDS[$selected]}"
 
@@ -1289,105 +1403,6 @@ run_interactive() {
     draw_picker "$selected"
     FLASH_MSG=""
   done
-}
-
-# ── Check mode: report which tools are installed ─────────────────────────────
-
-# Shell builtins and coreutils that are always available - not worth checking
-_CHECK_SKIP="^(cd|cp|mv|rm|mkdir|echo|export|source|cat|chmod|chown|ln|touch|ls|printf|trap|pwd|set|unset|eval|exec|exit|return|read|test|true|false|tee|head|tail|wc|sort|grep|xargs|find|tar|gzip|gunzip|sed|awk|tr|cut|diff|date|sleep|kill|whoami|env|which|man|less|more)$"
-
-# Extract the tool name from a command string
-# Strips leading env vars (FOO=bar) and sudo, returns the first word
-# Sets _CT_RESULT or "" if nothing useful
-_check_tool_name() {
-  local cmd="$1"
-
-  # Strip leading env vars
-  while [[ "$cmd" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]* ]]; do
-    cmd="${cmd#"${BASH_REMATCH[0]}"}"
-    cmd="${cmd#"${cmd%%[![:space:]]*}"}"
-  done
-
-  # Strip sudo
-  if [[ "$cmd" =~ ^sudo[[:space:]]+ ]]; then
-    cmd="${cmd#sudo}"
-    cmd="${cmd#"${cmd%%[![:space:]]*}"}"
-  fi
-
-  # First word
-  local tool="${cmd%% *}"
-
-  # Skip paths (./foo, /foo, bin/foo), flags (-h, --help), empty, builtins
-  if [[ -z "$tool" ]] || [[ "$tool" == -* ]] || [[ "$tool" == */* ]] || [[ "$tool" =~ $_CHECK_SKIP ]]; then
-    _CT_RESULT=""
-    return
-  fi
-
-  _CT_RESULT="$tool"
-}
-
-run_check() {
-  local -a tools=()
-  local tool
-
-  # Collect unique tool names from all extracted commands
-  for idx in "${!DISPLAY_LINES[@]}"; do
-    [[ "${LINE_TYPES[$idx]}" != "command" ]] && continue
-    _check_tool_name "${LINE_CMDS[$idx]}"
-    [[ -z "$_CT_RESULT" ]] && continue
-    tool="$_CT_RESULT"
-
-    # Deduplicate
-    local seen=false
-    for t in "${tools[@]+"${tools[@]}"}"; do
-      [[ "$t" == "$tool" ]] && seen=true && break
-    done
-    $seen && continue
-    tools+=("$tool")
-  done
-
-  if (( ${#tools[@]} == 0 )); then
-    echo "${YELLOW}hdi: no tool references found in commands${RESET}" >&2
-    echo "${DIM}Try: hdi all --full${RESET}" >&2
-    exit 1
-  fi
-
-  # Header
-  printf "\n%s%s[hdi] %s%s  %scheck (experimental)%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" "$DIM" "$RESET"
-
-  local found=0 missing=0
-  for tool in "${tools[@]}"; do
-    if command -v "$tool" >/dev/null 2>&1; then
-      # Try to extract a version number (some tools use -V instead of --version)
-      local ver="" raw=""
-      raw=$("$tool" --version 2>&1 | head -5) || true
-      if [[ "$raw" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
-        ver="${BASH_REMATCH[0]}"
-      else
-        raw=$("$tool" -V 2>&1 | head -5) || true
-        if [[ "$raw" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
-          ver="${BASH_REMATCH[0]}"
-        fi
-      fi
-
-      if [[ -n "$ver" ]]; then
-        printf "  %s✓%s %-14s %s(%s)%s\n" "$GREEN" "$RESET" "$tool" "$DIM" "$ver" "$RESET"
-      else
-        printf "  %s✓%s %-14s\n" "$GREEN" "$RESET" "$tool"
-      fi
-      found=$((found + 1))
-    else
-      printf "  %s✗%s %-14s %snot found%s\n" "$YELLOW" "$RESET" "$tool" "$DIM" "$RESET"
-      missing=$((missing + 1))
-    fi
-  done
-
-  printf "\n"
-  if (( missing == 0 )); then
-    printf "  %s✓ All %d tools found%s\n\n" "$DIM" "$found" "$RESET"
-  else
-    printf "  %s%d found, %s%d not found%s\n\n" "$DIM" "$found" "$YELLOW" "$missing" "$RESET"
-  fi
 }
 
 # ── Platform detection ────────────────────────────────────────────────────────
@@ -1535,6 +1550,106 @@ build_platform_display() {
     fi
   done
   _PLATFORM_DISPLAY="$parts"
+}
+
+# ── Needs mode: report which tools are installed ─────────────────────────────
+
+# Shell builtins and coreutils that are always available - not worth checking
+_CHECK_SKIP="^(cd|cp|mv|rm|mkdir|echo|export|source|cat|chmod|chown|ln|touch|ls|printf|trap|pwd|set|unset|eval|exec|exit|return|read|test|true|false|tee|head|tail|wc|sort|grep|xargs|find|tar|gzip|gunzip|sed|awk|tr|cut|diff|date|sleep|kill|whoami|env|which|man|less|more)$"
+
+# Extract the tool name from a command string
+# Strips leading env vars (FOO=bar) and sudo, returns the first word
+# Sets _CT_RESULT or "" if nothing useful
+_check_tool_name() {
+  local cmd="$1"
+
+  # Strip leading env vars
+  while [[ "$cmd" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]* ]]; do
+    cmd="${cmd#"${BASH_REMATCH[0]}"}"
+    cmd="${cmd#"${cmd%%[![:space:]]*}"}"
+  done
+
+  # Strip sudo
+  if [[ "$cmd" =~ ^sudo[[:space:]]+ ]]; then
+    cmd="${cmd#sudo}"
+    cmd="${cmd#"${cmd%%[![:space:]]*}"}"
+  fi
+
+  # First word
+  local tool="${cmd%% *}"
+
+  # Skip paths (./foo, /foo, bin/foo), flags (-h, --help), empty, builtins,
+  # bracketed text ([hdi]), and placeholders (...)
+  if [[ -z "$tool" ]] || [[ "$tool" == -* ]] || [[ "$tool" == */* ]] || [[ "$tool" == \[* ]] || [[ "$tool" == "..." ]] || [[ "$tool" =~ $_CHECK_SKIP ]]; then
+    _CT_RESULT=""
+    return
+  fi
+
+  _CT_RESULT="$tool"
+}
+
+run_needs() {
+  local -a tools=()
+  local tool
+
+  # Collect unique tool names from all extracted commands
+  for idx in "${!DISPLAY_LINES[@]}"; do
+    [[ "${LINE_TYPES[$idx]}" != "command" ]] && continue
+    _check_tool_name "${LINE_CMDS[$idx]}"
+    [[ -z "$_CT_RESULT" ]] && continue
+    tool="$_CT_RESULT"
+
+    # Deduplicate
+    local seen=false
+    for t in "${tools[@]+"${tools[@]}"}"; do
+      [[ "$t" == "$tool" ]] && seen=true && break
+    done
+    $seen && continue
+    tools+=("$tool")
+  done
+
+  if (( ${#tools[@]} == 0 )); then
+    echo "${YELLOW}hdi: no tool references found in commands${RESET}" >&2
+    echo "${DIM}Try: hdi all --full${RESET}" >&2
+    exit 1
+  fi
+
+  # Header
+  printf "\n%s%s[hdi] %s%s  %sneeds%s\n\n" "$BOLD" "$YELLOW" "$PROJECT_NAME" "$RESET" "$DIM" "$RESET"
+
+  local found=0 missing=0
+  for tool in "${tools[@]}"; do
+    if command -v "$tool" >/dev/null 2>&1; then
+      # Try to extract a version number (some tools use -V instead of --version)
+      local ver="" raw=""
+      raw=$("$tool" --version 2>&1 | head -5) || true
+      if [[ "$raw" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
+        ver="${BASH_REMATCH[0]}"
+      else
+        raw=$("$tool" -V 2>&1 | head -5) || true
+        if [[ "$raw" =~ [0-9]+\.[0-9]+[0-9.]* ]]; then
+          ver="${BASH_REMATCH[0]}"
+        fi
+      fi
+
+      if [[ -n "$ver" ]]; then
+        printf "  %s✓%s %-14s %s(%s)%s\n" "$GREEN" "$RESET" "$tool" "$DIM" "$ver" "$RESET"
+      else
+        printf "  %s✓%s %-14s\n" "$GREEN" "$RESET" "$tool"
+      fi
+      found=$((found + 1))
+    else
+      printf "  %s✗%s %-14s %snot found%s\n" "$YELLOW" "$RESET" "$tool" "$DIM" "$RESET"
+      missing=$((missing + 1))
+    fi
+  done
+
+  printf "\n"
+  if (( missing == 0 )); then
+    printf "  %s✓ All %d tools found%s\n\n" "$DIM" "$found" "$RESET"
+  else
+    printf "  %s%d found, %s%d not found%s\n\n" "$DIM" "$found" "$YELLOW" "$missing" "$RESET"
+  fi
 }
 
 # ── JSON output ───────────────────────────────────────────────────────────────
@@ -1700,8 +1815,8 @@ _json_full_prose() {
   printf '\n    ]'
 }
 
-# Print the check array as JSON using the current DISPLAY_LINES
-_json_check() {
+# Print the needs array as JSON using the current DISPLAY_LINES
+_json_needs() {
   local -a tools=()
   local tool
 
@@ -1758,7 +1873,7 @@ _json_platforms() {
   fi
 }
 
-# Main JSON renderer: outputs all modes, fullProse, and check
+# Main JSON renderer: outputs all modes, fullProse, and needs
 render_json() {
   local _modes=("default" "install" "run" "test" "deploy" "all")
   local first
@@ -1769,7 +1884,8 @@ render_json() {
     $first || printf ',\n'
     first=false
     _json_set_pattern "$_m"
-    SECTION_TITLES=(); SECTION_BODIES=()
+    SECTION_TITLES=(); SECTION_BODIES=(); SECTION_FILES=()
+    _PARSE_SOURCE="$README"
     parse_sections < "$README"
     DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
     build_display_list
@@ -1782,19 +1898,21 @@ render_json() {
     $first || printf ',\n'
     first=false
     _json_set_pattern "$_m"
-    SECTION_TITLES=(); SECTION_BODIES=()
+    SECTION_TITLES=(); SECTION_BODIES=(); SECTION_FILES=()
+    _PARSE_SOURCE="$README"
     parse_sections < "$README"
     _json_full_prose "$_m"
   done
 
-  # Re-parse with "all" pattern for check tool extraction
-  printf '\n  },\n  "check": '
+  # Re-parse with "all" pattern for needs tool extraction
+  printf '\n  },\n  "needs": '
   _json_set_pattern "all"
-  SECTION_TITLES=(); SECTION_BODIES=()
+  SECTION_TITLES=(); SECTION_BODIES=(); SECTION_FILES=()
+  _PARSE_SOURCE="$README"
   parse_sections < "$README"
   DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
   build_display_list
-  _json_check
+  _json_needs
 
   # Platform detection (uses deploy pattern)
   printf ',\n  "platforms": '
@@ -1802,7 +1920,7 @@ render_json() {
   SECTION_TITLES=(); SECTION_BODIES=()
   parse_sections < "$README"
   DISPLAY_LINES=(); LINE_TYPES=(); LINE_CMDS=(); CMD_INDICES=()
-  SECTION_FIRST_CMD=()
+  SECTION_FIRST_CMD=(); FILE_FIRST_CMD=()
   build_display_list
   PLATFORM_GROUPS=(); PLATFORM_NAMES=(); PLATFORM_CONFIDENCE=()
   local _pdir="$DIR"
@@ -1822,10 +1940,24 @@ if $JSON; then
   exit 0
 fi
 
-parse_sections < "$README"
+# Parse README (unless contrib-only mode)
+if [[ "$MODE" != "contrib" ]] && [[ -n "$README" ]]; then
+  _PARSE_SOURCE="$README"
+  parse_sections < "$README"
+fi
+
+# Parse contributor docs
+for _cf in "${CONTRIB_FILES[@]+"${CONTRIB_FILES[@]}"}"; do
+  _PARSE_SOURCE="$_cf"
+  parse_sections < "$_cf"
+done
 
 if (( ${#SECTION_TITLES[@]} == 0 )); then
-  echo "${YELLOW}hdi: no matching sections found in ${README}${RESET}" >&2
+  if [[ "$MODE" == "contrib" ]]; then
+    echo "${YELLOW}hdi: no matching sections found in contributor docs${RESET}" >&2
+  else
+    echo "${YELLOW}hdi: no matching sections found in ${README}${RESET}" >&2
+  fi
   echo "${DIM}Try: hdi all --full${RESET}" >&2
   exit 1
 fi
@@ -1843,8 +1975,8 @@ if [[ "$MODE" == "deploy" ]]; then
   build_platform_display
 fi
 
-if [[ "$MODE" == "check" ]]; then
-  run_check
+if [[ "$MODE" == "needs" ]]; then
+  run_needs
 elif [[ "$INTERACTIVE" == "yes" ]] && ! $FULL; then
   run_interactive
 else
@@ -1862,6 +1994,7 @@ else
         fi
         ;;
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
+      contrib) printf "  %s[contrib]%s" "$DIM" "$RESET" ;;
     esac
     printf "\n\n"
   fi

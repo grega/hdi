@@ -22,7 +22,8 @@ for arg in "$@"; do
     test|t)                 MODE="test" ;;
     deploy|d)               MODE="deploy" ;;
     all|a)                  MODE="all" ;;
-    check|c)                MODE="check" ;;
+    needs|n)                MODE="needs" ;;
+    contrib|c)              MODE="contrib" ;;
     --full|-f)              FULL=true ;;
     --raw)                  RAW=true; INTERACTIVE="no" ;;
     --json)                 JSON=true; INTERACTIVE="no" ;;
@@ -68,6 +69,7 @@ case "$MODE" in
   test)     PATTERN="($KW_TEST)" ;;
   deploy)   PATTERN="($KW_DEPLOY)" ;;
   all)      PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
-  check)    PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
+  needs)    PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
+  contrib)  PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
   default)  PATTERN="($KW_INSTALL|$KW_RUN|$KW_TEST|$KW_DEPLOY|$KW_EXTRA)" ;;
 esac

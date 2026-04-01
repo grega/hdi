@@ -695,6 +695,18 @@ setup() {
   [[ "$output" != *"Installs dependencies"* ]]
 }
 
+# ── Interactive: footer hints ────────────────────────────────────────────────
+
+@test "interactive: footer shows navigation hints" {
+  _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"↑↓ navigate"* ]]
+  [[ "$output" == *"⇥ sections"* ]]
+  [[ "$output" == *"⏎ execute"* ]]
+  [[ "$output" == *"c copy"* ]]
+  [[ "$output" == *"q quit"* ]]
+}
+
 # ── Interactive: copy to clipboard ───────────────────────────────────────────
 
 @test "interactive: 'c' copies highlighted command to clipboard" {
@@ -868,14 +880,59 @@ else:
 " "$keys" "$HDI" "$FIXTURES/node-express"
 }
 
-@test "interactive: footer shows navigation hints" {
+@test "interactive: 'f' jumps to next file's first command" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 required for PTY tests"
+
+  local fake_bin clip_file
+  fake_bin="$(mktemp -d)"
+  clip_file="$fake_bin/clipboard.txt"
+
+  printf '#!/bin/bash\ncat > "%s"\n' "$clip_file" > "$fake_bin/pbcopy"
+  chmod +x "$fake_bin/pbcopy"
+
+  # Keys: f (jump to CONTRIBUTING.md first cmd) ↓ (next cmd) c (copy) q (quit)
+  # First cmd in CONTRIBUTING.md is "npm install", second is "cp .env.example .env.test"
+  local keys='f'$'\x1b[B''cq'
+
+  python3 -c "
+import pty, os, sys, time, select
+
+os.environ['PATH'] = sys.argv[1] + ':' + os.environ['PATH']
+keys = sys.argv[2].encode()
+
+pid, fd = pty.fork()
+if pid == 0:
+    os.execvp(sys.argv[3], sys.argv[3:])
+else:
+    time.sleep(0.5)
+    os.write(fd, keys)
+    time.sleep(0.5)
+    try:
+        while select.select([fd], [], [], 0.5)[0]:
+            if not os.read(fd, 4096):
+                break
+    except OSError:
+        pass
+    os.waitpid(pid, 0)
+" "$fake_bin" "$keys" "$HDI" "$FIXTURES/node-express" >/dev/null 2>&1 || true
+
+  [ -f "$clip_file" ]
+  # "cp .env.example .env.test" is unique to CONTRIBUTING.md
+  [[ "$(cat "$clip_file")" == "cp .env.example .env.test" ]]
+
+  rm -rf "$fake_bin"
+}
+
+@test "interactive: footer shows 'f files' only with multiple files" {
+  # With contrib file — footer should include "f files"
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"↑↓ navigate"* ]]
-  [[ "$output" == *"⇥ sections"* ]]
-  [[ "$output" == *"⏎ execute"* ]]
-  [[ "$output" == *"c copy"* ]]
-  [[ "$output" == *"q quit"* ]]
+  [[ "$output" == *"f files"* ]]
+
+  # Without contrib file — footer should not include "f files"
+  _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/python-flask"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"f files"* ]]
 }
 
 # ── Tilde fences ────────────────────────────────────────────────────────────
@@ -1377,30 +1434,30 @@ else:
   [[ "$output" == *"npm run serve --env staging"* ]]
 }
 
-# ── Check mode ──────────────────────────────────────────────────────────────
+# ── Needs mode ──────────────────────────────────────────────────────────────
 
-@test "check: reports installed tools" {
-  run "$HDI" check "$FIXTURES/node-express"
+@test "needs: reports installed tools" {
+  run "$HDI" needs "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
   [[ "$output" == *"npm"* ]]
 }
 
-@test "check: marks missing tools" {
-  run "$HDI" check "$FIXTURES/node-express"
+@test "needs: marks missing tools" {
+  run "$HDI" needs "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
   [[ "$output" == *"nvm"* ]]
   [[ "$output" == *"not found"* ]]
 }
 
-@test "check: skips shell builtins like cp" {
-  run "$HDI" check "$FIXTURES/node-express"
+@test "needs: skips shell builtins like cp" {
+  run "$HDI" needs "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
-  # cp is in the install section but should not appear in check output
+  # cp is in the install section but should not appear in needs output
   [[ "$output" != *" cp "* ]]
 }
 
-@test "check: deduplicates tool names" {
-  run "$HDI" check "$FIXTURES/node-express"
+@test "needs: deduplicates tool names" {
+  run "$HDI" needs "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
   # npm appears in multiple commands but should only be listed once
   local count
@@ -1408,28 +1465,84 @@ else:
   [ "$count" -eq 1 ]
 }
 
-@test "check: scans all sections (install + run + test)" {
-  run "$HDI" check "$FIXTURES/react-nextjs"
+@test "needs: scans all sections (install + run + test)" {
+  run "$HDI" needs "$FIXTURES/react-nextjs"
   [ "$status" -eq 0 ]
   [[ "$output" == *"npm"* ]]
 }
 
-@test "check: skips path-like commands" {
-  run "$HDI" check "$FIXTURES/ruby-rails"
+@test "needs: skips path-like commands" {
+  run "$HDI" needs "$FIXTURES/ruby-rails"
   [ "$status" -eq 0 ]
   [[ "$output" != *"bin/rails"* ]]
   [[ "$output" != *"bin/dev"* ]]
 }
 
-@test "check: skips flags in code blocks" {
+@test "needs: skips flags in code blocks" {
   # Flags like -h, --help, --raw should not appear as tools
-  run "$HDI" check "$BATS_TEST_DIRNAME/.."
+  run "$HDI" needs "$BATS_TEST_DIRNAME/.."
   [ "$status" -eq 0 ]
   [[ "$output" != *" -h,"* ]]
   [[ "$output" != *" -v,"* ]]
   [[ "$output" != *" -f,"* ]]
   [[ "$output" != *" --raw"* ]]
   [[ "$output" != *" --ni,"* ]]
+}
+
+# ── Contrib mode ───────────────────────────────────────────────────────────
+
+@test "contrib: shows commands from CONTRIBUTING.md" {
+  run "$HDI" contrib "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm run test:coverage"* ]]
+  [[ "$output" == *"npm version patch"* ]]
+}
+
+@test "contrib: 'c' is an alias for contrib mode" {
+  run "$HDI" c "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm run test:coverage"* ]]
+}
+
+@test "contrib: does not include README commands" {
+  run "$HDI" contrib "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"npx prisma migrate dev"* ]]
+}
+
+@test "contrib: error when no contributor docs found" {
+  run "$HDI" contrib "$FIXTURES/python-flask"
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"no contributor docs found"* ]]
+}
+
+@test "contrib: default mode includes contrib with separator" {
+  run "$HDI" --ni "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"CONTRIBUTING.md"* ]]
+  [[ "$output" == *"npm run test:coverage"* ]]
+  [[ "$output" == *"npm install"* ]]
+}
+
+@test "contrib: --raw separator uses plain text" {
+  run "$HDI" --raw "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"--- CONTRIBUTING.md ---"* ]]
+}
+
+@test "contrib: mode filter applies to contrib sections" {
+  run "$HDI" test "$FIXTURES/node-express"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"npm test"* ]]
+  [[ "$output" == *"npm run test:coverage"* ]]
+  # lint/format are not test commands
+  [[ "$output" != *"npm run lint"* ]]
+}
+
+@test "contrib: no separator when no contrib files" {
+  run "$HDI" --ni "$FIXTURES/python-flask"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"CONTRIBUTING"* ]]
 }
 
 # ── JSON output ────────────────────────────────────────────────────────────
@@ -1456,10 +1569,10 @@ else:
   done
 }
 
-@test "json: contains check array" {
+@test "json: contains needs array" {
   run "$HDI" --json "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
-  echo "$output" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d['check'], list)"
+  echo "$output" | python3 -c "import json,sys; d=json.load(sys.stdin); assert isinstance(d['needs'], list)"
 }
 
 @test "json: modes items have type and text fields" {
@@ -1499,13 +1612,13 @@ assert 'header' in types, 'no header items'
 "
 }
 
-@test "json: check items have tool and installed fields" {
+@test "json: needs items have tool and installed fields" {
   run "$HDI" --json "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
   echo "$output" | python3 -c "
 import json,sys
 d=json.load(sys.stdin)
-for item in d['check']:
+for item in d['needs']:
     assert 'tool' in item and 'installed' in item, f'missing fields in {item}'
 "
 }

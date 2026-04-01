@@ -83,9 +83,9 @@ Sleep 2s
 Type "q"
 Sleep 1.5s
 
-# ── Scene 5: Check mode ─────────────────────────────────────────────────────
+# ── Scene 5: Needs mode ─────────────────────────────────────────────────────
 
-Type "hdi c"
+Type "hdi n"
 Sleep 200ms
 Enter
 Sleep 3s
