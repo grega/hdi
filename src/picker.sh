@@ -226,10 +226,16 @@ draw_picker() {
         (( rendered += 1 ))
         ;;
       command)
-        if (( idx == selected )) && [[ -n "$FLASH_MSG" ]]; then
-          _line "  ${BG_SELECT}${GREEN}${BOLD}✔ ${line} ${RESET}"
-        elif (( idx == selected )); then
-          _line "  ${BG_SELECT}${WHITE}${BOLD}▶ ${line} ${RESET}"
+        if (( idx == selected )); then
+          local _pad_n=$(( _MAX_CONTENT_WIDTH - ${#line} - 5 ))
+          (( _pad_n < 0 )) && _pad_n=0
+          local _pad="${_DASH_POOL:0:_pad_n}"
+          _pad="${_pad//?/ }"
+          if [[ -n "$FLASH_MSG" ]]; then
+            _line "  ${BG_SELECT}${GREEN}${BOLD}✔ ${line} ${_pad}${RESET}"
+          else
+            _line "  ${BG_SELECT}${WHITE}${BOLD}▶ ${line} ${_pad}${RESET}"
+          fi
         else
           _line "  ${GREEN}  ${line}${RESET}"
         fi
