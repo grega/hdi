@@ -693,7 +693,7 @@ render_static() {
         if $RAW; then
           printf "\n--- %s ---\n" "$line"
         else
-          printf "\n%s  ── %s ──────────────────────────────%s\n" "$DIM" "$line" "$RESET"
+          _file_separator "$line"; printf "\n%s\n\n" "$_FS"
         fi
         ;;
       header)
@@ -741,7 +741,7 @@ render_full() {
       if $RAW; then
         printf "\n--- %s ---\n" "$(basename "$_rf_source")"
       else
-        printf "\n%s  ── %s ──────────────────────────────%s\n" "$DIM" "$(basename "$_rf_source")" "$RESET"
+        _file_separator "$(basename "$_rf_source")"; printf "\n%s\n\n" "$_FS"
       fi
     fi
     _rf_prev_source="$_rf_source"
@@ -871,16 +871,18 @@ _term_height() {
   echo 24
 }
 
-# Get terminal width reliably (stty from tty, fallback to tput, then 80)
+# Get terminal width reliably (COLUMNS, stty from tty, fallback to tput, then 80)
 _term_width() {
+  if (( ${COLUMNS:-0} > 0 )); then echo "$COLUMNS"; return; fi
   local w
   w=$(stty size < /dev/tty 2>/dev/null) && w="${w##* }" && (( w > 0 )) && { echo "$w"; return; }
   w=$(tput cols 2>/dev/null) && (( w > 0 )) && { echo "$w"; return; }
   echo 80
 }
 
-# Pre-computed dash string (200 chars covers any reasonable terminal width)
+# Pre-computed dash strings (200 chars covers any reasonable terminal width)
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+_DOUBLE_DASH_POOL="════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════"
 
 # Format a section header with trailing dashes (sets _SH, no subshell)
 # _RENDER_WIDTH defaults to _MAX_CONTENT_WIDTH; draw_picker caps it to terminal width
@@ -896,11 +898,23 @@ _section_header() {
   _SH="${BOLD}${CYAN}${prefix}${RESET}${DIM}${_DASH_POOL:0:n}${RESET}"
 }
 
+# Format a file separator with double-line dashes (sets _FS, no subshell)
+_FS=""
+_file_separator() {
+  (( _RENDER_WIDTH == 0 )) && _RENDER_WIDTH=$_MAX_CONTENT_WIDTH
+  local prefix="  ══ $1 "
+  local prefix_len=${#prefix}
+  local target=$(( _RENDER_WIDTH > prefix_len ? _RENDER_WIDTH : prefix_len + 4 ))
+  local n=$(( target - prefix_len ))
+  (( n < 2 )) && n=2
+  _FS="${DIM}  ══ ${RESET}${BOLD}${YELLOW}$1${RESET}${DIM} ${_DOUBLE_DASH_POOL:0:n}${RESET}"
+}
+
 # Screen lines per display entry type — sets _SL (no subshell)
 # Headers/subheaders take 2 lines (blank + text), others take 1
 _SL=1
 _sl() {
-  case "${LINE_TYPES[$1]}" in header|subheader|filesep) _SL=2 ;; *) _SL=1 ;; esac
+  case "${LINE_TYPES[$1]}" in filesep) _SL=3 ;; header|subheader) _SL=2 ;; *) _SL=1 ;; esac
 }
 
 # Adjust VIEWPORT_TOP so that the selected item is visible
@@ -920,7 +934,7 @@ adjust_viewport() {
   for (( _i = 0; _i < n_items; _i++ )); do
     _sl "$_i"; (( total += _SL ))
   done
-  case "${LINE_TYPES[0]}" in header|subheader) (( total -= 1 )) ;; esac
+  case "${LINE_TYPES[0]}" in header|subheader|filesep) (( total -= 1 )) ;; esac
   if (( total + chrome <= term_h )); then
     VIEWPORT_TOP=0
     return
@@ -955,7 +969,7 @@ adjust_viewport() {
     _sl "$idx"; lines=$_SL
     # First item at viewport_top has blank line suppressed in draw_picker
     if (( idx == VIEWPORT_TOP )); then
-      case "${LINE_TYPES[$idx]}" in header|subheader) (( lines -= 1 )) ;; esac
+      case "${LINE_TYPES[$idx]}" in header|subheader|filesep) (( lines -= 1 )) ;; esac
     fi
     if (( idx == selected )); then
       if (( row + lines > avail )); then break; fi
@@ -982,7 +996,7 @@ adjust_viewport() {
       # try again with 1 fewer line.  Also, reaching idx==0 removes the
       # "more above" indicator, freeing 1 more line of budget
       local saving=0
-      case "${LINE_TYPES[$idx]}" in header|subheader) saving=1 ;; esac
+      case "${LINE_TYPES[$idx]}" in header|subheader|filesep) saving=1 ;; esac
       (( idx == 0 )) && (( saving += 1 ))
       if (( saving > 0 && used + lines - saving <= budget )); then
         (( used += lines - saving ))
@@ -1082,8 +1096,8 @@ draw_picker() {
         if (( idx != VIEWPORT_TOP )); then
           _blank; (( rendered += 1 ))
         fi
-        _line "  ${DIM}── ${line} ──────────────────────────────${RESET}"
-        (( rendered += 1 ))
+        _file_separator "$line"; _line "$_FS"
+        _blank; (( rendered += 1 ))
         ;;
       header)
         if (( idx != VIEWPORT_TOP )); then

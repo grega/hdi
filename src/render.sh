@@ -9,7 +9,7 @@ render_static() {
         if $RAW; then
           printf "\n--- %s ---\n" "$line"
         else
-          printf "\n%s  ── %s ──────────────────────────────%s\n" "$DIM" "$line" "$RESET"
+          _file_separator "$line"; printf "\n%s\n\n" "$_FS"
         fi
         ;;
       header)
@@ -57,7 +57,7 @@ render_full() {
       if $RAW; then
         printf "\n--- %s ---\n" "$(basename "$_rf_source")"
       else
-        printf "\n%s  ── %s ──────────────────────────────%s\n" "$DIM" "$(basename "$_rf_source")" "$RESET"
+        _file_separator "$(basename "$_rf_source")"; printf "\n%s\n\n" "$_FS"
       fi
     fi
     _rf_prev_source="$_rf_source"
