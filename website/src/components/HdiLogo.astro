@@ -4,14 +4,26 @@
   role="img"
   aria-label="hdi">
  _____ _____ _____ 
-||h  |||d  |||i  ||
+||<span class="hero-logo-letter" data-key="h">h</span>  |||<span class="hero-logo-letter" data-key="d">d</span>  |||<span class="hero-logo-letter" data-key="i">i</span>  ||
 ||___|||___|||___||
 |/___\|/___\|/___\|</pre>
 
 <script>
-  // ── Logo key press animation ──────────────────────────────────────────
-  // Each key has 4 rows of exactly 6 chars.
-  // "pressed" shifts the key down one row: top becomes spaces, shadow gone.
+  // Animates the ASCII art logo so h, d, i keys visually depress when pressed
+  // (via keyboard or mouse click). Letters also highlight on hover.
+  //
+  // Each key is a 6-char-wide column rendered across 4 rows:
+  //   row 0 — top cap:    ' _____'
+  //   row 1 — letter:     '||h  |'
+  //   row 2 — bottom cap: '||___|'
+  //   row 3 — shadow:     '|/___\'
+  //
+  // The "pressed" state shifts the column down one row, replacing the top cap
+  // with spaces and dropping the shadow — giving the illusion of a key sinking.
+  //
+  // The static <pre> above is the no-JS fallback; render() rewrites it with
+  // interactive <span> elements once JS loads.
+
   // prettier-ignore
   const KEY_COLS: Record<string, { normal: string[]; pressed: string[] }> = {
     //               row0      row1      row2      row3
@@ -20,91 +32,137 @@
       pressed: ['      ', ' _____', '||h  |', '||___|' ],
     },
     d: {
+      // Leading '|' on pressed row1 closes h's right wall when h is up
       normal:  [' _____', '||d  |', '||___|', '|/___\\'],
-      pressed: ['      ', ' _____', '||d  |', '||___|' ],
+      pressed: ['      ', '|_____', '||d  |', '||___|' ],
     },
     i: {
+      // Same as d — leading '|' closes d's right wall when d is up
       normal:  [' _____', '||i  |', '||___|', '|/___\\'],
-      pressed: ['      ', ' _____', '||i  |', '||___|' ],
+      pressed: ['      ', '|_____', '||i  |', '||___|' ],
     },
   };
-  // Trailing char appended after the 3 key columns, one per row:
-  // Row 1 suffix disappears when "i" (last key) is pressed
-  const LOGO_ROW_SUFFIX = [" ", "|", "|", "|"];
-  const LOGO_ROW_SUFFIX_I_PRESSED = [" ", " ", "|", "|"];
 
-  const _pressedKeys = new Set<string>();
-  const _logoPre = document.getElementById("hero-logo-pre")!;
+  // Trailing character appended after the 3 key columns, one entry per row.
+  // Row 1's trailing '|' closes i's right wall — replaced with ' ' when i is pressed.
+  const ROW_SUFFIX = [" ", "|", "|", "|"];
 
-  function _renderLogo() {
+  // Maps each key to its left neighbour, used to detect adjacent pressed keys.
+  const KEY_LEFT: Record<string, string> = { d: "h", i: "d" };
+
+  const pressedKeys = new Set<string>();
+  let hoveredKey: string | null = null;
+  const logoPre = document.getElementById("hero-logo-pre")!;
+
+  function render() {
     const keys = ["h", "d", "i"] as const;
-    const rows = [0, 1, 2, 3].map(
-      (row) =>
+    const rows = [0, 1, 2, 3].map((row) => {
+      // When i is pressed its trailing wall disappears (key shifted down)
+      const suffix = row === 1 && pressedKeys.has("i") ? " " : ROW_SUFFIX[row];
+      return (
         keys
           .map((k) => {
-            const seg = (
-              _pressedKeys.has(k) ? KEY_COLS[k].pressed : KEY_COLS[k].normal
+            let seg = (
+              pressedKeys.has(k) ? KEY_COLS[k].pressed : KEY_COLS[k].normal
             )[row];
-            // Position 2 in each 6-char segment is the letter — wrap it in a clickable span
+            // On row 1, a pressed key's leading '|' closes the left neighbour's key wall.
+            // If the left neighbour is also pressed that wall is gone — drop the '|'.
+            if (
+              row === 1 &&
+              pressedKeys.has(k) &&
+              pressedKeys.has(KEY_LEFT[k])
+            ) {
+              seg = " " + seg.slice(1);
+            }
+            // Position 2 of each segment is always the letter — wrap it in a span
             return /[a-z]/.test(seg[2])
               ? `${seg.slice(0, 2)}<span class="hero-logo-letter" data-key="${k}">${seg[2]}</span>${seg.slice(3)}`
               : seg;
           })
-          .join("") +
-        (_pressedKeys.has("i") ? LOGO_ROW_SUFFIX_I_PRESSED : LOGO_ROW_SUFFIX)[
-          row
-        ],
-    );
-    _logoPre.innerHTML = rows.join("\n");
+          .join("") + suffix
+      );
+    });
+    logoPre.innerHTML = rows.join("\n");
+    applyClasses();
   }
 
-  function _pressLogoKey(key: string) {
-    if (_pressedKeys.has(key)) return;
-    _pressedKeys.add(key);
-    _renderLogo();
-  }
-  function _releaseLogoKey(key: string) {
-    if (!_pressedKeys.has(key)) return;
-    _pressedKeys.delete(key);
-    _renderLogo();
+  // Apply hover class without touching the DOM structure,
+  // so CSS transitions on color have existing elements to animate between.
+  function applyClasses() {
+    logoPre.querySelectorAll<HTMLElement>(".hero-logo-letter").forEach((el) => {
+      el.classList.toggle("hovered", el.dataset.key === hoveredKey);
+    });
   }
 
-  _logoPre.addEventListener("mousedown", (e) => {
-    // Measure one character's width using the pre's own font
-    const charWidth = _logoPre.getBoundingClientRect().width / 19; // logo is 19 chars wide
-    const rect = _logoPre.getBoundingClientRect();
-    const col = Math.floor((e.clientX - rect.left) / charWidth);
-    // h: cols 0-5, d: cols 6-11, i: cols 12-17 (col 18 is trailing '|', ignore)
-    const key = col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
-    if (key) _pressLogoKey(key);
+  // Maps a mouse event to a key by dividing the pre into 19 character columns.
+  // h: cols 0–5, d: cols 6–11, i: cols 12–17, col 18 is the trailing '|' (ignored).
+  function keyFromMouse(e: MouseEvent): string | null {
+    const rect = logoPre.getBoundingClientRect();
+    const col = Math.floor((e.clientX - rect.left) / (rect.width / 19));
+    return col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
+  }
+
+  // Mouse
+  logoPre.addEventListener("mousemove", (e) => {
+    const key = keyFromMouse(e);
+    if (key === hoveredKey) return;
+    hoveredKey = key;
+    applyClasses(); // class-only update — preserves spans so transition fires
+  });
+  logoPre.addEventListener("mouseleave", () => {
+    if (hoveredKey === null) return;
+    hoveredKey = null;
+    applyClasses();
+  });
+  logoPre.addEventListener("mousedown", (e) => {
+    const key = keyFromMouse(e);
+    if (key) {
+      pressedKeys.add(key);
+      render();
+    }
   });
   document.addEventListener("mouseup", () => {
-    [..._pressedKeys].forEach((k) => _releaseLogoKey(k));
-  });
-  document.addEventListener("keydown", (e) => {
-    if (
-      ["h", "d", "i"].includes(e.key) &&
-      !(e.target instanceof HTMLInputElement) &&
-      !(e.target instanceof HTMLTextAreaElement)
-    )
-      _pressLogoKey(e.key);
-  });
-  document.addEventListener("keyup", (e) => {
-    if (["h", "d", "i"].includes(e.key)) _releaseLogoKey(e.key);
+    if (pressedKeys.size === 0) return;
+    pressedKeys.clear();
+    render();
   });
 
-  _renderLogo();
+  // Keyboard — skip when focus is in a text input to avoid interfering with typing
+  const KEYS = new Set(["h", "d", "i"]);
+  const isTextField = (t: EventTarget | null) =>
+    t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement;
+  document.addEventListener("keydown", (e) => {
+    if (KEYS.has(e.key) && !isTextField(e.target)) {
+      pressedKeys.add(e.key);
+      render();
+    }
+  });
+  document.addEventListener("keyup", (e) => {
+    if (KEYS.has(e.key)) {
+      pressedKeys.delete(e.key);
+      render();
+    }
+  });
+
+  render();
 </script>
 
 <style>
   .hero-logo {
     font-size: 1.5rem;
     line-height: initial;
-    cursor: pointer;
+    cursor: default;
     user-select: none;
+    @media (scripting: enabled) {
+      cursor: pointer;
+    }
 
     .hero-logo-letter {
       color: var(--green);
+      transition: all 150ms linear;
+      &.hovered {
+        color: var(--mauve);
+      }
     }
   }
 </style>
