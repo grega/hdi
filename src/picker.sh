@@ -19,6 +19,21 @@ _term_height() {
   echo 24
 }
 
+# Pre-computed dash string (200 chars covers any reasonable terminal width)
+_DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+
+# Format a section header with trailing dashes (sets _SH, no subshell)
+# _MAX_CONTENT_WIDTH is computed during build_display_list
+_SH=""
+_section_header() {
+  local prefix=" ▸ $1 "
+  local prefix_len=${#prefix}
+  local target=$(( _MAX_CONTENT_WIDTH > prefix_len ? _MAX_CONTENT_WIDTH : prefix_len + 4 ))
+  local n=$(( target - prefix_len ))
+  (( n < 2 )) && n=2
+  _SH="${BOLD}${CYAN}${prefix}${RESET}${DIM}${_DASH_POOL:0:n}${RESET}"
+}
+
 # Screen lines per display entry type — sets _SL (no subshell)
 # Headers/subheaders take 2 lines (blank + text), others take 1
 _SL=1
@@ -158,7 +173,8 @@ draw_picker() {
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
   esac
   _line "$hdr"
-  local chrome=3
+  _blank
+  local chrome=4
 
   # Scroll-up indicator (only if meaningful content is above the viewport)
   local has_above=false
@@ -199,7 +215,7 @@ draw_picker() {
         if (( idx != VIEWPORT_TOP )); then
           _blank; (( rendered += 1 ))
         fi
-        _line "${BOLD}${CYAN} ▸ ${line}${RESET}"
+        _section_header "$line"; _line "$_SH"
         (( rendered += 1 ))
         ;;
       subheader)

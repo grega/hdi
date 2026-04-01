@@ -532,6 +532,7 @@ declare -a CMD_INDICES=()     # indices into DISPLAY_LINES that are commands
 declare -a SECTION_FIRST_CMD=()  # cursor indices (into CMD_INDICES) of first cmd per section
 
 build_display_list() {
+  _MAX_CONTENT_WIDTH=0
   for i in "${!SECTION_TITLES[@]}"; do
     local title="${SECTION_TITLES[$i]}"
     local body="${SECTION_BODIES[$i]}"
@@ -559,6 +560,7 @@ build_display_list() {
         DISPLAY_LINES+=("$tcmd")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$tcmd")
+        (( ${#tcmd} + 4 > _MAX_CONTENT_WIDTH )) && _MAX_CONTENT_WIDTH=$(( ${#tcmd} + 4 ))
       done <<< "$title_cmds"
     fi
 
@@ -620,6 +622,7 @@ build_display_list() {
         DISPLAY_LINES+=("$_entry")
         LINE_TYPES+=("command")
         LINE_CMDS+=("$_entry")
+        (( ${#_entry} + 4 > _MAX_CONTENT_WIDTH )) && _MAX_CONTENT_WIDTH=$(( ${#_entry} + 4 ))
       done <<< "$cmds"
     fi
 
@@ -647,7 +650,7 @@ render_static() {
         if $RAW; then
           printf "\n## %s\n" "$line"
         else
-          printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$line" "$RESET"
+          _section_header "$line"; printf "\n%s\n" "$_SH"
         fi
         ;;
       subheader)
@@ -698,7 +701,7 @@ render_full() {
       continue
     fi
 
-    printf "\n%s%s ▸ %s%s\n" "$BOLD" "$CYAN" "$title" "$RESET"
+    _section_header "$title"; printf "\n%s\n" "$_SH"
 
     local in_code=false
     local code_buf=""
@@ -804,6 +807,21 @@ _term_height() {
   h=$(stty size < /dev/tty 2>/dev/null) && h="${h%% *}" && (( h > 0 )) && { echo "$h"; return; }
   h=$(tput lines 2>/dev/null) && (( h > 0 )) && { echo "$h"; return; }
   echo 24
+}
+
+# Pre-computed dash string (200 chars covers any reasonable terminal width)
+_DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
+
+# Format a section header with trailing dashes (sets _SH, no subshell)
+# _MAX_CONTENT_WIDTH is computed during build_display_list
+_SH=""
+_section_header() {
+  local prefix=" ▸ $1 "
+  local prefix_len=${#prefix}
+  local target=$(( _MAX_CONTENT_WIDTH > prefix_len ? _MAX_CONTENT_WIDTH : prefix_len + 4 ))
+  local n=$(( target - prefix_len ))
+  (( n < 2 )) && n=2
+  _SH="${BOLD}${CYAN}${prefix}${RESET}${DIM}${_DASH_POOL:0:n}${RESET}"
 }
 
 # Screen lines per display entry type — sets _SL (no subshell)
@@ -945,7 +963,8 @@ draw_picker() {
     all)     hdr+="  ${DIM}[all]${RESET}" ;;
   esac
   _line "$hdr"
-  local chrome=3
+  _blank
+  local chrome=4
 
   # Scroll-up indicator (only if meaningful content is above the viewport)
   local has_above=false
@@ -986,7 +1005,7 @@ draw_picker() {
         if (( idx != VIEWPORT_TOP )); then
           _blank; (( rendered += 1 ))
         fi
-        _line "${BOLD}${CYAN} ▸ ${line}${RESET}"
+        _section_header "$line"; _line "$_SH"
         (( rendered += 1 ))
         ;;
       subheader)
@@ -1482,11 +1501,18 @@ _PLATFORM_DISPLAY=""
 build_platform_display() {
   _PLATFORM_DISPLAY=""
   if (( ${#PLATFORM_NAMES[@]} == 0 )); then return; fi
-  local parts=""
+  local parts="" prev_low=false
   for i in "${!PLATFORM_NAMES[@]}"; do
-    if [[ -n "$parts" ]]; then parts+=", "; fi
+    if [[ -n "$parts" ]]; then
+      if $prev_low; then parts+=" "; else parts+=", "; fi
+    fi
     parts+="${PLATFORM_NAMES[$i]}"
-    if [[ "${PLATFORM_CONFIDENCE[$i]}" == "low" ]]; then parts+="?"; fi
+    if [[ "${PLATFORM_CONFIDENCE[$i]}" == "low" ]]; then
+      parts+="?"
+      prev_low=true
+    else
+      prev_low=false
+    fi
   done
   _PLATFORM_DISPLAY="$parts"
 }
@@ -1817,7 +1843,7 @@ else
         ;;
       all)     printf "  %s[all]%s" "$DIM" "$RESET" ;;
     esac
-    printf "\n"
+    printf "\n\n"
   fi
 
   if $FULL; then
