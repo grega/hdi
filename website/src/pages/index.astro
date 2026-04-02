@@ -4,21 +4,14 @@ import Install from "../components/Install.astro";
 import DemoLatte from "../assets/demo-latte.gif";
 import DemoMocha from "../assets/demo-mocha.gif";
 import { VERSION } from "../data/data";
+import HdiLogo from "../components/HdiLogo.astro";
 ---
 
 <Layout title="Extract install/run/test commands from project READMEs">
   <main class="about stack" id="about">
     <section class="hero stack">
       <header class="hero-header stack">
-        <pre
-          class="hero-logo"
-          role="img"
-          aria-label="hdi">
- _____ _____ _____ 
-||<span class="hero-logo-letter ">h</span>  |||<span class="hero-logo-letter ">d</span>  |||<span class="hero-logo-letter ">i</span>  ||
-||___|||___|||___||
-|/___\|/___\|/___\|
-          </pre>
+        <HdiLogo />
         <a
           href="https://github.com/grega/hdi"
           class="gh-link"
@@ -173,16 +166,7 @@ $ hdi
 
   .hero-header {
     align-items: center;
-    --space: 0;
-  }
-
-  .hero-logo {
-    font-size: 1.5rem;
-    line-height: initial;
-
-    .hero-logo-letter {
-      color: var(--green);
-    }
+    --space: 1.5rem;
   }
 
   .hero h1 {
