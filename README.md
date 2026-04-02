@@ -130,7 +130,7 @@ $ hdi d
 
 Also looks for `README.rst` / `readme.rst`, though Markdown READMEs work best.
 
-No dependencies, just Bash. Works on macOS and Linux.
+Works on macOS and Linux (probably WSL2 also).
 
 ## Development
 
