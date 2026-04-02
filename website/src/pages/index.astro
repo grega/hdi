@@ -1,23 +1,17 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Install from "../components/Install.astro";
 import DemoLatte from "../assets/demo-latte.gif";
 import DemoMocha from "../assets/demo-mocha.gif";
 import { VERSION } from "../data/data";
+import HdiLogo from "../components/HdiLogo.astro";
 ---
 
 <Layout title="Extract install/run/test commands from project READMEs">
   <main class="about stack" id="about">
     <section class="hero stack">
       <header class="hero-header stack">
-        <pre
-          class="hero-logo"
-          role="img"
-          aria-label="hdi">
- _____ _____ _____ 
-||<span class="hero-logo-letter ">h</span>  |||<span class="hero-logo-letter ">d</span>  |||<span class="hero-logo-letter ">i</span>  ||
-||___|||___|||___||
-|/___\|/___\|/___\|
-          </pre>
+        <HdiLogo />
         <a
           href="https://github.com/grega/hdi"
           class="gh-link"
@@ -51,37 +45,9 @@ import { VERSION } from "../data/data";
       </div>
     </section>
 
-    <section class="install-section">
+    <section id="install-section">
       <h2>Install</h2>
-      <div class="install-methods">
-        <div class="install-method">
-          <h3>Homebrew</h3>
-          <div class="install-code">
-            <pre><code>brew install grega/tap/hdi</code></pre>
-            <button
-              class="copy-btn"
-              data-copy="brew install grega/tap/hdi"
-              title="Copy to clipboard"
-            >
-              Copy
-            </button>
-          </div>
-        </div>
-        <div class="install-method">
-          <h3>Manual</h3>
-          <div class="install-code">
-            <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
-  -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
-            <button
-              class="copy-btn"
-              data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
-              title="Copy to clipboard"
-            >
-              Copy
-            </button>
-          </div>
-        </div>
-      </div>
+      <Install />
       <p class="install-note">
         Works on macOS and Linux (probably WSL2 also).
       </p>
@@ -146,26 +112,6 @@ $ hdi
       </p>
     </section>
   </main>
-
-  <script>
-    // Copy buttons
-    document.querySelectorAll(".copy-btn").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const htmlBtn = btn as HTMLElement;
-        navigator.clipboard
-          .writeText(htmlBtn.dataset.copy || "")
-          .then(function () {
-            var original = htmlBtn.textContent;
-            htmlBtn.textContent = "Copied!";
-            htmlBtn.classList.add("copied");
-            setTimeout(function () {
-              htmlBtn.textContent = original;
-              htmlBtn.classList.remove("copied");
-            }, 1500);
-          });
-      });
-    });
-  </script>
 </Layout>
 
 <style>
@@ -183,7 +129,7 @@ $ hdi
     h2 {
       font-size: 1.25rem;
       color: var(--sapphire);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
     h2::before {
       content: "▸ ";
@@ -203,14 +149,6 @@ $ hdi
       }
     }
   }
-  /* 
-  .about section p + p {
-    margin-top: 1rem;
-  } */
-
-  /* .about section + section {
-    margin-top: 3rem;
-  } */
 
   .about .links-section {
     margin-top: 1.5rem;
@@ -228,16 +166,7 @@ $ hdi
 
   .hero-header {
     align-items: center;
-    --space: 0;
-  }
-
-  .hero-logo {
-    font-size: 1.5rem;
-    line-height: initial;
-
-    .hero-logo-letter {
-      color: var(--green);
-    }
+    --space: 1.5rem;
   }
 
   .hero h1 {
@@ -294,73 +223,6 @@ $ hdi
   }
 
   /* ── Install ─────────────────────────────────────────────────────── */
-
-  .install-methods {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .install-method {
-    background: var(--mantle);
-    border: 0.0625rem solid var(--surface1);
-    border-radius: 0.375rem;
-    padding: 1rem;
-    min-width: 0;
-  }
-
-  .install-method h3 {
-    font-size: 0.8125rem;
-    color: var(--subtext0);
-    margin-bottom: 0.625rem;
-    font-weight: 600;
-  }
-
-  .install-code {
-    position: relative;
-  }
-
-  .install-method pre {
-    border: 0.0625rem solid var(--surface0);
-    background: var(--base);
-    padding: 0.75rem;
-    padding-right: 4rem;
-    border-radius: 0.25rem;
-    overflow-x: auto;
-  }
-
-  .copy-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 0.5rem;
-    /* background: var(--surface0);
-  border: 0.0625rem solid var(--surface1);
-  color: var(--overlay0);
-  font-family: var(--font-mono);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition:
-    color 0.15s,
-    border-color 0.15s; */
-  }
-
-  /* .copy-btn:hover {
-  color: var(--text);
-  border-color: var(--overlay0);
-} */
-
-  /* .copy-btn.copied {
-  color: var(--green);
-  border-color: var(--green);
-} */
-
-  .install-method code {
-    color: var(--green);
-    /* font-size: 0.8125rem; */
-    font-family: var(--font-mono);
-  }
 
   .install-note {
     margin-top: 0.75rem;
