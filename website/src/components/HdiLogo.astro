@@ -90,7 +90,9 @@
   // so CSS transitions on color have existing elements to animate between.
   function applyClasses() {
     logoPre.querySelectorAll<HTMLElement>(".hero-logo-letter").forEach((el) => {
-      el.classList.toggle("hovered", el.dataset.key === hoveredKey);
+      const key = el.dataset.key!;
+      el.classList.toggle("hovered", key === hoveredKey);
+      el.classList.toggle("pressed", pressedKeys.has(key));
     });
   }
 
@@ -102,12 +104,24 @@
     return col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
   }
 
+  function keyFromTouch(touch: Touch): string | null {
+    const rect = logoPre.getBoundingClientRect();
+    const col = Math.floor((touch.clientX - rect.left) / (rect.width / 19));
+    return col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
+  }
+
   // Mouse
   logoPre.addEventListener("mousemove", (e) => {
     const key = keyFromMouse(e);
-    if (key === hoveredKey) return;
-    hoveredKey = key;
-    applyClasses(); // class-only update — preserves spans so transition fires
+    if (key !== hoveredKey) {
+      hoveredKey = key;
+      applyClasses();
+    }
+    if (e.buttons === 1) {
+      pressedKeys.clear();
+      if (key) pressedKeys.add(key);
+      render();
+    }
   });
   logoPre.addEventListener("mouseleave", () => {
     if (hoveredKey === null) return;
@@ -123,6 +137,43 @@
   });
   document.addEventListener("mouseup", () => {
     if (pressedKeys.size === 0) return;
+    pressedKeys.clear();
+    render();
+  });
+
+  // Touch
+  logoPre.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      pressedKeys.clear();
+      for (const touch of e.touches) {
+        const key = keyFromTouch(touch);
+        if (key) pressedKeys.add(key);
+      }
+      render();
+    },
+    { passive: false },
+  );
+  logoPre.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault();
+      pressedKeys.clear();
+      for (const touch of e.touches) {
+        const key = keyFromTouch(touch);
+        if (key) pressedKeys.add(key);
+      }
+      render();
+    },
+    { passive: false },
+  );
+  document.addEventListener("touchend", () => {
+    if (pressedKeys.size === 0) return;
+    pressedKeys.clear();
+    render();
+  });
+  document.addEventListener("touchcancel", () => {
     pressedKeys.clear();
     render();
   });
@@ -161,6 +212,9 @@
       color: var(--green);
       transition: all 150ms linear;
       &.hovered {
+        color: var(--mauve);
+      }
+      &.pressed {
         color: var(--mauve);
       }
     }
