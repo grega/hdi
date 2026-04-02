@@ -96,23 +96,33 @@
     });
   }
 
-  // Maps a mouse event to a key by dividing the pre into 19 character columns.
+  // Maps a clientX coordinate to a key by dividing the pre into 19 character columns.
   // h: cols 0–5, d: cols 6–11, i: cols 12–17, col 18 is the trailing '|' (ignored).
-  function keyFromMouse(e: MouseEvent): string | null {
+  function keyFromPoint(clientX: number): string | null {
     const rect = logoPre.getBoundingClientRect();
-    const col = Math.floor((e.clientX - rect.left) / (rect.width / 19));
+    const col = Math.floor((clientX - rect.left) / (rect.width / 19));
     return col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
   }
 
-  function keyFromTouch(touch: Touch): string | null {
-    const rect = logoPre.getBoundingClientRect();
-    const col = Math.floor((touch.clientX - rect.left) / (rect.width / 19));
-    return col < 6 ? "h" : col < 12 ? "d" : col < 18 ? "i" : null;
+  function releaseAll() {
+    if (pressedKeys.size === 0) return;
+    pressedKeys.clear();
+    render();
+  }
+
+  function pressTouches(e: TouchEvent) {
+    e.preventDefault();
+    pressedKeys.clear();
+    for (const touch of e.touches) {
+      const key = keyFromPoint(touch.clientX);
+      if (key) pressedKeys.add(key);
+    }
+    render();
   }
 
   // Mouse
   logoPre.addEventListener("mousemove", (e) => {
-    const key = keyFromMouse(e);
+    const key = keyFromPoint(e.clientX);
     if (key !== hoveredKey) {
       hoveredKey = key;
       applyClasses();
@@ -129,54 +139,19 @@
     applyClasses();
   });
   logoPre.addEventListener("mousedown", (e) => {
-    const key = keyFromMouse(e);
+    const key = keyFromPoint(e.clientX);
     if (key) {
       pressedKeys.add(key);
       render();
     }
   });
-  document.addEventListener("mouseup", () => {
-    if (pressedKeys.size === 0) return;
-    pressedKeys.clear();
-    render();
-  });
+  document.addEventListener("mouseup", releaseAll);
 
   // Touch
-  logoPre.addEventListener(
-    "touchstart",
-    (e) => {
-      e.preventDefault();
-      pressedKeys.clear();
-      for (const touch of e.touches) {
-        const key = keyFromTouch(touch);
-        if (key) pressedKeys.add(key);
-      }
-      render();
-    },
-    { passive: false },
-  );
-  logoPre.addEventListener(
-    "touchmove",
-    (e) => {
-      e.preventDefault();
-      pressedKeys.clear();
-      for (const touch of e.touches) {
-        const key = keyFromTouch(touch);
-        if (key) pressedKeys.add(key);
-      }
-      render();
-    },
-    { passive: false },
-  );
-  document.addEventListener("touchend", () => {
-    if (pressedKeys.size === 0) return;
-    pressedKeys.clear();
-    render();
-  });
-  document.addEventListener("touchcancel", () => {
-    pressedKeys.clear();
-    render();
-  });
+  logoPre.addEventListener("touchstart", pressTouches, { passive: false });
+  logoPre.addEventListener("touchmove", pressTouches, { passive: false });
+  document.addEventListener("touchend", releaseAll);
+  document.addEventListener("touchcancel", releaseAll);
 
   // Keyboard — skip when focus is in a text input to avoid interfering with typing
   const KEYS = new Set(["h", "d", "i"]);
@@ -211,9 +186,7 @@
     .hero-logo-letter {
       color: var(--green);
       transition: all 150ms linear;
-      &.hovered {
-        color: var(--mauve);
-      }
+      &.hovered,
       &.pressed {
         color: var(--mauve);
       }
