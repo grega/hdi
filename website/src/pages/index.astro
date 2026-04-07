@@ -5,6 +5,7 @@ import DemoLatte from "../assets/demo-latte.gif";
 import DemoMocha from "../assets/demo-mocha.gif";
 import { VERSION } from "../data/data";
 import HdiLogo from "../components/HdiLogo.astro";
+import { Content as CommandTable } from "../data/commands.md";
 ---
 
 <Layout title="Extract install/run/test commands from project READMEs">
@@ -90,43 +91,9 @@ import HdiLogo from "../components/HdiLogo.astro";
     <section class="usage-section">
       <h2>Usage</h2>
 
-      <!-- prettier-ignore -->
-      <table>
-        <thead>
-          <tr>
-            <th>Command</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>hdi</code></td>
-            <td>Interactive picker — shows all sections (default)</td>
-          </tr>
-          <tr>
-            <td><code>hdi install</code></td>
-            <td>Just install/setup commands (aliases: <code>setup</code>, <code>i</code>)</td>
-          </tr>
-          <tr>
-            <td><code>hdi run</code></td>
-            <td>Just run/start commands (aliases: <code>start</code>, <code>r</code>)</td>
-          </tr>
-          <tr>
-            <td><code>hdi test</code></td>
-            <td>Just test commands (alias: <code>t</code>)</td>
-          </tr>
-          <tr>
-            <td><code>hdi deploy</code></td>
-            <td>Just deploy/release commands and platform detection (alias: <code>d</code>)</td>
-          </tr>
-          <tr>
-            <td><code>hdi all</code></td>
-            <td>All sections (aliases: <code>a</code>)</td>
-          </tr>
-        </tbody>
-      </table>
-
-
+      <div class="command-table">
+        <CommandTable />
+      </div>
 
       <p class="usage-docs-link">
         <a
@@ -245,8 +212,9 @@ import HdiLogo from "../components/HdiLogo.astro";
 
   /* ── Usage ─────────────────────────────────────────────────────── */
 
-  td:first-child,
-  th:first-child {
+  /* :global needed to escape scoped styles and apply to rendered markdown */
+  .command-table :global(td:first-child),
+  .command-table :global(th:first-child) {
     min-width: min(20ch, 30vw);
   }
 
