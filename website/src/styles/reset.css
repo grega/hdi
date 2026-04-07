@@ -54,7 +54,6 @@ p {
 a:not([class]) {
   text-decoration-skip-ink: auto;
   color: currentColor;
-  color: var(--sapphire);
 }
 /* Make images easier to work with */
 img,

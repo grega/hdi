@@ -23,17 +23,23 @@ body {
   flex-direction: column;
 }
 
-/* h1,
+h1,
 h2,
 h3,
 h4 {
   text-wrap: balance;
-} */
+}
 
-/* p {
+p {
   text-wrap: pretty;
-} */
+}
 
+/* Default link style */
+a:not([class]) {
+  color: var(--sapphire);
+}
+
+/* Links with a class (typically customised) */
 a {
   color: currentColor;
 }
