@@ -23,17 +23,23 @@ body {
   flex-direction: column;
 }
 
-/* h1,
+h1,
 h2,
 h3,
 h4 {
   text-wrap: balance;
-} */
+}
 
-/* p {
+p {
   text-wrap: pretty;
-} */
+}
 
+/* Default link style */
+a:not([class]) {
+  color: var(--sapphire);
+}
+
+/* Links with a class (typically customised) */
 a {
   color: currentColor;
 }
@@ -110,4 +116,76 @@ button,
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* ── Table ─────────────────────────────────────────────────────── */
+
+table {
+  --stroke: 1px solid var(--surface1);
+  border: var(--stroke);
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  text-align: left;
+  font-weight: bold;
+}
+
+thead th {
+  padding-block: 0.75rem;
+}
+
+td,
+th {
+  padding: 0.75rem;
+}
+
+th:not(:only-of-type) {
+  border-block-end: var(--stroke);
+}
+
+th:only-of-type {
+  border-inline-end: var(--stroke);
+}
+
+:is(th, td) ~ :is(th, td) {
+  border-inline-start: var(--stroke);
+}
+
+tr + tr :is(th, td) {
+  border-block-start: var(--stroke);
+}
+
+/* ── Code ─────────────────────────────────────────────────────── */
+
+:is(code, kbd, samp) {
+  background: var(--crust);
+  border-radius: 2px;
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--surface0);
+  }
+
+  font-family: var(--font-mono);
+  padding: 0.2em 0.2em 0.05em 0.2em;
+  hyphens: none;
+  tab-size: 2;
+  text-align: left;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  box-decoration-break: clone;
+}
+
+pre:has(code) {
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+pre code {
+  border: none;
+  background: none;
+  padding: 0;
 }
