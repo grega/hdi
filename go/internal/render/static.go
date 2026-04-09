@@ -34,44 +34,43 @@ func DefaultStyles(renderer *lipgloss.Renderer) Styles {
 	}
 }
 
-// dashPool is a pre-computed string of dash characters for section headers.
-var dashPool = strings.Repeat("─", 200)
-var doubleDashPool = strings.Repeat("═", 200)
-
 // sectionHeader formats a section header with trailing dashes.
 func sectionHeader(title string, width int, styles Styles) string {
 	prefix := " ▸ " + title + " "
-	prefixLen := len(prefix)
-	target := width
-	if target < prefixLen+4 {
-		target = prefixLen + 4
-	}
-	n := target - prefixLen
+	// Use rune count for display width (▸ is 1 column)
+	prefixCols := runeWidth(prefix)
+	n := width - prefixCols
 	if n < 2 {
 		n = 2
 	}
-	if n > len(dashPool) {
-		n = len(dashPool)
+	if n > 200 {
+		n = 200
 	}
-	return styles.SectionName.Render(prefix) + styles.Dim.Render(dashPool[:n])
+	return styles.SectionName.Render(prefix) + styles.Dim.Render(strings.Repeat("─", n))
 }
 
 // fileSeparator formats a file separator with double-line dashes.
 func fileSeparator(name string, width int, styles Styles) string {
 	prefix := "  ══ " + name + " "
-	prefixLen := len(prefix)
-	target := width
-	if target < prefixLen+4 {
-		target = prefixLen + 4
-	}
-	n := target - prefixLen
+	prefixCols := runeWidth(prefix)
+	n := width - prefixCols
 	if n < 2 {
 		n = 2
 	}
-	if n > len(doubleDashPool) {
-		n = len(doubleDashPool)
+	if n > 200 {
+		n = 200
 	}
-	return styles.Dim.Render("  ══ ") + styles.FileSepName.Render(name) + styles.Dim.Render(" "+doubleDashPool[:n])
+	return styles.Dim.Render("  ══ ") + styles.FileSepName.Render(name) + styles.Dim.Render(" "+strings.Repeat("═", n))
+}
+
+// runeWidth returns the display column width of a string,
+// assuming all runes are 1 column wide (true for the ASCII + box-drawing chars we use).
+func runeWidth(s string) int {
+	n := 0
+	for range s {
+		n++
+	}
+	return n
 }
 
 // Static renders the display list in non-interactive mode with colors.

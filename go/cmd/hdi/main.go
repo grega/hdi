@@ -39,9 +39,13 @@ Usage:
 
 Interactive controls:
   ↑/↓  k/j           Navigate commands
-  Tab/S-Tab          Jump between sections
+  Tab                Cycle category (all/install/run/test/deploy)
+  /                  Filter/search commands
   Enter              Execute the highlighted command
   c                  Copy highlighted command to clipboard
+  n                  Show tool dependencies
+  f                  Show full prose view
+  ?                  Toggle help
   q / Esc / Ctrl+C   Quit
 `
 
@@ -210,12 +214,12 @@ func run(cfg config.Config) error {
 
 	// Needs mode
 	if cfg.Mode == config.ModeNeeds {
-		return runNeeds(dl, projectName)
+		return runNeeds(dl, sections, projectName, cfg)
 	}
 
 	// Interactive mode
 	if cfg.Interactive == config.InteractiveYes && !cfg.Full {
-		return runInteractive(cfg, dl, projectName, platformDisplay)
+		return runInteractive(cfg, sections, projectName, platformDisplay)
 	}
 
 	// Non-interactive rendering
@@ -292,7 +296,25 @@ func runJSON(cfg config.Config) error {
 	return jsonout.Render(os.Stdout, readmePath)
 }
 
-func runNeeds(dl *display.DisplayList, projectName string) error {
+func runNeeds(dl *display.DisplayList, sections []markdown.Section, projectName string, cfg config.Config) error {
+	// If interactive, use the new TUI with needs view
+	if cfg.Interactive == config.InteractiveYes {
+		cs := tui.BuildCommandSet(sections)
+		if len(cs.All) == 0 {
+			return fmt.Errorf("hdi: no tool references found in commands\nTry: hdi all --full")
+		}
+		app := tui.NewApp(tui.AppConfig{
+			CommandSet:  cs,
+			Sections:    sections,
+			ProjectName: projectName,
+			Mode:        cfg.Mode,
+			StartView:   tui.ViewNeeds,
+		})
+		p := tea.NewProgram(app)
+		_, err := p.Run()
+		return err
+	}
+
 	tools := needs.CollectTools(dl)
 	if len(tools) == 0 {
 		return fmt.Errorf("hdi: no tool references found in commands\nTry: hdi all --full")
@@ -304,8 +326,10 @@ func runNeeds(dl *display.DisplayList, projectName string) error {
 	return nil
 }
 
-func runInteractive(cfg config.Config, dl *display.DisplayList, projectName string, platformDisplay string) error {
-	if len(dl.CmdIndices) == 0 {
+func runInteractive(cfg config.Config, sections []markdown.Section, projectName string, platformDisplay string) error {
+	cs := tui.BuildCommandSet(sections)
+
+	if len(cs.All) == 0 {
 		renderer := lipgloss.DefaultRenderer()
 		styles := render.DefaultStyles(renderer)
 		if platformDisplay != "" {
@@ -318,8 +342,14 @@ func runInteractive(cfg config.Config, dl *display.DisplayList, projectName stri
 		return fmt.Errorf("")
 	}
 
-	model := tui.New(dl, projectName, cfg.Mode, platformDisplay)
-	p := tea.NewProgram(model)
+	app := tui.NewApp(tui.AppConfig{
+		CommandSet:      cs,
+		Sections:        sections,
+		ProjectName:     projectName,
+		Mode:            cfg.Mode,
+		PlatformDisplay: platformDisplay,
+	})
+	p := tea.NewProgram(app)
 	_, err := p.Run()
 	return err
 }
