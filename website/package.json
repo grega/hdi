@@ -19,7 +19,8 @@
     "test:debug": "playwright test --debug"
   },
   "dependencies": {
-    "astro": "^6.1.1"
+    "astro": "^6.1.1",
+    "gsap": "^3.14.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

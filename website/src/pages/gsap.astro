@@ -1,0 +1,340 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="gsap">
+  <main>
+    <section class="hero">
+      <h1>hdi features</h1>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptate nisi
+        fuga explicabo sed reiciendis labore voluptatum, sint iste expedita at
+        atque eum sit, asperiores aliquid illum consectetur doloribus enim
+        ipsam!
+      </p>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptate nisi
+        fuga explicabo sed reiciendis labore voluptatum, sint iste expedita at
+        atque eum sit, asperiores aliquid illum consectetur doloribus enim
+        ipsam!
+      </p>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptate nisi
+        fuga explicabo sed reiciendis labore voluptatum, sint iste expedita at
+        atque eum sit, asperiores aliquid illum consectetur doloribus enim
+        ipsam!
+      </p>
+    </section>
+    <section class="feature">
+      <div class="content">
+        <h2>hdi... install</h2>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi error
+          expedita consectetur, optio, quos, dolorem rem reiciendis temporibus
+          alias voluptatum quaerat amet ea voluptatibus. Quod at magni ex
+          repellendus numquam!
+        </p>
+      </div>
+      <div class="terminal">
+        <div class="demo__topbar">
+          <span class="demo__topbar-x"></span>
+          <span class="demo__topbar--"></span>
+          <span class="demo__topbar-^"></span>
+        </div>
+        <pre
+          class="split">
+>hdi i
+[hdi] sinatra-app  [install]
+
+ ▸ Prerequisites ───────
+  ▶ brew install ruby
+
+
+ ▸ Installation ────────
+    bundle install
+    cp .env.example .env         
+
+  </pre>
+      </div>
+    </section>
+
+    <section class="feature">
+      <div class="terminal">
+        <div class="demo__topbar">
+          <span class="demo__topbar-x"></span>
+          <span class="demo__topbar--"></span>
+          <span class="demo__topbar-^"></span>
+        </div>
+        <pre
+          class="split">
+ >hdi r
+[hdi] sinatra-app  [run]
+
+ ▸ Running ────────────────
+  ▶ bundle exec ruby app.rb        
+        </pre>
+      </div>
+      <div class="content">
+        <h2>hdi... run</h2>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi error
+          expedita consectetur, optio, quos, dolorem rem reiciendis temporibus
+          alias voluptatum quaerat amet ea voluptatibus. Quod at magni ex
+          repellendus numquam!
+        </p>
+      </div>
+    </section>
+    <section class="feature">
+      <div class="content">
+        <h2>hdi... test</h2>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi error
+          expedita consectetur, optio, quos, dolorem rem reiciendis temporibus
+          alias voluptatum quaerat amet ea voluptatibus. Quod at magni ex
+          repellendus numquam!
+        </p>
+      </div>
+      <div class="terminal">
+        <div class="demo__topbar">
+          <span class="demo__topbar-x"></span>
+          <span class="demo__topbar--"></span>
+          <span class="demo__topbar-^"></span>
+        </div>
+        <pre
+          class="split">
+ >hdi t
+[hdi] sinatra-app  [test]
+
+ ▸ Testing ──────────────
+  ▶ bundle exec rake test      
+        </pre>
+      </div>
+    </section>
+    <section class="feature">
+      <div class="terminal">
+        <div class="demo__topbar">
+          <span class="demo__topbar-x"></span>
+          <span class="demo__topbar--"></span>
+          <span class="demo__topbar-^"></span>
+        </div>
+        <pre
+          class="split">
+ >hdi t
+[hdi] sinatra-app  [test]
+
+ ▸ Testing ──────────────
+  ▶ bundle exec rake test      
+        </pre>
+      </div>
+      <div class="content">
+        <h2>hdi... deploy</h2>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi error
+          expedita consectetur, optio, quos, dolorem rem reiciendis temporibus
+          alias voluptatum quaerat amet ea voluptatibus. Quod at magni ex
+          repellendus numquam!
+        </p>
+      </div>
+    </section>
+    <section class="hero">
+      <h1>hdi features</h1>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptate nisi
+        fuga explicabo sed reiciendis labore voluptatum, sint iste expedita at
+        atque eum sit, asperiores aliquid illum consectetur doloribus enim
+        ipsam!
+      </p>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptate nisi
+        fuga explicabo sed reiciendis labore voluptatum, sint iste expedita at
+        atque eum sit, asperiores aliquid illum consectetur doloribus enim
+        ipsam!
+      </p>
+      <p>
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptate nisi
+        fuga explicabo sed reiciendis labore voluptatum, sint iste expedita at
+        atque eum sit, asperiores aliquid illum consectetur doloribus enim
+        ipsam!
+      </p>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  main {
+    background: var(--base);
+    min-height: 300vh;
+    /* padding: 2rem; */
+  }
+  .terminal {
+    /* position: fixed; */
+    /* width: 25%; */
+    min-height: 400px;
+    /* aspect-ratio: 3/2; */
+    background-color: var(--text);
+    padding: 1rem;
+    border-radius: 1rem;
+    opacity: 0;
+    filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.2));
+
+    pre {
+      color: var(--base);
+      font-size: 1rem;
+    }
+  }
+  .demo__topbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-block-end: 1rem;
+
+    span {
+      display: block;
+      background-color: var(--base);
+      content: "";
+      width: 0.75rem;
+      aspect-ratio: 1/1;
+      border-radius: 1000px;
+      /* aspect-ratio: 1/1; */
+
+      &:nth-of-type(1) {
+        background-color: #d20f39;
+      }
+      &:nth-of-type(2) {
+        background-color: #df8e1d;
+      }
+      &:nth-of-type(3) {
+        background-color: #40a02b;
+      }
+    }
+  }
+
+  .hero {
+    /* border: red 1px solid; */
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    min-height: 50dvh;
+    padding: 2rem;
+
+    p {
+      max-inline-size: 70ch;
+    }
+  }
+
+  .feature {
+    /* border: red 1px solid; */
+
+    min-height: 100dvh;
+    padding: 2rem;
+    overflow: visible;
+    perspective: 2000px;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+    align-items: center;
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { SplitText } from "gsap/SplitText";
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(SplitText);
+
+  const sections = gsap.utils.toArray<HTMLElement>(".feature");
+
+  sections.forEach((section, i) => {
+    const terminal = section.querySelector(".terminal");
+    gsap.set(terminal, { rotateY: i % 2 === 0 ? -15 : 15 });
+  });
+  gsap.set(sections[0].querySelector(".terminal"), { opacity: 1 });
+
+  sections.forEach((section, i) => {
+    const text = section.querySelector<HTMLElement>(".content");
+    const terminal = section.querySelector<HTMLElement>(".terminal");
+    const demoText = terminal.querySelector<HTMLElement>("pre");
+    const splitEl = terminal!.querySelector<HTMLElement>(".split")!;
+
+    const isLast = i === sections.length - 1;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "clamp(top top)",
+        end: "clamp(bottom top)",
+        scrub: true,
+        pin: true,
+        pinSpacing: isLast,
+        // markers: true,
+      },
+    });
+
+    const split = SplitText.create(splitEl, {
+      type: "lines",
+      mask: "lines",
+      reduceWhiteSpace: false,
+    });
+
+    tl.from(
+      split.lines,
+      {
+        y: 100,
+        autoAlpha: 0,
+        duration: 5,
+        stagger: { each: 1, from: "start" },
+      },
+      0,
+    );
+
+    tl.to({}, { duration: 20 }, "<");
+
+    if (!isLast) {
+      const gap = parseFloat(getComputedStyle(section).gap);
+      const xDistance =
+        terminal === section.firstElementChild
+          ? terminal.offsetWidth + gap
+          : -(terminal.offsetWidth + gap);
+      const nextDemo = sections[i + 1]?.querySelector<HTMLElement>(".terminal");
+      const rotateDirection = i % 2 === 0 ? 15 : -15;
+      tl.to(terminal, {
+        x: xDistance,
+        rotateY: rotateDirection,
+        duration: 20,
+      });
+      tl.fromTo(
+        text,
+        { opacity: 1 },
+        { opacity: 0, duration: 10, overwrite: true },
+        "<",
+      );
+      tl.fromTo(
+        demoText,
+        { opacity: 1 },
+        { opacity: 0, duration: 10, overwrite: true },
+        "<",
+      );
+      if (nextDemo) {
+        tl.set(nextDemo, { opacity: 1 });
+        tl.set(terminal, { opacity: 0 }, "<");
+      }
+    }
+
+    if (i === 0) {
+      gsap.set(text, { opacity: 1 });
+    } else {
+      tl.fromTo(text, { opacity: 0 }, { opacity: 1, duration: 5 }, 0);
+    }
+  });
+</script>
