@@ -895,6 +895,59 @@ _term_width() {
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
 _DOUBLE_DASH_POOL="════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════"
 
+# Truncate an ANSI-formatted string to max visible columns, appending …
+# when cut. ANSI escape codes (CSI SGR) don't count toward width, and codes
+# that appear after the cut are preserved so that RESET / background-reset
+# still fire on the output line.
+# Sets _TRUNC.
+_TRUNC=""
+_truncate_visible() {
+  local max=$1 str=$2
+
+  # Fast path: no escape sequences
+  if [[ "$str" != *$'\x1b'* ]]; then
+    if (( ${#str} <= max )); then
+      _TRUNC="$str"
+    elif (( max < 1 )); then
+      _TRUNC=""
+    else
+      _TRUNC="${str:0:max - 1}…"
+    fi
+    return
+  fi
+
+  # Strip ANSI to get visible length (single parameter expansion, no subshell)
+  local plain="${str//$'\x1b'\[[0-9;]*[a-zA-Z]/}"
+  if (( ${#plain} <= max )); then
+    _TRUNC="$str"
+    return
+  fi
+  # Truncation needed: keep first (max-1) visible chars with their interleaved
+  # escapes, append …, then append any escapes after the cut so that RESET
+  # (or other terminating codes) still take effect.
+  local prefix="" trailing="" keep=$((max - 1))
+  local visible=0 i=0 in_esc=0 ch
+  local len=${#str}
+  while (( i < len )); do
+    ch="${str:$i:1}"
+    if (( in_esc )); then
+      if (( visible < keep )); then prefix+="$ch"
+      else trailing+="$ch"; fi
+      [[ "$ch" == [a-zA-Z] ]] && in_esc=0
+    elif [[ "$ch" == $'\x1b' ]]; then
+      in_esc=1
+      if (( visible < keep )); then prefix+="$ch"
+      else trailing+="$ch"; fi
+    elif (( visible < keep )); then
+      prefix+="$ch"
+      ((visible++))
+    fi
+    ((i++))
+  done
+
+  _TRUNC="${prefix}…${trailing}"
+}
+
 # Format a section header with trailing dashes (sets _SH, no subshell)
 # _RENDER_WIDTH defaults to _MAX_CONTENT_WIDTH; draw_picker caps it to terminal width
 _SH=""
@@ -1043,8 +1096,17 @@ draw_picker() {
   local n_items=${#DISPLAY_LINES[@]}
   local buf=""
 
-  # Helper: append a line to buf with end-of-line clear
-  _line() { buf+="$1${EL}"$'\n'; (( count += 1 )); }
+  # Helper: append a line to buf with end-of-line clear.
+  # Truncates to term_w visible cols so long lines don't wrap — wrapping would
+  # make physical rows exceed PICKER_LINES and break cursor-up redraws.
+  _line() {
+    local _s="$1"
+    if (( ${#_s} > term_w )); then
+      _truncate_visible "$term_w" "$_s"
+      _s="$_TRUNC"
+    fi
+    buf+="${_s}${EL}"$'\n'; (( count += 1 ))
+  }
   # Helper: append a blank line (just clear + newline)
   _blank() { buf+="${EL}"$'\n'; (( count += 1 )); }
 

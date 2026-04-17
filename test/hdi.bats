@@ -935,6 +935,33 @@ else:
   [[ "$output" != *"f files"* ]]
 }
 
+# ── Interactive: line width ──────────────────────────────────────────────────
+
+@test "interactive: long command lines are truncated to terminal width" {
+  # Regression: lines wider than the terminal wrap, making physical rows
+  # exceed PICKER_LINES. Cursor-up on redraw then leaves the old header
+  # visible, leaking a "[hdi] project" line into scrollback per keypress.
+  _HDI_BENCH_PICKER=1 LINES=24 COLUMNS=80 run "$HDI" "$FIXTURES/long-command"
+  [ "$status" -eq 0 ]
+
+  # Each rendered line's visible width (ANSI stripped) must be <= COLUMNS.
+  # The dokku line in the fixture is ~200 chars — far wider than 80.
+  local max=0 len line stripped
+  while IFS= read -r line; do
+    # Strip CSI SGR escape sequences
+    stripped=$(printf '%s' "$line" | sed $'s/\x1b\\[[0-9;]*[a-zA-Z]//g')
+    # Also strip erase-to-end-of-line (the ${EL} marker appended by _line)
+    stripped=$(printf '%s' "$stripped" | sed $'s/\x1b\\[K//g')
+    len=$(printf '%s' "$stripped" | wc -m | tr -d ' ')
+    (( len > max )) && max=$len
+  done <<< "$output"
+
+  (( max <= 80 )) || { echo "max line width was $max, expected <= 80"; return 1; }
+
+  # The long command should be visibly truncated with a horizontal ellipsis.
+  [[ "$output" == *"…"* ]]
+}
+
 # ── Tilde fences ────────────────────────────────────────────────────────────
 
 @test "tilde fences: extracts commands from ~~~ blocks" {
