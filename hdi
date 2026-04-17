@@ -916,15 +916,10 @@ _truncate_visible() {
     return
   fi
 
-  # Strip ANSI to get visible length (single parameter expansion, no subshell)
-  local plain="${str//$'\x1b'\[[0-9;]*[a-zA-Z]/}"
-  if (( ${#plain} <= max )); then
-    _TRUNC="$str"
-    return
-  fi
-  # Truncation needed: keep first (max-1) visible chars with their interleaved
-  # escapes, append …, then append any escapes after the cut so that RESET
-  # (or other terminating codes) still take effect.
+  # Single walk: collect prefix (up to max-1 visible chars with their
+  # interleaved escapes), trailing escapes after the cut, and total visible
+  # count. A glob-based ANSI strip would be simpler, but bash `*` inside
+  # `[0-9;]*` is greedy and swallows content across escape boundaries.
   local prefix="" trailing="" keep=$((max - 1))
   local visible=0 i=0 in_esc=0 ch
   local len=${#str}
@@ -941,9 +936,16 @@ _truncate_visible() {
     elif (( visible < keep )); then
       prefix+="$ch"
       ((visible++))
+    else
+      ((visible++))
     fi
     ((i++))
   done
+
+  if (( visible <= max )); then
+    _TRUNC="$str"
+    return
+  fi
 
   _TRUNC="${prefix}…${trailing}"
 }
