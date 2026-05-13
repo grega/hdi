@@ -1,8 +1,8 @@
-# hdi - "How do I..."
+# hdi
 
-_"...run this thing?"_
+"How do I" surfaces install, run, test and deploy steps and commands all in your terminal.
 
-Scan a project's README and extract the commands you (probably) need to get it running. No more opening up the whole project in your editor and scrolling through docs to find the `install`, `run` and `test` steps.
+hdi parses a given README's Markdown headings looking for keywords like i*install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections and presents them as an interactive, executable list.
 
 ```
 $ cd some-project
@@ -19,7 +19,9 @@ $ hdi
   ↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit
 ```
 
-See the [blog post](https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-extract-run-commands-from-project-readmes/) for more background information, and the [website](https://hdi.md) for an interactive demo.
+Works on macOS and Linux (probably WSL2 also).
+
+See the [website](https://hdi.md) for an interactive demo, and the [blog post](https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-extract-run-commands-from-project-readmes/) for more background information and context.
 
 ## Example
 
@@ -31,7 +33,7 @@ See the [blog post](https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-
 
 ## Install
 
-### Homebrew (macOS/Linux)
+### Homebrew
 
 ```bash
 brew install grega/tap/hdi
@@ -108,6 +110,8 @@ Example: `hdi --raw | pbcopy` to copy commands to clipboard.
 
 ### Deployment platform detection
 
+_Note: this is an experimental feature and may not always be accurate._
+
 The `deploy` (or `d`) subcommand makes a best effort to extract what platform(s) a project uses for deployment (eg. Cloudflare, Heroku, Vercel, Netlify, AWS, etc), and displays this in the output:
 
 ```bash
@@ -123,14 +127,6 @@ $ hdi d
 [hdi] example-project  [deploy → Netlify?]
 ...
 ```
-
-## How it works
-
-`hdi` parses a given README's Markdown headings looking for keywords like *install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections (skipping JSON/YAML response examples) and presents them as an interactive, executable list.
-
-Also looks for `README.rst` / `readme.rst`, though Markdown READMEs work best.
-
-Works on macOS and Linux (probably WSL2 also).
 
 ## Development
 
