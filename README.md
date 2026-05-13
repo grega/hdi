@@ -2,7 +2,7 @@
 
 "How do I" surfaces install, run, test and deploy steps and commands all in your terminal.
 
-hdi parses a given README's Markdown headings looking for keywords like i*install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections and presents them as an interactive, executable list.
+hdi parses a given README's Markdown headings looking for keywords like *install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections and presents them as an interactive, executable list.
 
 ```
 $ cd some-project
