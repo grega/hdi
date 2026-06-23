@@ -19,7 +19,7 @@ $ hdi
   ↑↓ navigate  ⇥ sections  ⏎ execute  c copy  q quit
 ```
 
-Works on macOS and Linux (probably WSL2 also).
+Works on macOS and Linux.
 
 See the [website](https://hdi.md) for an interactive demo, and the [blog post](https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-extract-run-commands-from-project-readmes/) for more background information and context.
 
@@ -49,9 +49,7 @@ brew upgrade hdi
 ### Manual
 
 ```bash
-mkdir -p ~/.local/bin
-curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi
-chmod +x ~/.local/bin/hdi
+mkdir -p ~/.local/bin && curl -fsSL https://github.com/grega/hdi/releases/latest/download/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi
 ```
 
 Make sure `~/.local/bin` is on your `$PATH`.

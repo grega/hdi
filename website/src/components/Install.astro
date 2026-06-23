@@ -42,11 +42,11 @@
       class="is-hidden"
     >
       <div class="code-block">
-        <pre><code>curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi \
-      -o ~/.local/bin/hdi &amp;&amp; chmod +x ~/.local/bin/hdi</code></pre>
+        <pre><code>mkdir -p ~/.local/bin && curl -fsSL https://github.com/grega/hdi/releases/latest/download/hdi \
+      -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi</code></pre>
         <button
           class="code-block-btn"
-          data-copy="curl -fsSL https://raw.githubusercontent.com/grega/hdi/main/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
+          data-copy="mkdir -p ~/.local/bin && curl -fsSL https://github.com/grega/hdi/releases/latest/download/hdi -o ~/.local/bin/hdi && chmod +x ~/.local/bin/hdi"
           title="Copy to clipboard"
         >
           Copy

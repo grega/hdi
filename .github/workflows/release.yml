@@ -34,5 +34,9 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/hdi-*.tar.gz
+          # Attach the `hdi` script too, so the manual install can pull:
+          # https://github.com/grega/hdi/releases/latest/download/hdi
+          files: |
+            dist/hdi-*.tar.gz
+            hdi
           generate_release_notes: true
