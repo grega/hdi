@@ -7,8 +7,7 @@ SKIP_LANGS+="|markdown|md|mermaid|diff|patch|svg"
 _RE_SKIP_LANG="^($SKIP_LANGS)$"
 _RE_CONSOLE="^(console|terminal)$"
 
-# Known CLI prefixes for recognising commands in inline backticks (`yarn test`)
-# and for validating shell prompt stripping ($ command → command)
+# Known CLI prefixes for recognising commands in inline backticks (`yarn test`) and for validating shell prompt stripping ($ command → command)
 CMD_PREFIXES="yarn|npm|npx|pnpm|pnpx|bunx|node|bun|deno|corepack"
 CMD_PREFIXES+="|python3?|pip3?|pipenv|poetry|uv|conda|mamba"
 CMD_PREFIXES+="|ruby|gem|bundle|rake|rails"
@@ -69,10 +68,7 @@ strip_prompt() {
 
 # Extract commands from section body text
 # Sets _EC_RESULT instead of printing to stdout (avoids subshell per call)
-#
-# When _EC_GROUPED=true, sub-headings (##+ ) and bold pseudo-headings
-# (**text**) in the prose are emitted as marker lines prefixed with \x01
-# so the caller can create display sub-groups without a second pass
+# When _EC_GROUPED=true, sub-headings (##+ ) and bold pseudo-headings (**text**) in the prose are emitted as marker lines prefixed with \x01 so the caller can create display sub-groups without a second pass
 _EC_GROUPED=false
 _EC_SUBHDR=$'\x01'
 

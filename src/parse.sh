@@ -17,8 +17,7 @@ parse_sections() {
   shopt -s nocasematch
 
   # Helper: process a detected heading at a given level.
-  # Sets _ps_started_new=true when a new section is started, so the
-  # caller knows whether non-matching sub-headings should be kept in body.
+  # Sets _ps_started_new=true when a new section is started, so the caller knows whether non-matching sub-headings should be kept in body
   _ps_started_new=false
 
   _ps_handle_heading() {
@@ -34,8 +33,7 @@ parse_sections() {
     while [[ "$text" =~ ^(.*)__([^_]+)__(.*) ]]; do text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
     while [[ "$text" =~ ^(.*)_([^_]+)_(.*) ]]; do text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
 
-    # Save the current section if a same-or-higher-level heading arrives,
-    # or if a deeper-level heading also matches (avoids losing parent body)
+    # Save the current section if a same-or-higher-level heading arrives, or if a deeper-level heading also matches (avoids losing parent body)
     if $in_section; then
       if (( level <= section_level )); then
         SECTION_TITLES+=("$heading_text")
@@ -63,8 +61,7 @@ parse_sections() {
   }
 
   while IFS= read -r line; do
-    # Track fenced code blocks so comments/content inside them
-    # are not misinterpreted as headings
+    # Track fenced code blocks so comments/content inside them are not misinterpreted as headings
     if [[ "$line" =~ ^[[:space:]]*(\`{3,}|~{3,}) ]]; then
       local ps_matched="${BASH_REMATCH[1]}"
       if $ps_in_code; then
@@ -120,8 +117,7 @@ parse_sections() {
           body+="$prev_line"$'\n'
         fi
       elif [[ "$prev_line" =~ ^[[:space:]]*\*\*([^*]+)\*\*[[:space:]]*$ ]]; then
-        # Bold pseudo-heading: when not inside a real heading's section,
-        # check against keywords so e.g. **Run application** matches run mode.
+        # Bold pseudo-heading: when not inside a real heading's section, check against keywords so e.g. **Run application** matches run mode. 
         # When inside a real section, keep it in body for sub-group display.
         local bold_text="${BASH_REMATCH[1]}"
         _ps_started_new=false

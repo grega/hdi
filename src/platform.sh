@@ -9,8 +9,7 @@ declare -a PLATFORM_NAMES=()
 declare -a PLATFORM_CONFIDENCE=()  # "high" | "low"
 
 # Add or upgrade a platform detection. Deduplicates by group key
-# If the group already exists: upgrade confidence to high if applicable,
-# and prefer the longer (more specific) name
+# If the group already exists: upgrade confidence to high if applicable, and prefer the longer (more specific) name
 _platform_add() {
   local group="$1" name="$2" confidence="$3"
   for i in "${!PLATFORM_GROUPS[@]}"; do

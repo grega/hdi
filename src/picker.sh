@@ -2,14 +2,11 @@
 # ── Interactive picker (inline mode) ─────────────────────────────────────────
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# Draws inline below the cursor with a scrolling viewport. Only the lines
-# that fit within the terminal height are rendered. Output is buffered and
-# emitted in a single write to avoid flicker. On quit, clears the picker
-# area entirely so the terminal is left clean.
+# Draws inline below the cursor with a scrolling viewport. Only the lines that fit within the terminal height are rendered. Output is buffered and emitted in a single write to avoid flicker. On quit, clears the picker area entirely.
 
 PICKER_LINES=0   # tracks how many lines the last draw_picker call printed
 FLASH_MSG=""     # one-shot message shown in footer, cleared on next draw
-VIEWPORT_TOP=0  # first DISPLAY_LINES index visible in the viewport
+VIEWPORT_TOP=0   # first DISPLAY_LINES index visible in the viewport
 
 # Get terminal height reliably (stty from tty, fallback to tput, then 24)
 _term_height() {
@@ -32,10 +29,7 @@ _term_width() {
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
 _DOUBLE_DASH_POOL="════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════"
 
-# Truncate an ANSI-formatted string to max visible columns, appending …
-# when cut. ANSI escape codes (CSI SGR) don't count toward width, and codes
-# that appear after the cut are preserved so that RESET / background-reset
-# still fire on the output line.
+# Truncate an ANSI-formatted string to max visible columns, appending … when cut. ANSI escape codes (CSI SGR) don't count toward width, and codes that appear after the cut are preserved so that RESET / background-reset still fire on the output line.
 # Sets _TRUNC.
 _TRUNC=""
 _truncate_visible() {
@@ -53,10 +47,7 @@ _truncate_visible() {
     return
   fi
 
-  # Single walk: collect prefix (up to max-1 visible chars with their
-  # interleaved escapes), trailing escapes after the cut, and total visible
-  # count. A glob-based ANSI strip would be simpler, but bash `*` inside
-  # `[0-9;]*` is greedy and swallows content across escape boundaries.
+  # Collect prefix (up to max-1 visible chars with their interleaved escapes), trailing escapes after the cut, and total visible count
   local prefix="" trailing="" keep=$((max - 1))
   local visible=0 i=0 in_esc=0 ch
   local len=${#str}
@@ -131,8 +122,7 @@ adjust_viewport() {
   local n_items=${#DISPLAY_LINES[@]}
 
   # Check if everything fits without scrolling
-  # Note: the first header/subheader at viewport_top has its blank line
-  # suppressed in draw_picker, so it costs 1 line instead of 2
+  # The first header/subheader at viewport_top has its blank line suppressed in draw_picker, so it costs 1 line instead of 2
   local total=0
   for (( _i = 0; _i < n_items; _i++ )); do
     _sl "$_i"; (( total += _SL ))
@@ -195,9 +185,7 @@ adjust_viewport() {
   for (( idx = selected - 1; idx >= 0; idx-- )); do
     _sl "$idx"; lines=$_SL
     if (( used + lines > budget )); then
-      # If this item would be at viewport top, its blank line is suppressed —
-      # try again with 1 fewer line.  Also, reaching idx==0 removes the
-      # "more above" indicator, freeing 1 more line of budget
+      # If this item would be at viewport top, its blank line is suppressed — try again with 1 fewer line.  Also, reaching idx==0 removes the "more above" indicator, freeing 1 more line of budget
       local saving=0
       case "${LINE_TYPES[$idx]}" in header|subheader|filesep) saving=1 ;; esac
       (( idx == 0 )) && (( saving += 1 ))
@@ -236,8 +224,7 @@ draw_picker() {
   local buf=""
 
   # Helper: append a line to buf with end-of-line clear.
-  # Truncates to term_w visible cols so long lines don't wrap — wrapping would
-  # make physical rows exceed PICKER_LINES and break cursor-up redraws.
+  # Truncates to term_w visible cols so long lines don't wrap — wrapping would make physical rows exceed PICKER_LINES and break cursor-up redraws.
   _line() {
     local _s="$1"
     if (( ${#_s} > term_w )); then
@@ -433,12 +420,12 @@ run_interactive() {
   adjust_viewport "$selected"
   draw_picker "$selected"
 
-  # ── Read a single raw byte from the terminal ──────────────────────────────
+  # Read a single raw byte from the terminal
   read_byte() {
     dd bs=1 count=1 2>/dev/null < /dev/tty
   }
 
-  # ── Read a single keypress, resolving escape sequences ────────────────────
+  # Read a single keypress, resolving escape sequences
   KEY=""
   read_key() {
     stty raw -echo < /dev/tty

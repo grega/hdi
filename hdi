@@ -178,8 +178,7 @@ parse_sections() {
   shopt -s nocasematch
 
   # Helper: process a detected heading at a given level.
-  # Sets _ps_started_new=true when a new section is started, so the
-  # caller knows whether non-matching sub-headings should be kept in body.
+  # Sets _ps_started_new=true when a new section is started, so the caller knows whether non-matching sub-headings should be kept in body
   _ps_started_new=false
 
   _ps_handle_heading() {
@@ -195,8 +194,7 @@ parse_sections() {
     while [[ "$text" =~ ^(.*)__([^_]+)__(.*) ]]; do text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
     while [[ "$text" =~ ^(.*)_([^_]+)_(.*) ]]; do text="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}"; done
 
-    # Save the current section if a same-or-higher-level heading arrives,
-    # or if a deeper-level heading also matches (avoids losing parent body)
+    # Save the current section if a same-or-higher-level heading arrives, or if a deeper-level heading also matches (avoids losing parent body)
     if $in_section; then
       if (( level <= section_level )); then
         SECTION_TITLES+=("$heading_text")
@@ -224,8 +222,7 @@ parse_sections() {
   }
 
   while IFS= read -r line; do
-    # Track fenced code blocks so comments/content inside them
-    # are not misinterpreted as headings
+    # Track fenced code blocks so comments/content inside them are not misinterpreted as headings
     if [[ "$line" =~ ^[[:space:]]*(\`{3,}|~{3,}) ]]; then
       local ps_matched="${BASH_REMATCH[1]}"
       if $ps_in_code; then
@@ -281,8 +278,7 @@ parse_sections() {
           body+="$prev_line"$'\n'
         fi
       elif [[ "$prev_line" =~ ^[[:space:]]*\*\*([^*]+)\*\*[[:space:]]*$ ]]; then
-        # Bold pseudo-heading: when not inside a real heading's section,
-        # check against keywords so e.g. **Run application** matches run mode.
+        # Bold pseudo-heading: when not inside a real heading's section, check against keywords so e.g. **Run application** matches run mode. 
         # When inside a real section, keep it in body for sub-group display.
         local bold_text="${BASH_REMATCH[1]}"
         _ps_started_new=false
@@ -343,8 +339,7 @@ SKIP_LANGS+="|markdown|md|mermaid|diff|patch|svg"
 _RE_SKIP_LANG="^($SKIP_LANGS)$"
 _RE_CONSOLE="^(console|terminal)$"
 
-# Known CLI prefixes for recognising commands in inline backticks (`yarn test`)
-# and for validating shell prompt stripping ($ command → command)
+# Known CLI prefixes for recognising commands in inline backticks (`yarn test`) and for validating shell prompt stripping ($ command → command)
 CMD_PREFIXES="yarn|npm|npx|pnpm|pnpx|bunx|node|bun|deno|corepack"
 CMD_PREFIXES+="|python3?|pip3?|pipenv|poetry|uv|conda|mamba"
 CMD_PREFIXES+="|ruby|gem|bundle|rake|rails"
@@ -405,10 +400,7 @@ strip_prompt() {
 
 # Extract commands from section body text
 # Sets _EC_RESULT instead of printing to stdout (avoids subshell per call)
-#
-# When _EC_GROUPED=true, sub-headings (##+ ) and bold pseudo-headings
-# (**text**) in the prose are emitted as marker lines prefixed with \x01
-# so the caller can create display sub-groups without a second pass
+# When _EC_GROUPED=true, sub-headings (##+ ) and bold pseudo-headings (**text**) in the prose are emitted as marker lines prefixed with \x01 so the caller can create display sub-groups without a second pass
 _EC_GROUPED=false
 _EC_SUBHDR=$'\x01'
 
@@ -553,9 +545,7 @@ extract_commands() {
 }
 
 # ── Build a flat list: section headers + commands ────────────────────────────
-# Each entry is either a "header", "subheader", "command", or "empty".
-# We store parallel arrays for the display lines, their types, and
-# (for commands) the actual command.
+# Each entry is either a "header", "subheader", "command", or "empty"
 
 declare -a DISPLAY_LINES=()     # what to print
 declare -a LINE_TYPES=()        # "header" | "subheader" | "command" | "empty"
@@ -865,14 +855,11 @@ render_full() {
 # ── Interactive picker (inline mode) ─────────────────────────────────────────
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# Draws inline below the cursor with a scrolling viewport. Only the lines
-# that fit within the terminal height are rendered. Output is buffered and
-# emitted in a single write to avoid flicker. On quit, clears the picker
-# area entirely so the terminal is left clean.
+# Draws inline below the cursor with a scrolling viewport. Only the lines that fit within the terminal height are rendered. Output is buffered and emitted in a single write to avoid flicker. On quit, clears the picker area entirely.
 
 PICKER_LINES=0   # tracks how many lines the last draw_picker call printed
 FLASH_MSG=""     # one-shot message shown in footer, cleared on next draw
-VIEWPORT_TOP=0  # first DISPLAY_LINES index visible in the viewport
+VIEWPORT_TOP=0   # first DISPLAY_LINES index visible in the viewport
 
 # Get terminal height reliably (stty from tty, fallback to tput, then 24)
 _term_height() {
@@ -895,10 +882,7 @@ _term_width() {
 _DASH_POOL="────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
 _DOUBLE_DASH_POOL="════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════"
 
-# Truncate an ANSI-formatted string to max visible columns, appending …
-# when cut. ANSI escape codes (CSI SGR) don't count toward width, and codes
-# that appear after the cut are preserved so that RESET / background-reset
-# still fire on the output line.
+# Truncate an ANSI-formatted string to max visible columns, appending … when cut. ANSI escape codes (CSI SGR) don't count toward width, and codes that appear after the cut are preserved so that RESET / background-reset still fire on the output line.
 # Sets _TRUNC.
 _TRUNC=""
 _truncate_visible() {
@@ -916,10 +900,7 @@ _truncate_visible() {
     return
   fi
 
-  # Single walk: collect prefix (up to max-1 visible chars with their
-  # interleaved escapes), trailing escapes after the cut, and total visible
-  # count. A glob-based ANSI strip would be simpler, but bash `*` inside
-  # `[0-9;]*` is greedy and swallows content across escape boundaries.
+  # Collect prefix (up to max-1 visible chars with their interleaved escapes), trailing escapes after the cut, and total visible count
   local prefix="" trailing="" keep=$((max - 1))
   local visible=0 i=0 in_esc=0 ch
   local len=${#str}
@@ -994,8 +975,7 @@ adjust_viewport() {
   local n_items=${#DISPLAY_LINES[@]}
 
   # Check if everything fits without scrolling
-  # Note: the first header/subheader at viewport_top has its blank line
-  # suppressed in draw_picker, so it costs 1 line instead of 2
+  # The first header/subheader at viewport_top has its blank line suppressed in draw_picker, so it costs 1 line instead of 2
   local total=0
   for (( _i = 0; _i < n_items; _i++ )); do
     _sl "$_i"; (( total += _SL ))
@@ -1058,9 +1038,7 @@ adjust_viewport() {
   for (( idx = selected - 1; idx >= 0; idx-- )); do
     _sl "$idx"; lines=$_SL
     if (( used + lines > budget )); then
-      # If this item would be at viewport top, its blank line is suppressed —
-      # try again with 1 fewer line.  Also, reaching idx==0 removes the
-      # "more above" indicator, freeing 1 more line of budget
+      # If this item would be at viewport top, its blank line is suppressed — try again with 1 fewer line.  Also, reaching idx==0 removes the "more above" indicator, freeing 1 more line of budget
       local saving=0
       case "${LINE_TYPES[$idx]}" in header|subheader|filesep) saving=1 ;; esac
       (( idx == 0 )) && (( saving += 1 ))
@@ -1099,8 +1077,7 @@ draw_picker() {
   local buf=""
 
   # Helper: append a line to buf with end-of-line clear.
-  # Truncates to term_w visible cols so long lines don't wrap — wrapping would
-  # make physical rows exceed PICKER_LINES and break cursor-up redraws.
+  # Truncates to term_w visible cols so long lines don't wrap — wrapping would make physical rows exceed PICKER_LINES and break cursor-up redraws.
   _line() {
     local _s="$1"
     if (( ${#_s} > term_w )); then
@@ -1296,12 +1273,12 @@ run_interactive() {
   adjust_viewport "$selected"
   draw_picker "$selected"
 
-  # ── Read a single raw byte from the terminal ──────────────────────────────
+  # Read a single raw byte from the terminal
   read_byte() {
     dd bs=1 count=1 2>/dev/null < /dev/tty
   }
 
-  # ── Read a single keypress, resolving escape sequences ────────────────────
+  # Read a single keypress, resolving escape sequences
   KEY=""
   read_key() {
     stty raw -echo < /dev/tty
@@ -1480,8 +1457,7 @@ declare -a PLATFORM_NAMES=()
 declare -a PLATFORM_CONFIDENCE=()  # "high" | "low"
 
 # Add or upgrade a platform detection. Deduplicates by group key
-# If the group already exists: upgrade confidence to high if applicable,
-# and prefer the longer (more specific) name
+# If the group already exists: upgrade confidence to high if applicable, and prefer the longer (more specific) name
 _platform_add() {
   local group="$1" name="$2" confidence="$3"
   for i in "${!PLATFORM_GROUPS[@]}"; do
@@ -1642,8 +1618,7 @@ _check_tool_name() {
   # First word
   local tool="${cmd%% *}"
 
-  # Skip paths (./foo, /foo, bin/foo), flags (-h, --help), empty, builtins,
-  # bracketed text ([hdi]), and placeholders (...)
+  # Skip paths (./foo, /foo, bin/foo), flags (-h, --help), empty, builtins, bracketed text ([hdi]), and placeholders (...)
   if [[ -z "$tool" ]] || [[ "$tool" == -* ]] || [[ "$tool" == */* ]] || [[ "$tool" == \[* ]] || [[ "$tool" == "..." ]] || [[ "$tool" =~ $_CHECK_SKIP ]]; then
     _CT_RESULT=""
     return

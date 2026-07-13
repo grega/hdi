@@ -1,7 +1,5 @@
 # ── Build a flat list: section headers + commands ────────────────────────────
-# Each entry is either a "header", "subheader", "command", or "empty".
-# We store parallel arrays for the display lines, their types, and
-# (for commands) the actual command.
+# Each entry is either a "header", "subheader", "command", or "empty"
 
 declare -a DISPLAY_LINES=()     # what to print
 declare -a LINE_TYPES=()        # "header" | "subheader" | "command" | "empty"
