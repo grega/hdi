@@ -13,13 +13,13 @@
   // (via keyboard or mouse click). Letters also highlight on hover.
   //
   // Each key is a 6-char-wide column rendered across 4 rows:
-  //   row 0 — top cap:    ' _____'
-  //   row 1 — letter:     '||h  |'
-  //   row 2 — bottom cap: '||___|'
-  //   row 3 — shadow:     '|/___\'
+  //   row 0 - top cap:    ' _____'
+  //   row 1 - letter:     '||h  |'
+  //   row 2 - bottom cap: '||___|'
+  //   row 3 - shadow:     '|/___\'
   //
   // The "pressed" state shifts the column down one row, replacing the top cap
-  // with spaces and dropping the shadow — giving the illusion of a key sinking.
+  // with spaces and dropping the shadow - giving the illusion of a key sinking.
   //
   // The static <pre> above is the no-JS fallback; render() rewrites it with
   // interactive <span> elements once JS loads.
@@ -37,14 +37,14 @@
       pressed: ['      ', '|_____', '||d  |', '||___|' ],
     },
     i: {
-      // Same as d — leading '|' closes d's right wall when d is up
+      // Same as d - leading '|' closes d's right wall when d is up
       normal:  [' _____', '||i  |', '||___|', '|/___\\'],
       pressed: ['      ', '|_____', '||i  |', '||___|' ],
     },
   };
 
   // Trailing character appended after the 3 key columns, one entry per row.
-  // Row 1's trailing '|' closes i's right wall — replaced with ' ' when i is pressed.
+  // Row 1's trailing '|' closes i's right wall - replaced with ' ' when i is pressed.
   const ROW_SUFFIX = [" ", "|", "|", "|"];
 
   // Maps each key to its left neighbour, used to detect adjacent pressed keys.
@@ -66,7 +66,7 @@
               pressedKeys.has(k) ? KEY_COLS[k].pressed : KEY_COLS[k].normal
             )[row];
             // On row 1, a pressed key's leading '|' closes the left neighbour's key wall.
-            // If the left neighbour is also pressed that wall is gone — drop the '|'.
+            // If the left neighbour is also pressed that wall is gone - drop the '|'.
             if (
               row === 1 &&
               pressedKeys.has(k) &&
@@ -74,7 +74,7 @@
             ) {
               seg = " " + seg.slice(1);
             }
-            // Position 2 of each segment is always the letter — wrap it in a span
+            // Position 2 of each segment is always the letter - wrap it in a span
             return /[a-z]/.test(seg[2])
               ? `${seg.slice(0, 2)}<span class="hero-logo-letter" data-key="${k}">${seg[2]}</span>${seg.slice(3)}`
               : seg;
@@ -153,7 +153,7 @@
   document.addEventListener("touchend", releaseAll);
   document.addEventListener("touchcancel", releaseAll);
 
-  // Keyboard — skip when focus is in a text input to avoid interfering with typing
+  // Keyboard - skip when focus is in a text input to avoid interfering with typing
   const KEYS = new Set(["h", "d", "i"]);
   const isTextField = (t: EventTarget | null) =>
     t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement;

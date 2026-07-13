@@ -104,7 +104,7 @@ _file_separator() {
   _FS="${DIM}  ══ ${RESET}${BOLD}${YELLOW}$1${RESET}${DIM} ${_DOUBLE_DASH_POOL:0:n}${RESET}"
 }
 
-# Screen lines per display entry type — sets _SL (no subshell)
+# Screen lines per display entry type - sets _SL (no subshell)
 # Headers/subheaders take 2 lines (blank + text), others take 1
 _SL=1
 _sl() {
@@ -185,7 +185,7 @@ adjust_viewport() {
   for (( idx = selected - 1; idx >= 0; idx-- )); do
     _sl "$idx"; lines=$_SL
     if (( used + lines > budget )); then
-      # If this item would be at viewport top, its blank line is suppressed — try again with 1 fewer line.  Also, reaching idx==0 removes the "more above" indicator, freeing 1 more line of budget
+      # If this item would be at viewport top, its blank line is suppressed - try again with 1 fewer line.  Also, reaching idx==0 removes the "more above" indicator, freeing 1 more line of budget
       local saving=0
       case "${LINE_TYPES[$idx]}" in header|subheader|filesep) saving=1 ;; esac
       (( idx == 0 )) && (( saving += 1 ))
@@ -205,7 +205,7 @@ draw_picker() {
   local selected="$1"
   local EL=$'\033[K'  # erase to end of line
 
-  # Move to top of previous output (but don't clear — we overwrite in place)
+  # Move to top of previous output (but don't clear - we overwrite in place)
   # Cursor sits on the last line (no trailing \n), so move up count-1 lines
   if (( PICKER_LINES > 0 )); then
     printf '\033[%dA\r' "$((PICKER_LINES - 1))"
@@ -224,7 +224,7 @@ draw_picker() {
   local buf=""
 
   # Helper: append a line to buf with end-of-line clear.
-  # Truncates to term_w visible cols so long lines don't wrap — wrapping would make physical rows exceed PICKER_LINES and break cursor-up redraws.
+  # Truncates to term_w visible cols so long lines don't wrap - wrapping would make physical rows exceed PICKER_LINES and break cursor-up redraws.
   _line() {
     local _s="$1"
     if (( ${#_s} > term_w )); then
@@ -277,7 +277,7 @@ draw_picker() {
     local type="${LINE_TYPES[$idx]}"
     _sl "$idx"; lines_needed=$_SL
 
-    # Always render the selected item — never let the reserve hide it
+    # Always render the selected item - never let the reserve hide it
     # For other items, reserve 1 line for "more below" indicator
     if (( idx != selected )); then
       local reserve=0

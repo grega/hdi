@@ -1,5 +1,5 @@
 ---
-// No server-side code — this component only contributes a bundled client script.
+// No server-side code - this component only contributes a bundled client script.
 ---
 
 <script>
@@ -21,7 +21,7 @@
     helpText: HELP_TEXT,
   });
 
-  // Wire sidebar — rendered by Astro, clicks delegate to terminal module.
+  // Wire sidebar - rendered by Astro, clicks delegate to terminal module.
   sidebarEl?.addEventListener("click", (e) => {
     const item = (e.target as HTMLElement).closest<HTMLElement>(
       ".sidebar-item",
@@ -34,7 +34,7 @@
     selectProject(PROJECTS[Number(item.dataset.projectIndex)]);
   });
 
-  // Wire hints — rendered by Astro, single delegated listener dispatches a
+  // Wire hints - rendered by Astro, single delegated listener dispatches a
   // custom event so the hint bar stays decoupled from terminal internals.
   hintsEl?.addEventListener("click", (e) => {
     const code = (e.target as HTMLElement).closest<HTMLElement>(

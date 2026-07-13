@@ -1,4 +1,4 @@
-// Interactive picker — navigable command list rendered inside the terminal.
+// Interactive picker - navigable command list rendered inside the terminal.
 // Pure module: no globals, no Astro coupling.
 
 export function esc(text: string): string {

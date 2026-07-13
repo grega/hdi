@@ -924,12 +924,12 @@ else:
 }
 
 @test "interactive: footer shows 'f files' only with multiple files" {
-  # With contrib file — footer should include "f files"
+  # With contrib file - footer should include "f files"
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/node-express"
   [ "$status" -eq 0 ]
   [[ "$output" == *"f files"* ]]
 
-  # Without contrib file — footer should not include "f files"
+  # Without contrib file - footer should not include "f files"
   _HDI_BENCH_PICKER=1 run "$HDI" "$FIXTURES/python-flask"
   [ "$status" -eq 0 ]
   [[ "$output" != *"f files"* ]]
@@ -945,7 +945,7 @@ else:
   [ "$status" -eq 0 ]
 
   # Each rendered line's visible width (ANSI stripped) must be <= COLUMNS.
-  # The dokku line in the fixture is ~200 chars — far wider than 80.
+  # The dokku line in the fixture is ~200 chars - far wider than 80.
   local max=0 len line stripped
   while IFS= read -r line; do
     # Strip CSI SGR escape sequences
@@ -1674,7 +1674,7 @@ assert '\"status\": \"ok\",' not in texts
   run "$HDI" deploy --ni "$FIXTURES/platform-cloudflare"
   [ "$status" -eq 0 ]
   [[ "$output" == *"deploy → Cloudflare Pages"* ]]
-  # High confidence — no question mark
+  # High confidence - no question mark
   [[ "$output" != *"Cloudflare Pages?"* ]]
 }
 
@@ -1688,7 +1688,7 @@ assert '\"status\": \"ok\",' not in texts
   run "$HDI" deploy --ni "$FIXTURES/platform-cmd"
   [ "$status" -eq 0 ]
   [[ "$output" == *"deploy → Kamal"* ]]
-  # High confidence from CLI tool — no question mark
+  # High confidence from CLI tool - no question mark
   [[ "$output" != *"Kamal?"* ]]
 }
 
@@ -1705,7 +1705,7 @@ assert '\"status\": \"ok\",' not in texts
   [[ "$output" != *"deploy →"* ]]
 }
 
-@test "platform: dedup — config + prose same group shows high confidence" {
+@test "platform: dedup - config + prose same group shows high confidence" {
   run "$HDI" deploy --ni "$FIXTURES/platform-cloudflare"
   [ "$status" -eq 0 ]
   # wrangler.toml (file) + "Cloudflare Pages" (prose) = high confidence
