@@ -6,3 +6,5 @@
 | `hdi test`    | Just test commands (alias: `t`)                                  |
 | `hdi deploy`  | Just deploy/release commands and platform detection (alias: `d`) |
 | `hdi all`     | All sections (aliases: `a`)                                      |
+| `hdi contrib` | Commands from contributor/development docs (alias: `c`)          |
+| `hdi needs`   | Check if required tools are installed (alias: `n`)               |
