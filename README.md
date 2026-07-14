@@ -1,8 +1,16 @@
 # hdi
 
+No more digging through READMEs.
+
 "How do I" surfaces install, run, test and deploy steps and commands all in your terminal.
 
-hdi parses a given README's Markdown headings looking for keywords like *install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections and presents them as an interactive, executable list.
+---
+
+You've just cloned a repo, fired up an editor, and you're scrolling a 400-line README looking for the "Install" section.
+
+Or you're back in a project after a month and can't remember if it's `npm run dev`, `npm start` or `npm run serve`.
+
+Run `hdi`, pick a command, hit enter, done.
 
 ```
 $ cd some-project
@@ -22,6 +30,8 @@ $ hdi
 Works on macOS and Linux.
 
 See the [website](https://hdi.md) for an interactive demo, and the [blog post](https://blog.gregdev.com/posts/2026-03-18-hdi-a-cli-tool-to-extract-run-commands-from-project-readmes/) for more background information and context.
+
+hdi parses a given README's Markdown headings looking for keywords like *install*, *setup*, *prerequisites*, *run*, *usage*, *getting started*, etc. It extracts the fenced code blocks from matching sections and presents them as an interactive, executable list.
 
 ## Example
 
