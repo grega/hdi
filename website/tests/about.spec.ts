@@ -7,7 +7,7 @@ test.describe("About page", () => {
 
   test("renders hero", async ({ page }) => {
     await expect(
-      page.locator("h1", { hasText: "No more searching the README." }),
+      page.locator("h1", { hasText: "No more digging through READMEs." }),
     ).toBeVisible();
   });
 
